@@ -26,6 +26,7 @@ for deal in deals:
     dealObject = {
         "shoeName":shoeContent.find("h2").find("a").text,
         "shoePrice":shoeContent.find("span", attrs={"class":"release-price"}).text,
-        "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src']
+        "shoeReleaseDate":shoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
+        "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
     }
     print (dealObject)
