@@ -1,5 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "Hello, World!"
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 url = "https://sneakernews.com/release-dates/"
 response = requests.get(url, timeout=20)
