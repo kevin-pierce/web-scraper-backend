@@ -1,15 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask
+from flask import Flask, jsonify, abort
 
 app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return "Hello, World!"
-
-if __name__ == '__main__':
-    app.run(debug=True)
 
 url = "https://sneakernews.com/release-dates/"
 response = requests.get(url, timeout=20)
@@ -35,3 +28,10 @@ for deal in shoeReleases:
     shoes.append(dealObject);
 
 print(shoes)
+
+@app.route('/shoepic/api/prod/v1.0/releases/all', methods=['GET'])
+def get_releases():
+    return jsonify({'shoeData': shoes })
+
+if __name__ == '__main__':
+    app.run(debug=True)
