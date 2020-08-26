@@ -18,8 +18,8 @@ def get_releases():
         shoeDetails = shoeContent.find("div", attrs={"class":"post-data"})
         
         shoeObject = {
-            "releaseRegion":shoeDetails.findAll("p")[3].text.strip(),
-            "sizeRun":shoeDetails.findAll("p")[0].find("span").text[10:],
+            "releaseRegion":shoeDetails.findAll("p")[3].text[8:].strip(),
+            "sizeRun":shoeDetails.findAll("p")[0].text[10:].strip(),
             "shoeCW":shoeDetails.findAll("p")[1].text[7:].strip(),
             "shoeName":shoeContent.find("h2").find("a").text,
             "shoePrice":shoeContent.find("span", attrs={"class":"release-price"}).text,
@@ -45,8 +45,8 @@ def get_jordan_releases():
         jShoeDetails = jShoeContent.find("div", attrs={"class":"post-data"})
         
         jordanShoeObject = {
-            "releaseRegion":jShoeDetails.findAll("p")[3].text.strip(),
-            "sizeRun":jShoeDetails.findAll("p")[0].find("span").text[10:],
+            "releaseRegion":jShoeDetails.findAll("p")[3].text[8:].strip(),
+            "sizeRun":jShoeDetails.findAll("p")[0].text[10:].strip(),
             "shoeCW":jShoeDetails.findAll("p")[1].text[7:].strip(),
             "shoeName":jShoeContent.find("h2").find("a").text,
             "shoePrice":jShoeContent.find("span", attrs={"class":"release-price"}).text,
@@ -71,7 +71,7 @@ def get_yeezy_releases():
         yShoeDetails = yShoeContent.find("div", attrs={"class":"post-data"})
         
         yeezyShoeObject = {
-            "releaseRegion":yShoeDetails.findAll("p")[3].text.strip(),
+            "releaseRegion":yShoeDetails.findAll("p")[3].text[8:].strip(),
             "sizeRun":yShoeDetails.findAll("p")[0].text[10:].strip(),
             "shoeCW":yShoeDetails.findAll("p")[1].text[7:].strip(),
             "shoeName":yShoeContent.find("h2").find("a").text,
