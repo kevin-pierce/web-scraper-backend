@@ -1,9 +1,21 @@
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify, abort
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+options = Options()
+options.headless = True
+options.add_argument("--window-size=1920,1200")
+
+driver = webdriver.Chrome()
+driver.get("https://www.nintendo.com/")
+print(driver.page_source)
+driver.quit()
+
 
 app = Flask(__name__)
-
+"""
 @app.route('/shoepic/api/prod/v1.0/releases/all', methods=['GET'])
 def get_releases():
     url = "https://sneakernews.com/release-dates/"
@@ -82,6 +94,7 @@ def get_yeezy_releases():
         yeezys.append(yeezyShoeObject);
 
     return jsonify({'yeezyData': yeezys })
+"""
 
 if __name__ == '__main__':
     app.run(debug=True)
