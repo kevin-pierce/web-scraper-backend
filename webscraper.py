@@ -4,27 +4,20 @@ from flask import Flask, jsonify, abort
 
 app = Flask(__name__)
 
-
-    
-
 @app.route('/shoepic/api/prod/v1.0/releases/all', methods=['GET'])
 def get_releases():
     url = "https://sneakernews.com/release-dates/"
     response = requests.get(url, timeout=20)
     soup = BeautifulSoup(response.content, "html.parser")
-
     shoeReleases = soup.findAll('div', attrs={"class": "releases-box col lg-2 sm-6 paged-1"})
-
-    print(len(shoeReleases))
 
     shoes = []
 
     for deal in shoeReleases:
         shoeContent = deal.find('div', attrs={"class":"content-box"})
         shoeDetails = shoeContent.find("div", attrs={"class":"post-data"})
-        print(shoeDetails.findAll("p")[3].text[8:])
         
-        dealObject = {
+        shoeObject = {
             "releaseRegion":shoeDetails.findAll("p")[3].text,
             "sizeRun":shoeDetails.findAll("p")[0].find("span").text[10:],
             "shoeCW":shoeDetails.findAll("p")[1].text[7:],
@@ -33,7 +26,7 @@ def get_releases():
             "shoeReleaseDate":shoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
             "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
-        shoes.append(dealObject);
+        shoes.append(shoeObject);
 
     return jsonify({'shoeData': shoes })
 
@@ -43,18 +36,15 @@ def get_jordan_releases():
     url = "https://sneakernews.com/air-jordan-release-dates/"
     response = requests.get(url, timeout=20)
     soup = BeautifulSoup(response.content, "html.parser")
+    jordanReleases = soup.findAll('div', attrs={"class": "releases-box col lg-2 sm-6 paged-1"})
 
-    shoeReleases = soup.findAll('div', attrs={"class": "releases-box col lg-2 sm-6 paged-1"})
+    jordans = []
 
-    print(len(shoeReleases))
-
-    shoes = []
-
-    for deal in shoeReleases:
-        shoeContent = deal.find('div', attrs={"class":"content-box"})
-        shoeDetails = shoeContent.find("div", attrs={"class":"post-data"})
+    for deal in jordanReleases:
+        jShoeContent = deal.find('div', attrs={"class":"content-box"})
+        jShoeDetails = jShoeContent.find("div", attrs={"class":"post-data"})
         
-        dealObject = {
+        jordanShoeObject = {
             "releaseRegion":shoeDetails.findAll("p")[3].text.strip(),
             "sizeRun":shoeDetails.findAll("p")[0].find("span").text[10:],
             "shoeCW":shoeDetails.findAll("p")[1].text[7:].strip(),
@@ -63,9 +53,9 @@ def get_jordan_releases():
             "shoeReleaseDate":shoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
             "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
-        shoes.append(dealObject);
+        jordans.append(jordanShoeObject);
 
-    return jsonify({'shoeData': shoes })
+    return jsonify({'jordanData': jordans })
 
 if __name__ == '__main__':
     app.run(debug=True)
