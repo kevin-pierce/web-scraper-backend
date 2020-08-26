@@ -106,10 +106,24 @@ def get_yeezy_releases():
 
     driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
     driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
+    body = driver.find_element_by_tag_name("body")
+
+    # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
+    numPageDowns = 30
+    while numPageDowns:
+        body.send_keys(Keys.PAGE_DOWN)
+        time.sleep(0.1)
+        numPageDowns-=1
+        
     response = driver.page_source
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
-    yeezyReleases = soup.findAll('div', attrs={"class": "releases-box col lg-2 sm-6 paged-1"})
+    yeezyReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
+                                                        "releases-box col lg-2 sm-6 paged-1 just_added", 
+                                                        "releases-box col lg-2 sm-6 paged-2", 
+                                                        "releases-box col lg-2 sm-6 paged-3", 
+                                                        "releases-box col lg-2 sm-6 paged-4",
+                                                        "releases-box col lg-2 sm-6 paged-5"]})
 
     yeezys = []
 
