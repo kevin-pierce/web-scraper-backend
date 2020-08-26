@@ -38,13 +38,14 @@ def get_releases():
 
     return jsonify({'shoeData': shoes })
 
-"""
 @app.route('/shoepic/api/prod/v1.0/releases/jordan', methods=['GET'])
 def get_jordan_releases():
 
-    url = "https://sneakernews.com/air-jordan-release-dates/"
-    response = requests.get(url, timeout=20)
-    soup = BeautifulSoup(response.content, "html.parser")
+    driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
+    driver.get("https://sneakernews.com/air-jordan-release-dates/")
+    response = driver.page_source
+    driver.quit()
+    soup = BeautifulSoup(response, "html.parser")
     jordanReleases = soup.findAll('div', attrs={"class": "releases-box col lg-2 sm-6 paged-1"})
 
     jordans = []
@@ -66,11 +67,15 @@ def get_jordan_releases():
 
     return jsonify({'jordanData': jordans })
 
+
 @app.route('/shoepic/api/prod/v1.0/releases/yeezy', methods=['GET'])
 def get_yeezy_releases():
-    url = "https://sneakernews.com/adidas-yeezy-release-dates/"
-    response = requests.get(url, timeout=20)
-    soup = BeautifulSoup(response.content, "html.parser")
+
+    driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
+    driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
+    response = driver.page_source
+    driver.quit()
+    soup = BeautifulSoup(response, "html.parser")
     yeezyReleases = soup.findAll('div', attrs={"class": "releases-box col lg-2 sm-6 paged-1"})
 
     yeezys = []
@@ -91,7 +96,6 @@ def get_yeezy_releases():
         yeezys.append(yeezyShoeObject);
 
     return jsonify({'yeezyData': yeezys })
-"""
 
 if __name__ == '__main__':
     app.run(debug=True)
