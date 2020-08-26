@@ -57,5 +57,31 @@ def get_jordan_releases():
 
     return jsonify({'jordanData': jordans })
 
+@app.route('/shoepic/api/prod/v1.0/releases/yeezy', methods=['GET'])
+def get_yeezy_releases():
+    url = "https://sneakernews.com/adidas-yeezy-release-dates/"
+    response = requests.get(url, timeout=20)
+    soup = BeautifulSoup(response.content, "html.parser")
+    yeezyReleases = soup.findAll('div', attrs={"class": "releases-box col lg-2 sm-6 paged-1"})
+
+    yeezys = []
+
+    for deal in yeezyReleases:
+        yShoeContent = deal.find('div', attrs={"class":"content-box"})
+        yShoeDetails = yShoeContent.find("div", attrs={"class":"post-data"})
+        
+        yeezyShoeObject = {
+            "releaseRegion":yShoeDetails.findAll("p")[3].text.strip(),
+            "sizeRun":yShoeDetails.findAll("p")[0].text[10:].strip(),
+            "shoeCW":yShoeDetails.findAll("p")[1].text[7:].strip(),
+            "shoeName":yShoeContent.find("h2").find("a").text,
+            "shoePrice":yShoeContent.find("span", attrs={"class":"release-price"}).text,
+            "shoeReleaseDate":yShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
+            "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
+        }
+        yeezys.append(yeezyShoeObject);
+
+    return jsonify({'yeezyData': yeezys })
+
 if __name__ == '__main__':
     app.run(debug=True)
