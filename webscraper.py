@@ -29,7 +29,11 @@ def get_releases():
     response = driver.page_source
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
-    shoeReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", "releases-box col lg-2 sm-6 paged-1 just_added"]}) 
+    shoeReleases = soup.findAll('div', attrs={"class": [
+                                                        "releases-box col lg-2 sm-6 paged-1", 
+                                                        "releases-box col lg-2 sm-6 paged-1 just_added", 
+                                                        "releases-box col lg-2 sm-6 paged-2", 
+                                                        "releases-box col lg-2 sm-6 paged-3"]}) 
     print(len(shoeReleases))
 
     shoes = []
