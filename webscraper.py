@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 from flask import Flask, jsonify, abort
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
+import time
 
 app = Flask(__name__)
 
@@ -14,10 +16,21 @@ options.add_argument("--window-size=1920,1200")
 def get_releases():
     driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
     driver.get("https://sneakernews.com/release-dates/")
+    time.sleep(0.5)
+    body = driver.find_element_by_tag_name("body")
+
+    numPageDowns = 20
+    while numPageDowns:
+        body.send_keys(Keys.PAGE_DOWN)
+        time.sleep(0.2)
+        numPageDowns-=1
+
+    time.sleep(3)
     response = driver.page_source
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
-    shoeReleases = soup.findAll('div', attrs={"class": "releases-box col lg-2 sm-6 paged-1"})
+    shoeReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", "releases-box col lg-2 sm-6 paged-1 just_added"]}) 
+    print(len(shoeReleases))
 
     shoes = []
 
