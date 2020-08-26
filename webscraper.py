@@ -14,11 +14,10 @@ chromeOptions.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
 chromeOptions.add_argument("--headless")
 chromeOptions.add_argument("--disable-dev-shm-usage")
 chromeOptions.add_argument("--no-sandbox")
-driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
 
 @app.route('/shoepic/api/prod/v1.0/releases/all', methods=['GET'])
 def get_releases():
-    driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
     driver.get("https://sneakernews.com/release-dates/")
     time.sleep(0.2)
     body = driver.find_element_by_tag_name("body")
