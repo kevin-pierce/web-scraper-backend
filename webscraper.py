@@ -18,9 +18,9 @@ def get_releases():
         shoeDetails = shoeContent.find("div", attrs={"class":"post-data"})
         
         shoeObject = {
-            "releaseRegion":shoeDetails.findAll("p")[3].text,
+            "releaseRegion":shoeDetails.findAll("p")[3].text.strip(),
             "sizeRun":shoeDetails.findAll("p")[0].find("span").text[10:],
-            "shoeCW":shoeDetails.findAll("p")[1].text[7:],
+            "shoeCW":shoeDetails.findAll("p")[1].text[7:].strip(),
             "shoeName":shoeContent.find("h2").find("a").text,
             "shoePrice":shoeContent.find("span", attrs={"class":"release-price"}).text,
             "shoeReleaseDate":shoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
