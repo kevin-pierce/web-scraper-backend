@@ -45,12 +45,12 @@ def get_jordan_releases():
         jShoeDetails = jShoeContent.find("div", attrs={"class":"post-data"})
         
         jordanShoeObject = {
-            "releaseRegion":shoeDetails.findAll("p")[3].text.strip(),
-            "sizeRun":shoeDetails.findAll("p")[0].find("span").text[10:],
-            "shoeCW":shoeDetails.findAll("p")[1].text[7:].strip(),
-            "shoeName":shoeContent.find("h2").find("a").text,
-            "shoePrice":shoeContent.find("span", attrs={"class":"release-price"}).text,
-            "shoeReleaseDate":shoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
+            "releaseRegion":jShoeDetails.findAll("p")[3].text.strip(),
+            "sizeRun":jShoeDetails.findAll("p")[0].find("span").text[10:],
+            "shoeCW":jShoeDetails.findAll("p")[1].text[7:].strip(),
+            "shoeName":jShoeContent.find("h2").find("a").text,
+            "shoePrice":jShoeContent.find("span", attrs={"class":"release-price"}).text,
+            "shoeReleaseDate":jShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
             "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
         jordans.append(jordanShoeObject);
