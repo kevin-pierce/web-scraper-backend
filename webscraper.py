@@ -17,10 +17,11 @@ shoes = []
 for deal in shoeReleases:
     shoeContent = deal.find('div', attrs={"class":"content-box"})
     shoeDetails = shoeContent.find("div", attrs={"class":"post-data"})
-    print(shoeDetails.findAll("p")[0].text[10:])
+    print(shoeDetails.findAll("p")[1].text[7:])
     
     dealObject = {
         "sizeRun":shoeDetails.findAll("p")[0].find("span").text[10:],
+        "shoeCW":shoeDetails.findAll("p")[1].text[7:],
         "shoeName":shoeContent.find("h2").find("a").text,
         "shoePrice":shoeContent.find("span", attrs={"class":"release-price"}).text,
         "shoeReleaseDate":shoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
