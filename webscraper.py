@@ -9,9 +9,12 @@ import os
 
 app = Flask(__name__)
 
-options = Options()
-options.headless = True
-options.add_argument("--window-size=1920,1200")
+chromeOptions = webdriver.ChromeOptions()
+chromeOptions.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+chromeOptions.add_argument("--headless")
+chromeOptions.add_argument("--disable-dev-shm-usage")
+chromeOptions.add_argument("--no-sandbox")
+driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
 
 @app.route('/shoepic/api/prod/v1.0/releases/all', methods=['GET'])
 def get_releases():
