@@ -16,6 +16,7 @@ options.add_argument("--window-size=1920,1200")
 def get_releases():
     driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
     driver.get("https://sneakernews.com/release-dates/")
+    time.sleep(0.2)
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
@@ -25,7 +26,6 @@ def get_releases():
         time.sleep(0.1)
         numPageDowns-=1
 
-    time.sleep(3) #temp
     response = driver.page_source
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
@@ -61,6 +61,7 @@ def get_jordan_releases():
 
     driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
     driver.get("https://sneakernews.com/air-jordan-release-dates/")
+    time.sleep(0.2)
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
@@ -69,8 +70,6 @@ def get_jordan_releases():
         body.send_keys(Keys.PAGE_DOWN)
         time.sleep(0.1)
         numPageDowns-=1
-
-    time.sleep(3) #temp
     response = driver.page_source
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
@@ -106,10 +105,11 @@ def get_yeezy_releases():
 
     driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
     driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
+    time.sleep(0.2)
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
-    numPageDowns = 30
+    numPageDowns = 20
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
         time.sleep(0.1)
@@ -121,10 +121,8 @@ def get_yeezy_releases():
     yeezyReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
                                                         "releases-box col lg-2 sm-6 paged-1 just_added", 
                                                         "releases-box col lg-2 sm-6 paged-2", 
-                                                        "releases-box col lg-2 sm-6 paged-3", 
-                                                        "releases-box col lg-2 sm-6 paged-4",
-                                                        "releases-box col lg-2 sm-6 paged-5"]})
-
+                                                        "releases-box col lg-2 sm-6 paged-3"]})
+    print(len(yeezyReleases))
     yeezys = []
 
     for deal in yeezyReleases:
