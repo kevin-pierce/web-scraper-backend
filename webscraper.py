@@ -16,25 +16,26 @@ options.add_argument("--window-size=1920,1200")
 def get_releases():
     driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
     driver.get("https://sneakernews.com/release-dates/")
-    time.sleep(0.5)
     body = driver.find_element_by_tag_name("body")
 
+    # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
     numPageDowns = 20
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
         time.sleep(0.2)
         numPageDowns-=1
 
-    time.sleep(3)
+    time.sleep(3) #temp
     response = driver.page_source
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
+    # Now finds all release-containing divs, including the ones that load on scroll
     shoeReleases = soup.findAll('div', attrs={"class": [
                                                         "releases-box col lg-2 sm-6 paged-1", 
                                                         "releases-box col lg-2 sm-6 paged-1 just_added", 
                                                         "releases-box col lg-2 sm-6 paged-2", 
                                                         "releases-box col lg-2 sm-6 paged-3"]}) 
-    print(len(shoeReleases))
+    print(len(shoeReleases)) #temp
 
     shoes = []
 
@@ -60,11 +61,24 @@ def get_jordan_releases():
 
     driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
     driver.get("https://sneakernews.com/air-jordan-release-dates/")
+    body = driver.find_element_by_tag_name("body")
+
+    # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
+    numPageDowns = 20
+    while numPageDowns:
+        body.send_keys(Keys.PAGE_DOWN)
+        time.sleep(0.2)
+        numPageDowns-=1
+
+    time.sleep(3) #temp
     response = driver.page_source
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
-    jordanReleases = soup.findAll('div', attrs={"class": "releases-box col lg-2 sm-6 paged-1"})
-
+    jordanReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
+                                                        "releases-box col lg-2 sm-6 paged-1 just_added", 
+                                                        "releases-box col lg-2 sm-6 paged-2", 
+                                                        "releases-box col lg-2 sm-6 paged-3"]})
+    print(len(jordanReleases)) #temp
     jordans = []
 
     for deal in jordanReleases:
