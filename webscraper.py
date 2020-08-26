@@ -4,23 +4,19 @@ from flask import Flask, jsonify, abort
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+app = Flask(__name__)
+
 options = Options()
-options.headless = True
+options.headless = False
 options.add_argument("--window-size=1920,1200")
 
-driver = webdriver.Chrome()
-driver.get("https://www.nintendo.com/")
-print(driver.page_source)
-driver.quit()
-
-
-app = Flask(__name__)
-"""
 @app.route('/shoepic/api/prod/v1.0/releases/all', methods=['GET'])
 def get_releases():
-    url = "https://sneakernews.com/release-dates/"
-    response = requests.get(url, timeout=20)
-    soup = BeautifulSoup(response.content, "html.parser")
+    driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
+    driver.get("https://sneakernews.com/release-dates/")
+    response = driver.page_source
+    driver.quit()
+    soup = BeautifulSoup(response, "html.parser")
     shoeReleases = soup.findAll('div', attrs={"class": "releases-box col lg-2 sm-6 paged-1"})
 
     shoes = []
@@ -42,6 +38,7 @@ def get_releases():
 
     return jsonify({'shoeData': shoes })
 
+"""
 @app.route('/shoepic/api/prod/v1.0/releases/jordan', methods=['GET'])
 def get_jordan_releases():
 
