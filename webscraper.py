@@ -61,8 +61,7 @@ def get_releases():
 
 @app.route('/shoepic/api/prod/v1.0/releases/jordan', methods=['GET'])
 def get_jordan_releases():
-
-    driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
     driver.get("https://sneakernews.com/air-jordan-release-dates/")
     time.sleep(0.2)
     body = driver.find_element_by_tag_name("body")
@@ -105,8 +104,7 @@ def get_jordan_releases():
 
 @app.route('/shoepic/api/prod/v1.0/releases/yeezy', methods=['GET'])
 def get_yeezy_releases():
-
-    driver = webdriver.Chrome(options=options, executable_path='./chromedriver')
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
     driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
     time.sleep(0.2)
     body = driver.find_element_by_tag_name("body")
