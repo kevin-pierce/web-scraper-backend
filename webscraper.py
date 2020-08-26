@@ -9,7 +9,7 @@ import time
 app = Flask(__name__)
 
 options = Options()
-options.headless = False
+options.headless = True
 options.add_argument("--window-size=1920,1200")
 
 @app.route('/shoepic/api/prod/v1.0/releases/all', methods=['GET'])
