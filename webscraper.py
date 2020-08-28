@@ -12,15 +12,14 @@ import dns
 
 app = Flask(__name__)
 
-client = pymongo.MongoClient("mongodb+srv://never:nope@webscraper-db.urihh.azure.mongodb.net/shoepicDB?retryWrites=true&w=majority", ssl=True,ssl_cert_reqs='CERT_NONE')
+client = pymongo.MongoClient("mongodb+srv://webscraper:webscraper2193@webscraper-db.urihh.azure.mongodb.net/shoepicDB?retryWrites=true&w=majority", ssl=True,ssl_cert_reqs='CERT_NONE')
 shoeReleaseDB = client.get_database('shoepicDB')
 
 @app.route('/shoepic/api/prod/v1.0/releases/connectionTest', methods=['GET'])
 def get_connection():
     shoeReleases = shoeReleaseDB.shoeReleases
-    shoeReleases.insert_one({"_id":0, "connected": True})
+    shoeReleases.insert_one({"_id":4, "connected": True})
     return("SUCCESS")
-
 
 chromeOptions = webdriver.ChromeOptions()
 chromeOptions.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
@@ -31,7 +30,8 @@ chromeOptions.add_argument("--no-sandbox")
 
 @app.route('/shoepic/api/prod/v1.0/releases/all', methods=['GET'])
 def get_releases():
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    shoeReleases = shoeReleaseDB.shoeReleases
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chromeOptions)
     driver.get("https://sneakernews.com/release-dates/")
     time.sleep(0.2)
     body = driver.find_element_by_tag_name("body")
@@ -70,6 +70,7 @@ def get_releases():
             "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
         shoes.append(shoeObject);
+    shoeReleases.insert_many(shoes)
 
     return jsonify({'shoeData': shoes })
 
