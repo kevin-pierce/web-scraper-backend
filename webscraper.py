@@ -160,7 +160,7 @@ def get_yeezy_releases():
     #     }
     #     yeezys.append(yeezyShoeObject);
 
-    yeezyData = mongoShoeReleases.find()
+    yeezyData = list(mongoShoeReleases.find({}))
     return (yeezyData)
 
 if __name__ == '__main__':
