@@ -170,7 +170,7 @@ def get_yeezy_releases():
     print(yeezyData)
 
     for yeezy in yeezyData:
-        yeezy['_id'] = str(yeezy['id'])
+        yeezy['_id'] = str(yeezy['_id'])
         allYeezys.append(yeezy)
     
     print(allYeezys)
