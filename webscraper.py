@@ -10,6 +10,7 @@ import os
 import pymongo
 from pymongo import MongoClient
 import dns
+from bson import BSON
 from bson import json_util
 from bson.json_util import dumps
 import json
@@ -126,6 +127,7 @@ def get_jordan_releases():
 
 @app.route('/shoepic/api/prod/v1.0/releases/yeezy', methods=['GET'])
 def get_yeezy_releases():
+    allYeezys = []
     mongoShoeReleases = shoeReleaseDB.yeezyReleases
     # driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
     # driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
@@ -167,9 +169,12 @@ def get_yeezy_releases():
     yeezyData = list(mongoShoeReleases.find({}))
     print(yeezyData)
 
-    jsonifiedData = json.loads(json_util.dumps(yeezyData))
-
-    return jsonifiedData
+    for yeezy in yeezyData:
+        yeezy['_id'] = str(yeezy['id'])
+        allYeezys.append(yeezy)
+    
+    print(allYeezys)
+    return jsonify({"yeezyData":allYeezys})
 
 if __name__ == '__main__':
     app.run(debug=True)
