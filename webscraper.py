@@ -6,9 +6,12 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 import time
 import os
+
 import pymongo
 from pymongo import MongoClient
 import dns
+from bson.json_util import dumps
+import json
 
 app = Flask(__name__)
 
@@ -161,7 +164,11 @@ def get_yeezy_releases():
     #     yeezys.append(yeezyShoeObject);
 
     yeezyData = list(mongoShoeReleases.find({}))
-    return jsonify({'yeezyData':yeezyData})
+    print(yeezyData)
+
+    jsonifiedData = json.loads(json_util.dumps(yeezyData))
+
+    return jsonifiedData
 
 if __name__ == '__main__':
     app.run(debug=True)
