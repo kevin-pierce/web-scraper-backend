@@ -82,47 +82,53 @@ def get_releases():
 
 @app.route('/shoepic/api/prod/v1.0/releases/jordan', methods=['GET'])
 def get_jordan_releases():
+    allJordans = []
     mongoShoeReleases = shoeReleaseDB.jordanReleases
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
-    driver.get("https://sneakernews.com/air-jordan-release-dates/")
-    time.sleep(0.2)
-    body = driver.find_element_by_tag_name("body")
+    # driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    # driver.get("https://sneakernews.com/air-jordan-release-dates/")
+    # time.sleep(0.2)
+    # body = driver.find_element_by_tag_name("body")
 
-    # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
-    numPageDowns = 30
-    while numPageDowns:
-        body.send_keys(Keys.PAGE_DOWN)
-        time.sleep(0.2)
-        numPageDowns-=1
-    response = driver.page_source
-    driver.quit()
-    soup = BeautifulSoup(response, "html.parser")
-    jordanReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
-                                                        "releases-box col lg-2 sm-6 paged-1 just_added", 
-                                                        "releases-box col lg-2 sm-6 paged-2", 
-                                                        "releases-box col lg-2 sm-6 paged-3", 
-                                                        "releases-box col lg-2 sm-6 paged-4",
-                                                        "releases-box col lg-2 sm-6 paged-5"]})
-    print(len(jordanReleases)) #temp
-    jordans = []
+    # # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
+    # numPageDowns = 30
+    # while numPageDowns:
+    #     body.send_keys(Keys.PAGE_DOWN)
+    #     time.sleep(0.2)
+    #     numPageDowns-=1
+    # response = driver.page_source
+    # driver.quit()
+    # soup = BeautifulSoup(response, "html.parser")
+    # jordanReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
+    #                                                     "releases-box col lg-2 sm-6 paged-1 just_added", 
+    #                                                     "releases-box col lg-2 sm-6 paged-2", 
+    #                                                     "releases-box col lg-2 sm-6 paged-3", 
+    #                                                     "releases-box col lg-2 sm-6 paged-4",
+    #                                                     "releases-box col lg-2 sm-6 paged-5"]})
+    # print(len(jordanReleases)) #temp
+    # jordans = []
 
-    for deal in jordanReleases:
-        jShoeContent = deal.find('div', attrs={"class":"content-box"})
-        jShoeDetails = jShoeContent.find("div", attrs={"class":"post-data"})
+    # for deal in jordanReleases:
+    #     jShoeContent = deal.find('div', attrs={"class":"content-box"})
+    #     jShoeDetails = jShoeContent.find("div", attrs={"class":"post-data"})
         
-        jordanShoeObject = {
-            "releaseRegion":jShoeDetails.findAll("p")[3].text[8:].strip(),
-            "sizeRun":jShoeDetails.findAll("p")[0].text[10:].strip(),
-            "shoeCW":jShoeDetails.findAll("p")[1].text[7:].strip(),
-            "shoeName":jShoeContent.find("h2").find("a").text,
-            "shoePrice":jShoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
-            "shoeReleaseDate":jShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
-            "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
-        }
-        jordans.append(jordanShoeObject);
+    #     jordanShoeObject = {
+    #         "releaseRegion":jShoeDetails.findAll("p")[3].text[8:].strip(),
+    #         "sizeRun":jShoeDetails.findAll("p")[0].text[10:].strip(),
+    #         "shoeCW":jShoeDetails.findAll("p")[1].text[7:].strip(),
+    #         "shoeName":jShoeContent.find("h2").find("a").text,
+    #         "shoePrice":jShoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
+    #         "shoeReleaseDate":jShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
+    #         "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
+    #     }
+    #     jordans.append(jordanShoeObject);
 
-    mongoShoeReleases.insert_many(jordans)
-    return ("success for jordans!")
+    jordanData = list(mongoShoeReleases.find({}))
+
+    for jordan in jordanData:
+        jordan['_id'] = str(jordan['_id'])
+        allJordans.append(jordan)
+
+    return jsonify({"jordanData":allJordans})
 
 
 @app.route('/shoepic/api/prod/v1.0/releases/yeezy', methods=['GET'])
