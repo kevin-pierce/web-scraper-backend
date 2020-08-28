@@ -6,8 +6,21 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 import time
 import os
+import pymongo
+from pymongo import MongoClient
+import dns
 
 app = Flask(__name__)
+
+client = pymongo.MongoClient("mongodb+srv://never:nope@webscraper-db.urihh.azure.mongodb.net/shoepicDB?retryWrites=true&w=majority", ssl=True,ssl_cert_reqs='CERT_NONE')
+shoeReleaseDB = client.get_database('shoepicDB')
+
+@app.route('/shoepic/api/prod/v1.0/releases/connectionTest', methods=['GET'])
+def get_connection():
+    shoeReleases = shoeReleaseDB.shoeReleases
+    shoeReleases.insert_one({"_id":0, "connected": True})
+    return("SUCCESS")
+
 
 chromeOptions = webdriver.ChromeOptions()
 chromeOptions.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
