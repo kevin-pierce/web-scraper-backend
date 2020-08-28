@@ -161,7 +161,7 @@ def get_yeezy_releases():
     #     yeezys.append(yeezyShoeObject);
 
     yeezyData = mongoShoeReleases.find()
-    return (jsonify({'yeezyData':yeezyData}))
+    return (yeezyData)
 
 if __name__ == '__main__':
     app.run(debug=True)
