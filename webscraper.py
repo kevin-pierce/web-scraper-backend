@@ -30,7 +30,7 @@ chromeOptions.add_argument("--no-sandbox")
 
 @app.route('/shoepic/api/prod/v1.0/releases/all', methods=['GET'])
 def get_releases():
-    shoeReleases = shoeReleaseDB.shoeReleases
+    mongoShoeReleases = shoeReleaseDB.shoeReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chromeOptions)
     driver.get("https://sneakernews.com/release-dates/")
     time.sleep(0.2)
@@ -70,7 +70,7 @@ def get_releases():
             "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
         shoes.append(shoeObject);
-    shoeReleases.insert_many(shoes)
+    mongoShoeReleases.insert_many(shoes)
 
     return jsonify({'shoeData': shoes })
 
