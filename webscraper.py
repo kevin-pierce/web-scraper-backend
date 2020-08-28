@@ -70,7 +70,7 @@ def get_releases():
             "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
         shoes.append(shoeObject);
-    mongoShoeReleases.insert_many(shoes)
+    mongoShoeReleases.insert_one(shoes[1])
 
     return jsonify({'shoeData': shoes })
 
