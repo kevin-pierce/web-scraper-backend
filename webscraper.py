@@ -123,45 +123,45 @@ def get_jordan_releases():
 @app.route('/shoepic/api/prod/v1.0/releases/yeezy', methods=['GET'])
 def get_yeezy_releases():
     mongoShoeReleases = shoeReleaseDB.yeezyReleases
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
-    driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
-    time.sleep(0.2)
-    body = driver.find_element_by_tag_name("body")
+    # driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    # driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
+    # time.sleep(0.2)
+    # body = driver.find_element_by_tag_name("body")
 
-    # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
-    numPageDowns = 20
-    while numPageDowns:
-        body.send_keys(Keys.PAGE_DOWN)
-        time.sleep(0.1)
-        numPageDowns-=1
+    # # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
+    # numPageDowns = 20
+    # while numPageDowns:
+    #     body.send_keys(Keys.PAGE_DOWN)
+    #     time.sleep(0.1)
+    #     numPageDowns-=1
         
-    response = driver.page_source
-    driver.quit()
-    soup = BeautifulSoup(response, "html.parser")
-    yeezyReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
-                                                        "releases-box col lg-2 sm-6 paged-1 just_added", 
-                                                        "releases-box col lg-2 sm-6 paged-2", 
-                                                        "releases-box col lg-2 sm-6 paged-3"]})
-    print(len(yeezyReleases))
-    yeezys = []
+    # response = driver.page_source
+    # driver.quit()
+    # soup = BeautifulSoup(response, "html.parser")
+    # yeezyReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
+    #                                                     "releases-box col lg-2 sm-6 paged-1 just_added", 
+    #                                                     "releases-box col lg-2 sm-6 paged-2", 
+    #                                                     "releases-box col lg-2 sm-6 paged-3"]})
+    # print(len(yeezyReleases))
+    # yeezys = []
 
-    for deal in yeezyReleases:
-        yShoeContent = deal.find('div', attrs={"class":"content-box"})
-        yShoeDetails = yShoeContent.find("div", attrs={"class":"post-data"})
+    # for deal in yeezyReleases:
+    #     yShoeContent = deal.find('div', attrs={"class":"content-box"})
+    #     yShoeDetails = yShoeContent.find("div", attrs={"class":"post-data"})
         
-        yeezyShoeObject = {
-            "releaseRegion":yShoeDetails.findAll("p")[3].text[8:].strip(),
-            "sizeRun":yShoeDetails.findAll("p")[0].text[10:].strip(),
-            "shoeCW":yShoeDetails.findAll("p")[1].text[7:].strip(),
-            "shoeName":yShoeContent.find("h2").find("a").text,
-            "shoePrice":yShoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
-            "shoeReleaseDate":yShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
-            "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
-        }
-        yeezys.append(yeezyShoeObject);
+    #     yeezyShoeObject = {
+    #         "releaseRegion":yShoeDetails.findAll("p")[3].text[8:].strip(),
+    #         "sizeRun":yShoeDetails.findAll("p")[0].text[10:].strip(),
+    #         "shoeCW":yShoeDetails.findAll("p")[1].text[7:].strip(),
+    #         "shoeName":yShoeContent.find("h2").find("a").text,
+    #         "shoePrice":yShoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
+    #         "shoeReleaseDate":yShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
+    #         "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
+    #     }
+    #     yeezys.append(yeezyShoeObject);
 
-    mongoShoeReleases.insert_many(yeezys)
-    return ("Success for yeezys!")
+    yeezyData = mongoShoeReleases.find()
+    return (jsonify({'yeezyData':yeezyData}))
 
 if __name__ == '__main__':
     app.run(debug=True)
