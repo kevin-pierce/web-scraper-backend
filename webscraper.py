@@ -70,9 +70,10 @@ def get_releases():
             "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
         shoes.append(shoeObject);
-    mongoShoeReleases.insert_one(shoes[1])
 
-    return jsonify({'shoeData': shoes })
+    mongoShoeReleases.insert_one({"test":"itworked"})
+
+    return ("sucess!")
 
 @app.route('/shoepic/api/prod/v1.0/releases/jordan', methods=['GET'])
 def get_jordan_releases():
