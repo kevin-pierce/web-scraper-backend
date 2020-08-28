@@ -116,7 +116,7 @@ def get_jordan_releases():
         }
         jordans.append(jordanShoeObject);
 
-    mongoShoeReleases.insert_one({"test":"itworked"})
+    mongoShoeReleases.insert_many(jordans)
     return ("success for jordans!")
 
 
