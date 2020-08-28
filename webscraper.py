@@ -12,6 +12,7 @@ app = Flask(__name__)
 chromeOptions = webdriver.ChromeOptions()
 chromeOptions.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
 chromeOptions.add_argument("--headless")
+chromeOptions.add_argument('--disable-gpu')
 chromeOptions.add_argument("--disable-dev-shm-usage")
 chromeOptions.add_argument("--no-sandbox")
 
@@ -70,7 +71,7 @@ def get_jordan_releases():
     numPageDowns = 30
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
-        time.sleep(0.1)
+        time.sleep(0.2)
         numPageDowns-=1
     response = driver.page_source
     driver.quit()
