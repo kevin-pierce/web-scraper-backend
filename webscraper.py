@@ -77,6 +77,7 @@ def get_releases():
 
 @app.route('/shoepic/api/prod/v1.0/releases/jordan', methods=['GET'])
 def get_jordan_releases():
+    mongoShoeReleases = shoeReleaseDB.jordanReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
     driver.get("https://sneakernews.com/air-jordan-release-dates/")
     time.sleep(0.2)
@@ -115,11 +116,13 @@ def get_jordan_releases():
         }
         jordans.append(jordanShoeObject);
 
-    return jsonify({'jordanData': jordans })
+    mongoShoeReleases.insert_one({"test":"itworked"})
+    return ("success for jordans!")
 
 
 @app.route('/shoepic/api/prod/v1.0/releases/yeezy', methods=['GET'])
 def get_yeezy_releases():
+    mongoShoeReleases = shoeReleaseDB.yeezyReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
     driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
     time.sleep(0.2)
@@ -157,7 +160,8 @@ def get_yeezy_releases():
         }
         yeezys.append(yeezyShoeObject);
 
-    return jsonify({'yeezyData': yeezys })
+    mongoShoeReleases.insert_many(yeezys)
+    return ("Success for yeezys!")
 
 if __name__ == '__main__':
     app.run(debug=True)
