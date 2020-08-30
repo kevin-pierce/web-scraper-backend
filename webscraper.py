@@ -59,7 +59,7 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
         }
         shoes.append(shoeObject);
 
-    if (allShoeReleasesCollection.count_documents() != 0):
+    if (allShoeReleasesCollection.count_documents({}) != 0):
         allShoeReleasesCollection.delete_many({})
         allShoeReleasesCollection.insert_many(shoes)
     else:
@@ -109,7 +109,7 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
         jordans.append(jordanShoeObject);
 
     # Wipe the DB prior to pushing all new entries
-    if (jordanShoeReleasesCollection.count_documents() != 0):
+    if (jordanShoeReleasesCollection.count_documents({}) != 0):
         jordanShoeReleasesCollection.delete_many({}) 
         jordanShoeReleasesCollection.insert_many(jordans)
     else:
@@ -159,7 +159,7 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
         yeezys.append(yeezyShoeObject);
 
     # Wipe the DB prior to pushing all new entries
-    if (yeezyShoeReleasesCollection.count_documents() != 0):
+    if (yeezyShoeReleasesCollection.count_documents({}) != 0):
         yeezyShoeReleasesCollection.delete_many({})
         yeezyShoeReleasesCollection.insert_many(yeezys)
     else:
