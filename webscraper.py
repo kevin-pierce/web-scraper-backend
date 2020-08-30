@@ -19,7 +19,7 @@ import json
 async def scrape_all_releases(shoeReleaseDB, chromeOptions):
     allShoeReleasesCollection = shoeReleaseDB.shoeReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chromeOptions)
-    driver.get("https://sneakernews.com/release-dates/")
+    await driver.get("https://sneakernews.com/release-dates/")
     time.sleep(3)
     body = driver.find_element_by_tag_name("body")
 
@@ -58,7 +58,7 @@ async def scrape_all_releases(shoeReleaseDB, chromeOptions):
         }
         shoes.append(shoeObject);
 
-    await allShoeReleasesCollection.delete_many({})
+    allShoeReleasesCollection.delete_many({})
     allShoeReleasesCollection.insert_many(shoes)
     print("Success!")
 
@@ -66,7 +66,7 @@ async def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
     allJordans = []
     jordanShoeReleasesCollection = shoeReleaseDB.jordanReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
-    driver.get("https://sneakernews.com/air-jordan-release-dates/")
+    await driver.get("https://sneakernews.com/air-jordan-release-dates/")
     time.sleep(3)
     body = driver.find_element_by_tag_name("body")
 
@@ -104,7 +104,7 @@ async def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
         jordans.append(jordanShoeObject);
 
     # Wipe the DB prior to pushing all new entries
-    await jordanShoeReleasesCollection.delete_many({}) 
+    jordanShoeReleasesCollection.delete_many({}) 
     jordanShoeReleasesCollection.insert_many(jordans)
     print("Success!")
 
@@ -113,7 +113,7 @@ async def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
     allYeezys = []
     yeezyShoeReleasesCollection = shoeReleaseDB.yeezyReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
-    driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
+    await driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
     time.sleep(3)
     body = driver.find_element_by_tag_name("body")
 
@@ -149,7 +149,7 @@ async def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
         }
         yeezys.append(yeezyShoeObject);
     
-    await yeezyShoeReleasesCollection.delete_many({})
+    yeezyShoeReleasesCollection.delete_many({})
     yeezyShoeReleasesCollection.insert_many(yeezys)
     print("Success!")
 
