@@ -59,8 +59,11 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
         }
         shoes.append(shoeObject);
 
-    allShoeReleasesCollection.delete_many({})
-    allShoeReleasesCollection.insert_many(shoes)
+    if (allShoeReleasesCollection.count_documents() != 0):
+        allShoeReleasesCollection.delete_many({})
+        allShoeReleasesCollection.insert_many(shoes)
+    else:
+        allShoeReleasesCollection.insert_many(shoes)
     print("Success!")
 
 def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
@@ -106,8 +109,11 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
         jordans.append(jordanShoeObject);
 
     # Wipe the DB prior to pushing all new entries
-    jordanShoeReleasesCollection.delete_many({}) 
-    jordanShoeReleasesCollection.insert_many(jordans)
+    if (jordanShoeReleasesCollection.count_documents() != 0):
+        jordanShoeReleasesCollection.delete_many({}) 
+        jordanShoeReleasesCollection.insert_many(jordans)
+    else:
+        jordanShoeReleasesCollection.insert_many(jordans)
     print("Success!")
 
 
@@ -151,9 +157,13 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
             "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
         yeezys.append(yeezyShoeObject);
-    
-    yeezyShoeReleasesCollection.delete_many({})
-    yeezyShoeReleasesCollection.insert_many(yeezys)
+
+    # Wipe the DB prior to pushing all new entries
+    if (yeezyShoeReleasesCollection.count_documents() != 0):
+        yeezyShoeReleasesCollection.delete_many({})
+        yeezyShoeReleasesCollection.insert_many(yeezys)
+    else:
+        yeezyShoeReleasesCollection.insert_many(yeezys)
     print("Success!")
 
 def main():
@@ -171,7 +181,7 @@ def main():
     chromeOptions.add_argument("--no-sandbox")
     print("Initialized ChromeDrivers!")
 
-    while true:
+    while True:
         time.sleep(5)
         scrape_all_releases(shoeReleaseDB, chromeOptions)
         time.sleep(5)
