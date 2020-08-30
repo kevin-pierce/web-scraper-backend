@@ -28,7 +28,7 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     numPageDowns = 20
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
-        time.sleep(0.5)
+        time.sleep(2)
         numPageDowns-=1
 
     response = driver.page_source
@@ -182,11 +182,15 @@ def main():
     print("Initialized ChromeDrivers!")
 
     while True:
-        time.sleep(5)
+        # 1 minute timer in between each run
+        print("ALL SHOES")
         scrape_all_releases(shoeReleaseDB, chromeOptions)
-        time.sleep(5)
+        time.sleep(60)
+        print("JORDANS")
         scrape_jordan_releases(shoeReleaseDB, chromeOptions)
-        time.sleep(5)
+        time.sleep(60)
+        print("YEEZYS")
         scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
+        time.sleep(60)
 
 main()
