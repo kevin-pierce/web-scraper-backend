@@ -171,8 +171,8 @@ def main():
     chromeOptions.add_argument("--no-sandbox")
     print("Initialized ChromeDrivers!")
 
-    scrape_all_releases(shoeReleaseDB, chromeOptions)
+    #scrape_all_releases(shoeReleaseDB, chromeOptions)
     scrape_jordan_releases(shoeReleaseDB, chromeOptions)
-    scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
+    #scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
 
 main()
