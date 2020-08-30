@@ -16,9 +16,7 @@ from bson import json_util
 from bson.json_util import dumps
 import json
 
-
-
-def scrape_all_releases():
+def scrape_all_releases(shoeReleaseDB, chromeOptions):
     allShoeReleasesCollection = shoeReleaseDB.shoeReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chromeOptions)
     driver.get("https://sneakernews.com/release-dates/")
@@ -155,6 +153,7 @@ def main():
     # Connect to DB
     client = pymongo.MongoClient("mongodb+srv://webscraper:webscraper2193@webscraper-db.urihh.azure.mongodb.net/shoepicDB?retryWrites=true&w=majority", ssl=True,ssl_cert_reqs='CERT_NONE')
     shoeReleaseDB = client.get_database('shoepicDB')
+    print("Connected!")
 
     # Initialize Chrome web driver for selenium 
     chromeOptions = webdriver.ChromeOptions()
@@ -163,3 +162,10 @@ def main():
     chromeOptions.add_argument('--disable-gpu')
     chromeOptions.add_argument("--disable-dev-shm-usage")
     chromeOptions.add_argument("--no-sandbox")
+    print("Initialized ChromeDrivers!")
+
+    scrape_all_releases(shoeReleaseDB, chromeOptions)
+    scrape_jordan_releases(shoeReleaseDB, chromeOptions)
+    scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
+
+main()
