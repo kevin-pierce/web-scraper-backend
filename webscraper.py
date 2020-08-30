@@ -16,18 +16,19 @@ from bson import json_util
 from bson.json_util import dumps
 import json
 
-async def scrape_all_releases(shoeReleaseDB, chromeOptions):
+def scrape_all_releases(shoeReleaseDB, chromeOptions):
+    print(chromeOptions)
     allShoeReleasesCollection = shoeReleaseDB.shoeReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chromeOptions)
-    await driver.get("https://sneakernews.com/release-dates/")
-    time.sleep(3)
+    driver.get("https://sneakernews.com/release-dates/")
+    time.sleep(2)
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
     numPageDowns = 20
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
-        time.sleep(1)
+        time.sleep(0.5)
         numPageDowns-=1
 
     response = driver.page_source
@@ -62,19 +63,20 @@ async def scrape_all_releases(shoeReleaseDB, chromeOptions):
     allShoeReleasesCollection.insert_many(shoes)
     print("Success!")
 
-async def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
+def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
+    print(chromeOptions)
     allJordans = []
     jordanShoeReleasesCollection = shoeReleaseDB.jordanReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
-    await driver.get("https://sneakernews.com/air-jordan-release-dates/")
-    time.sleep(3)
+    driver.get("https://sneakernews.com/air-jordan-release-dates/")
+    time.sleep(2)
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
     numPageDowns = 30
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
-        time.sleep(1)
+        time.sleep(0.5)
         numPageDowns-=1
     response = driver.page_source
     driver.quit()
@@ -109,19 +111,20 @@ async def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
     print("Success!")
 
 
-async def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
+def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
+    print(chromeOptions)
     allYeezys = []
     yeezyShoeReleasesCollection = shoeReleaseDB.yeezyReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
-    await driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
-    time.sleep(3)
+    driver.get("https://sneakernews.com/adidas-yeezy-release-dates/")
+    time.sleep(2)
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
     numPageDowns = 20
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
-        time.sleep(1)
+        time.sleep(0.5)
         numPageDowns-=1
         
     response = driver.page_source
@@ -169,9 +172,7 @@ def main():
     print("Initialized ChromeDrivers!")
 
     scrape_all_releases(shoeReleaseDB, chromeOptions)
-    time.sleep(5) #temp
     scrape_jordan_releases(shoeReleaseDB, chromeOptions)
-    time.sleep(5) #temp
     scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
 
 main()
