@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 import time
 import os
+import asyncio
 
 import pymongo
 from pymongo import MongoClient
@@ -20,7 +21,6 @@ app = Flask(__name__)
 client = pymongo.MongoClient("mongodb+srv://webscraper:webscraper2193@webscraper-db.urihh.azure.mongodb.net/shoepicDB?retryWrites=true&w=majority", ssl=True,ssl_cert_reqs='CERT_NONE')
 shoeReleaseDB = client.get_database('shoepicDB')
 
-@app.route('/shoepic/api/prod/v1.0/releases/connectionTest', methods=['GET'])
 def get_connection():
     shoeReleases = shoeReleaseDB.shoeReleases
     shoeReleases.insert_one({"_id":4, "connected": True})
@@ -33,8 +33,7 @@ chromeOptions.add_argument('--disable-gpu')
 chromeOptions.add_argument("--disable-dev-shm-usage")
 chromeOptions.add_argument("--no-sandbox")
 
-@app.route('/shoepic/api/prod/v1.0/releases/all', methods=['GET'])
-def get_releases():
+def scrape_all_releases():
     mongoShoeReleases = shoeReleaseDB.shoeReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chromeOptions)
     driver.get("https://sneakernews.com/release-dates/")
@@ -80,8 +79,7 @@ def get_releases():
 
     return ("sucess!")
 
-@app.route('/shoepic/api/prod/v1.0/releases/jordan', methods=['GET'])
-def get_jordan_releases():
+def scrape_jordan_releases():
     allJordans = []
     mongoShoeReleases = shoeReleaseDB.jordanReleases
     # driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
@@ -124,15 +122,8 @@ def get_jordan_releases():
 
     jordanData = list(mongoShoeReleases.find({}))
 
-    for jordan in jordanData:
-        jordan['_id'] = str(jordan['_id'])
-        allJordans.append(jordan)
 
-    return jsonify({"jordanData":allJordans})
-
-
-@app.route('/shoepic/api/prod/v1.0/releases/yeezy', methods=['GET'])
-def get_yeezy_releases():
+def scrape_yeezy_releases():
     allYeezys = []
     mongoShoeReleases = shoeReleaseDB.yeezyReleases
     # driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
@@ -174,13 +165,6 @@ def get_yeezy_releases():
 
     yeezyData = list(mongoShoeReleases.find({}))
     print(yeezyData)
-
-    for yeezy in yeezyData:
-        yeezy['_id'] = str(yeezy['_id'])
-        allYeezys.append(yeezy)
-    
-    print(allYeezys)
-    return jsonify({"yeezyData":allYeezys})
 
 if __name__ == '__main__':
     app.run(debug=True)
