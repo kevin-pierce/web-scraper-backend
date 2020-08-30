@@ -61,7 +61,7 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     allShoeReleasesCollection.insert_many(shoes)
     print("Success!")
 
-def scrape_jordan_releases():
+def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
     allJordans = []
     jordanShoeReleasesCollection = shoeReleaseDB.jordanReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
@@ -106,7 +106,7 @@ def scrape_jordan_releases():
     print("Success!")
 
 
-def scrape_yeezy_releases():
+def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
     allYeezys = []
     yeezyShoeReleasesCollection = shoeReleaseDB.yeezyReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
