@@ -38,8 +38,10 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     shoeReleases = soup.findAll('div', attrs={"class": [
                                                         "releases-box col lg-2 sm-6 paged-1", 
                                                         "releases-box col lg-2 sm-6 paged-1 just_added", 
-                                                        "releases-box col lg-2 sm-6 paged-2", 
-                                                        "releases-box col lg-2 sm-6 paged-3"]}) 
+                                                        "releases-box col lg-2 sm-6 paged-2",
+                                                        "releases-box col lg-2 sm-6 paged-2 just_added", 
+                                                        "releases-box col lg-2 sm-6 paged-3",
+                                                        "releases-box col lg-2 sm-6 paged-3 just_added"]}) 
     print(len(shoeReleases)) #temp
 
     shoes = []
@@ -87,12 +89,15 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
     jordanReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
-                                                        "releases-box col lg-2 sm-6 paged-1 just_added",
+                                                        "releases-box col lg-2 sm-6 paged-1 just_added", 
+                                                        "releases-box col lg-2 sm-6 paged-2",
                                                         "releases-box col lg-2 sm-6 paged-2 just_added", 
-                                                        "releases-box col lg-2 sm-6 paged-2", 
-                                                        "releases-box col lg-2 sm-6 paged-3", 
+                                                        "releases-box col lg-2 sm-6 paged-3",
+                                                        "releases-box col lg-2 sm-6 paged-3 just_added", 
                                                         "releases-box col lg-2 sm-6 paged-4",
-                                                        "releases-box col lg-2 sm-6 paged-5"]})
+                                                        "releases-box col lg-2 sm-6 paged-4 just_added",
+                                                        "releases-box col lg-2 sm-6 paged-5",
+                                                        "releases-box col lg-2 sm-6 paged-5 just_added"]})
     print(len(jordanReleases)) #temp
     jordans = []
 
@@ -141,8 +146,10 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
     soup = BeautifulSoup(response, "html.parser")
     yeezyReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
                                                         "releases-box col lg-2 sm-6 paged-1 just_added", 
-                                                        "releases-box col lg-2 sm-6 paged-2", 
-                                                        "releases-box col lg-2 sm-6 paged-3"]})
+                                                        "releases-box col lg-2 sm-6 paged-2",
+                                                        "releases-box col lg-2 sm-6 paged-2 just_added", 
+                                                        "releases-box col lg-2 sm-6 paged-3",
+                                                        "releases-box col lg-2 sm-6 paged-3 just_added"]})
     print(len(yeezyReleases))
     yeezys = []
 
