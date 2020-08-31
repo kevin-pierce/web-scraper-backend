@@ -31,7 +31,7 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     numPageDowns = 20
     while numPageDowns:
         try:
-            element = WebDriverWait(driver, 2).until(
+            element = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "releases-box col lg-2 sm-6 paged-2 "))
         )
         finally:
