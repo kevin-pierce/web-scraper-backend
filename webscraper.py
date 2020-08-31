@@ -4,6 +4,9 @@ from flask import Flask, jsonify, abort
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import os
 import asyncio
@@ -27,9 +30,13 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
     numPageDowns = 20
     while numPageDowns:
-        body.send_keys(Keys.PAGE_DOWN)
-        time.sleep(2)
-        numPageDowns-=1
+        try:
+            element = WebDriverWait(driver, 2).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "releases-box col lg-2 sm-6 paged-2 "))
+        )
+        finally:
+            body.send_keys(Keys.PAGE_DOWN)
+            numPageDowns-=1
 
     response = driver.page_source
     driver.quit()
