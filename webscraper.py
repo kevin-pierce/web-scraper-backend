@@ -25,10 +25,10 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
-    numPageDowns = 20
+    numPageDowns = 40
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
-        time.sleep(2)
+        time.sleep(0.5)
         numPageDowns-=1
 
     response = driver.page_source
@@ -78,7 +78,7 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
-    numPageDowns = 30
+    numPageDowns = 40
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
         time.sleep(0.5)
@@ -129,7 +129,7 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
-    numPageDowns = 20
+    numPageDowns = 40
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
         time.sleep(0.5)
