@@ -4,9 +4,6 @@ from flask import Flask, jsonify, abort
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import time
 import os
 import asyncio
@@ -30,23 +27,19 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
     numPageDowns = 20
     while numPageDowns:
-        try:
-            element = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "releases-box col lg-2 sm-6 paged-2 "))
-        )
-        finally:
-            body.send_keys(Keys.PAGE_DOWN)
-            numPageDowns-=1
+        body.send_keys(Keys.PAGE_DOWN)
+        time.sleep(2)
+        numPageDowns-=1
 
     response = driver.page_source
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
     # Now finds all release-containing divs, including the ones that load on scroll
     shoeReleases = soup.findAll('div', attrs={"class": [
-                                                        "releases-box col lg-2 sm-6 paged-1 ", 
-                                                        "releases-box col lg-2 sm-6 paged-1 just_added ", 
+                                                        "releases-box col lg-2 sm-6 paged-1", 
+                                                        "releases-box col lg-2 sm-6 paged-1 just_added", 
                                                         "releases-box col lg-2 sm-6 paged-2 ", 
-                                                        "releases-box col lg-2 sm-6 paged-3 "]}) 
+                                                        "releases-box col lg-2 sm-6 paged-3"]}) 
     print(len(shoeReleases)) #temp
 
     shoes = []
@@ -66,10 +59,12 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
         }
         shoes.append(shoeObject);
 
-    if (allShoeReleasesCollection.count_documents({}) != 0):
-        allShoeReleasesCollection.delete_many({})
+    print(allShoeReleasesCollection.count_documents({}))
+
+    if (allShoeReleasesCollection.count_documents({}) == 0):
         allShoeReleasesCollection.insert_many(shoes)
     else:
+        allShoeReleasesCollection.delete_many({})
         allShoeReleasesCollection.insert_many(shoes)
     print("Success!")
 
@@ -192,12 +187,12 @@ def main():
         # 1 minute timer in between each run
         print("ALL SHOES")
         scrape_all_releases(shoeReleaseDB, chromeOptions)
-        time.sleep(60)
+        time.sleep(3)
         print("JORDANS")
         scrape_jordan_releases(shoeReleaseDB, chromeOptions)
-        time.sleep(60)
+        time.sleep(3)
         print("YEEZYS")
         scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
-        time.sleep(60)
+        time.sleep(3)
 
 main()
