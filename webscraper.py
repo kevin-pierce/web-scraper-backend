@@ -36,10 +36,10 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     soup = BeautifulSoup(response, "html.parser")
     # Now finds all release-containing divs, including the ones that load on scroll
     shoeReleases = soup.findAll('div', attrs={"class": [
-                                                        "releases-box col lg-2 sm-6 paged-1", 
-                                                        "releases-box col lg-2 sm-6 paged-1 just_added", 
-                                                        "releases-box col lg-2 sm-6 paged-2", 
-                                                        "releases-box col lg-2 sm-6 paged-3"]}) 
+                                                        "releases-box col lg-2 sm-6 paged-1 ", 
+                                                        "releases-box col lg-2 sm-6 paged-1 just_added ", 
+                                                        "releases-box col lg-2 sm-6 paged-2 ", 
+                                                        "releases-box col lg-2 sm-6 paged-3 "]}) 
     print(len(shoeReleases)) #temp
 
     shoes = []
