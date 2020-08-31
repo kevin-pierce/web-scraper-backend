@@ -25,7 +25,7 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
-    numPageDowns = 40
+    numPageDowns = 60
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
         time.sleep(0.5)
@@ -38,7 +38,7 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     shoeReleases = soup.findAll('div', attrs={"class": [
                                                         "releases-box col lg-2 sm-6 paged-1", 
                                                         "releases-box col lg-2 sm-6 paged-1 just_added", 
-                                                        "releases-box col lg-2 sm-6 paged-2 ", 
+                                                        "releases-box col lg-2 sm-6 paged-2", 
                                                         "releases-box col lg-2 sm-6 paged-3"]}) 
     print(len(shoeReleases)) #temp
 
@@ -78,7 +78,7 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
     body = driver.find_element_by_tag_name("body")
 
     # Ensure entire page is loaded prior to parsing (Using selenium, we simulate a scroll function to load all release entries)
-    numPageDowns = 40
+    numPageDowns = 60
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
         time.sleep(0.5)
@@ -87,7 +87,8 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
     jordanReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
-                                                        "releases-box col lg-2 sm-6 paged-1 just_added", 
+                                                        "releases-box col lg-2 sm-6 paged-1 just_added",
+                                                        "releases-box col lg-2 sm-6 paged-2 just_added", 
                                                         "releases-box col lg-2 sm-6 paged-2", 
                                                         "releases-box col lg-2 sm-6 paged-3", 
                                                         "releases-box col lg-2 sm-6 paged-4",
