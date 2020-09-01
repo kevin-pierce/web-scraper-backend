@@ -41,7 +41,6 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
                                                         "releases-box col lg-2 sm-6 paged-2 just_added", 
                                                         "releases-box col lg-2 sm-6 paged-3",
                                                         "releases-box col lg-2 sm-6 paged-3 just_added"]}) 
-    print(len(shoeReleases)) #temp
 
     shoes = []
 
@@ -60,14 +59,11 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
         }
         shoes.append(shoeObject);
 
-    print(allShoeReleasesCollection.count_documents({}))
-
     if (allShoeReleasesCollection.count_documents({}) == 0):
         allShoeReleasesCollection.insert_many(shoes)
     else:
         allShoeReleasesCollection.delete_many({})
         allShoeReleasesCollection.insert_many(shoes)
-    print("Success!")
 
 def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
     allJordans = []
@@ -96,7 +92,6 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
                                                         "releases-box col lg-2 sm-6 paged-4 just_added",
                                                         "releases-box col lg-2 sm-6 paged-5",
                                                         "releases-box col lg-2 sm-6 paged-5 just_added"]})
-    print(len(jordanReleases)) #temp
     jordans = []
 
     for deal in jordanReleases:
@@ -120,7 +115,6 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
         jordanShoeReleasesCollection.insert_many(jordans)
     else:
         jordanShoeReleasesCollection.insert_many(jordans)
-    print("Success!")
 
 
 def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
@@ -147,7 +141,6 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
                                                         "releases-box col lg-2 sm-6 paged-2 just_added", 
                                                         "releases-box col lg-2 sm-6 paged-3",
                                                         "releases-box col lg-2 sm-6 paged-3 just_added"]})
-    print(len(yeezyReleases))
     yeezys = []
 
     for deal in yeezyReleases:
@@ -171,7 +164,6 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
         yeezyShoeReleasesCollection.insert_many(yeezys)
     else:
         yeezyShoeReleasesCollection.insert_many(yeezys)
-    print("Success!")
 
 # Sale Running Shoes
 def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
@@ -182,7 +174,6 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     driver.get("https://www.nike.com/ca/w/sale-running-shoes-37v7jz3yaepzy7ok")
     time.sleep(2)
     body = driver.find_element_by_tag_name("body")
-    print(body)
 
     numPageDowns = 30
     while numPageDowns:
@@ -210,13 +201,10 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
         allSaleNikeRunner.append(nikeRunnerObject)
 
     if (nikeRunnerSaleCollection.count_documents({}) != 0):
-        print("Deleting Collection")
         nikeRunnerSaleCollection.delete_many({})
-        print("Updating Collection")
         nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
     else:
         nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
-        print("Adding to collection")
 
 def main():
     # Connect to DB
@@ -233,10 +221,10 @@ def main():
     chromeOptions.add_argument("--no-sandbox")
     print("Initialized ChromeDrivers!")
 
-    scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
-
     while True:
-        # 1 minute timer in between each run
+        print("NIKE RUNNING SALE")
+        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
         print("ALL SHOES")
         scrape_all_releases(shoeReleaseDB, chromeOptions)
         time.sleep(3)
