@@ -193,9 +193,9 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
     print(soup)
-    print(soup.find('div', attrs={"class":"product-card css-1ikfoht css-z5nr6i css-11ziap1 css-zk7jxt css-dpr2cn product-grid__card "}))
+    print(soup.find('div', attrs={"class":"product-card__body"}))
 
-    runnerSales = soup.findAll('div', attrs={"class":"product-card css-1ikfoht css-z5nr6i css-11ziap1 css-zk7jxt css-dpr2cn product-grid__card "})
+    runnerSales = soup.findAll('div', attrs={"class":"product-card__body"})
     print(len(runnerSales))
 
 def main():
