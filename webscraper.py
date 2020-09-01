@@ -200,16 +200,14 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
         shoeImageData = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
 
         print(shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text)
-        print(shoeImageData.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}))
-        print(shoeImageData.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"])
+        print(shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text)
 
         nikeRunnerObject = {
             "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
             "shoePrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
-            "shoeImg":shoeImageData.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"]
+            "shoeImg":shoeImageData.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
+            "shoeCW":shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text
         }
-
-    
 
     print(len(runnerSales))
 
