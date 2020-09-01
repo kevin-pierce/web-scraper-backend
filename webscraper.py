@@ -17,7 +17,6 @@ from bson.json_util import dumps
 import json
 
 def scrape_all_releases(shoeReleaseDB, chromeOptions):
-    print(chromeOptions)
     allShoeReleasesCollection = shoeReleaseDB.shoeReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chromeOptions)
     driver.get("https://sneakernews.com/release-dates/")
@@ -71,7 +70,6 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     print("Success!")
 
 def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
-    print(chromeOptions)
     allJordans = []
     jordanShoeReleasesCollection = shoeReleaseDB.jordanReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
@@ -126,7 +124,6 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
 
 
 def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
-    print(chromeOptions)
     allYeezys = []
     yeezyShoeReleasesCollection = shoeReleaseDB.yeezyReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
@@ -176,6 +173,28 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
         yeezyShoeReleasesCollection.insert_many(yeezys)
     print("Success!")
 
+def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
+    allSales = []
+
+    nikeRunnerSaleCollection = shoeReleaseDB.nikeRunnerSales
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    driver.get("https://www.nike.com/ca/w/mens-sale-running-shoes-37v7jz3yaepznik1zy7ok")
+    time.sleep(2)
+    body = driver.find_element_by_tag_name("body")
+
+    numPageDowns = 30
+    while numPageDowns:
+        body.send_keys(Keys.PAGE_DOWN)
+        time.sleep(0.5)
+        numPageDowns-=1
+
+    response = driver.page_source
+    driver.quit()
+    soup = BeautifulSoup(response, "html.parser")
+
+    runnerSales = soup.findAll('div', attrs={"class":"product-card css-1ikfoht css-z5nr6i css-11ziap1 css-zk7jxt css-dpr2cn product-grid__card "})
+    print(len(runnerSales))
+
 def main():
     # Connect to DB
     client = pymongo.MongoClient("mongodb+srv://webscraper:webscraper2193@webscraper-db.urihh.azure.mongodb.net/shoepicDB?retryWrites=true&w=majority", ssl=True,ssl_cert_reqs='CERT_NONE')
@@ -190,6 +209,8 @@ def main():
     chromeOptions.add_argument("--disable-dev-shm-usage")
     chromeOptions.add_argument("--no-sandbox")
     print("Initialized ChromeDrivers!")
+
+    scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
 
     while True:
         # 1 minute timer in between each run
