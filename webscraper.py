@@ -173,12 +173,13 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
         yeezyShoeReleasesCollection.insert_many(yeezys)
     print("Success!")
 
+# Sale Running Shoes
 def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     allSaleNikeRunner = []
 
     nikeRunnerSaleCollection = shoeReleaseDB.nikeRunnerSales
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
-    driver.get("https://www.nike.com/ca/w/mens-sale-running-shoes-37v7jz3yaepznik1zy7ok")
+    driver.get("https://www.nike.com/ca/w/sale-running-shoes-37v7jz3yaepzy7ok")
     time.sleep(2)
     body = driver.find_element_by_tag_name("body")
     print(body)
@@ -201,6 +202,7 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
 
         nikeRunnerObject = {
             "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
+            "shoeType":shoeDetails.find('div', attrs={"class":"product-card__subtitle"}).text,
             "shoePrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
             "shoeImg":shoeImageData.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
             "shoeCW":shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text
