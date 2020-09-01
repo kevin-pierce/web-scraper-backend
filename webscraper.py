@@ -194,7 +194,8 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
         nikeRunnerObject = {
             "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
             "shoeType":shoeDetails.find('div', attrs={"class":"product-card__subtitle"}).text,
-            "shoePrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
+            "shoeReducedPrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
+            "shoeOldPrice":shoeDetails.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
             "shoeImg":shoeImageData.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
             "shoeCW":shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text
         }
