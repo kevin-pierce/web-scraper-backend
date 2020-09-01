@@ -198,11 +198,12 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     for shoe in runnerSales:
         shoeDetails = shoe.find('div', attrs={"class":"product-card__info disable-animations"})
         print(shoeDetails)
-        print(shoeDetails.find('div', attrs={"class":"product-card__title"}).text)
 
         nikeRunnerObject = {
-            "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text
+            "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
+            "shoePrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text
         }
+        print(nikeRunnerObject)
 
     print(len(runnerSales))
 
