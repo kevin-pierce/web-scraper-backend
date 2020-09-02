@@ -258,12 +258,17 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     allAdidasRunningSale = []
 
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
-    driver.get("https://www.adidas.ca/en/running-shoes-outlet?start=0")
-    time.sleep(1)
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions) # FOR HEROKU ONLY
+    #driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+    driver.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3AstyleDiscountPercent%3ASALE%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual")
+    time.sleep(5)
+    body = driver.find_element_by_tag_name("body")
 
-    numPages = driver.find_element_by_class_name("gl-label.gl-label--l").text
-    print(numPages)
+    response = driver.page_source
+    driver.quit()
+    soup = BeautifulSoup(response, "html.parser")
+    shoe = soup.find("div", attrs={"class":"ProductCard"})
+    print(shoe)
 
 def main():
     # Connect to DB
@@ -274,13 +279,13 @@ def main():
     # Initialize Chrome web driver for selenium 
     chromeOptions = webdriver.ChromeOptions()
     chromeOptions.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    chromeOptions.add_argument("--headless")
+    #chromeOptions.add_argument("--headless") TESTING 
     chromeOptions.add_argument('--disable-gpu')
     chromeOptions.add_argument("--disable-dev-shm-usage")
     chromeOptions.add_argument("--no-sandbox")
     print("Initialized ChromeDrivers!")
 
-    scrape_adidas_running_sales(shoeReleaseDB, chromeOptions)
+    #scrape_adidas_running_sales(shoeReleaseDB, chromeOptions)
 
     while True:
         print("NIKE RUNNING SALE")
