@@ -177,7 +177,7 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     time.sleep(2)
     body = driver.find_element_by_tag_name("body")
 
-    numPageDowns = 10
+    numPageDowns = 15
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
         time.sleep(0.5)
@@ -195,11 +195,13 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
         shoeSubLinks.append(shoeLink["href"])
 
     for link in shoeSubLinks:
-        #driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
-        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
 
         response = requests.get(str(link), timeout=20)
         soup = BeautifulSoup(response.content, "html.parser")
+        sizeRun = soup.find('form', attrs={"class":"add-to-cart-form nike-buying-tools"})
+        print(sizeRun)
+        #availableSizes = sizeRun.find('div', attrs={"class":"mt2-sm css-1j3x2vp"})
+        #print(availableSizes)
     
         nikeRunnerObject = {
             "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
@@ -207,7 +209,8 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeReducedPrice":soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
             "shoeOldPrice":soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
             "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
-            "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:]
+            "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
+            "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text
         }
         allSaleNikeRunner.append(nikeRunnerObject)
 
