@@ -168,9 +168,11 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
 # Sale Running Shoes
 def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     allSaleNikeRunner = []
+    shoeSubLinks = []
 
     nikeRunnerSaleCollection = shoeReleaseDB.nikeRunnerSales
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
     driver.get("https://www.nike.com/ca/w/sale-running-shoes-37v7jz3yaepzy7ok")
     time.sleep(2)
     body = driver.find_element_by_tag_name("body")
@@ -189,14 +191,15 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
 
     for shoe in runnerSales:
         shoeDetails = shoe.find('div', attrs={"class":"product-card__info disable-animations"})
-        shoeImageData = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
+        shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
+        shoeSubLinks.append(shoeLink["href"])
 
         nikeRunnerObject = {
             "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
             "shoeType":shoeDetails.find('div', attrs={"class":"product-card__subtitle"}).text,
             "shoeReducedPrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
             "shoeOldPrice":shoeDetails.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
-            "shoeImg":shoeImageData.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
+            "shoeImg":shoeLink.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
             "shoeCW":shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text
         }
         allSaleNikeRunner.append(nikeRunnerObject)
@@ -287,23 +290,23 @@ def main():
     chromeOptions.add_argument("--no-sandbox")
     print("Initialized ChromeDrivers!")
 
-    scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) #- Will fix later (to bypass blocked sites lol)
+    #scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) #- Will fix later (to bypass blocked sites lol)
 
-    # while True:
-    #     print("NIKE RUNNING SALE")
-    #     scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
-    #     time.sleep(3)
-    #     print("NIKE LIFESTYLE SALE")
-    #     scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
-    #     time.sleep(3)
-    #     print("ALL SHOES")
-    #     scrape_all_releases(shoeReleaseDB, chromeOptions)
-    #     time.sleep(3)
-    #     print("JORDANS")
-    #     scrape_jordan_releases(shoeReleaseDB, chromeOptions)
-    #     time.sleep(3)
-    #     print("YEEZYS")
-    #     scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
-    #     time.sleep(3)
+    while True:
+        print("NIKE RUNNING SALE")
+        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
+        # print("NIKE LIFESTYLE SALE")
+        # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
+        # print("ALL SHOES")
+        # scrape_all_releases(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
+        # print("JORDANS")
+        # scrape_jordan_releases(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
+        # print("YEEZYS")
+        # scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
 
 main()
