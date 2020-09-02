@@ -227,10 +227,13 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     soup = BeautifulSoup(response, "html.parser")
 
     lifestyleSales = soup.findAll('div', attrs={"class":"product-card__body"})
+    print(lifestyleSales)
 
     for shoe in lifestyleSales:
         shoeDetails = shoe.find('div', attrs={"class":"product-card__info disable-animations"})
+        print(shoeDetails)
         shoeImageData = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
+        print(shoeImageData)
 
         nikeLifestyleObject = {
             "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
