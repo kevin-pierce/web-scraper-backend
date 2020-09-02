@@ -252,6 +252,19 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     else:
         nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
 
+# Adidas has the issue where we cannot simply gather all data on the page by spam-scrolling down
+# We must scrape subsequent pages with differing URLs
+def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
+    allAdidasRunningSale = []
+
+    adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    driver.get("https://www.adidas.ca/en/running-shoes-outlet?start=0")
+    time.sleep(1)
+
+    numPages = driver.find_element_by_class_name("gl-label gl-label--l").text
+    print(numPages)
+
 def main():
     # Connect to DB
     client = pymongo.MongoClient("mongodb+srv://webscraper:webscraper2193@webscraper-db.urihh.azure.mongodb.net/shoepicDB?retryWrites=true&w=majority", ssl=True,ssl_cert_reqs='CERT_NONE')
