@@ -194,19 +194,18 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
         shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
         shoeSubLinks.append(shoeLink["href"])
 
-    driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
-    newShoe = driver.get(str(shoeSubLinks[0]))
-    time.sleep(2)
-    newBody = driver.find_element_by_tag_name("body")
-    print(newBody)
+    for link in shoeSubLinks:
+        #driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
 
-    # for link in shoeSubLinks:
-    #     driver.get(link)
-    #     time.sleep(2)
-    #     body = driver.find_element_by_tag_name("body")
-    #     print(body)
-    #     driver.quit()
+        response = requests.get(str(link), timeout=20)
+        soup = BeautifulSoup(response.content, "html.parser")
+        shoeName = soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text
+        shoeType = soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text
+        print(shoeName)
+        print(shoeType)
 
+    
     print(shoeSubLinks)
 
         # shoeDetails = shoe.find('div', attrs={"class":"product-card__info disable-animations"})
