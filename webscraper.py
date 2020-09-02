@@ -208,11 +208,11 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
         nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
 
 def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
-    allSaleNikeRunner = []
+    allSaleNikeLifestyle = []
 
-    nikeRunnerSaleCollection = shoeReleaseDB.nikeRunnerSales
+    nikeLifestyleSaleCollection = shoeReleaseDB.nikeLifestyleSales
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
-    driver.get("https://www.nike.com/ca/w/sale-running-shoes-37v7jz3yaepzy7ok")
+    driver.get("https://www.nike.com/ca/w/sale-lifestyle-shoes-13jrmz3yaepzy7ok")
     time.sleep(2)
     body = driver.find_element_by_tag_name("body")
 
@@ -226,13 +226,13 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
 
-    runnerSales = soup.findAll('div', attrs={"class":"product-card__body"})
+    lifestyleSales = soup.findAll('div', attrs={"class":"product-card__body"})
 
-    for shoe in runnerSales:
+    for shoe in lifestyleSales:
         shoeDetails = shoe.find('div', attrs={"class":"product-card__info disable-animations"})
         shoeImageData = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
 
-        nikeRunnerObject = {
+        nikeLifestyleObject = {
             "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
             "shoeType":shoeDetails.find('div', attrs={"class":"product-card__subtitle"}).text,
             "shoeReducedPrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
@@ -240,13 +240,13 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
             "shoeImg":shoeImageData.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
             "shoeCW":shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text
         }
-        allSaleNikeRunner.append(nikeRunnerObject)
+        allSaleNikeLifestyle.append(nikeLifestyleObject)
 
-    if (nikeRunnerSaleCollection.count_documents({}) != 0):
-        nikeRunnerSaleCollection.delete_many({})
-        nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
+    if (nikeLifestyleSaleCollection.count_documents({}) != 0):
+        nikeLifestyleSaleCollection.delete_many({})
+        nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
     else:
-        nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
+        nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
 
 def main():
     # Connect to DB
