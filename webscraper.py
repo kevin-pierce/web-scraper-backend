@@ -203,11 +203,13 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
 
         response = driver.page_source
         driver.quit()
-
         soup = BeautifulSoup(response, "html.parser")
-        sizeRun = soup.find('form', attrs={"class":"add-to-cart-form nike-buying-tools"})
-        availableSizes = sizeRun.find('label', attrs={"class":"css-xf3ahq"})
-        print(availableSizes)
+
+        # Scrape all available sizes, strip tags and place the data into an array
+        shoeSizeAvailability = []
+        sizeData = soup.find('form', attrs={"class":"add-to-cart-form nike-buying-tools"}).find_all('label', attrs={"class":"css-xf3ahq"})
+        for size in sizeData:
+            shoeSizeAvailability.append(str(size.get_text()))
     
         nikeRunnerObject = {
             "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
@@ -216,7 +218,8 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeOldPrice":soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
             "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
             "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
-            "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text
+            "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
+            "shoeSizeRun":shoeSizeAvailability
         }
         allSaleNikeRunner.append(nikeRunnerObject)
 
