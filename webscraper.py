@@ -195,13 +195,19 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
         shoeSubLinks.append(shoeLink["href"])
 
     for link in shoeSubLinks:
+        driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+        driver.get(str(link))
+        time.sleep(2)
+        body = driver.find_element_by_tag_name("body")
 
-        response = requests.get(str(link), timeout=20)
-        soup = BeautifulSoup(response.content, "html.parser")
+        response = driver.page_source
+        driver.quit()
+
+        soup = BeautifulSoup(response, "html.parser")
         sizeRun = soup.find('form', attrs={"class":"add-to-cart-form nike-buying-tools"})
-        print(sizeRun)
-        #availableSizes = sizeRun.find('div', attrs={"class":"mt2-sm css-1j3x2vp"})
-        #print(availableSizes)
+        availableSizes = sizeRun.find('label', attrs={"class":"css-xf3ahq"})
+        print(availableSizes)
     
         nikeRunnerObject = {
             "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
