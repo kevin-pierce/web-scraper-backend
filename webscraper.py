@@ -258,14 +258,15 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     allAdidasRunningSale = []
 
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions) # FOR HEROKU ONLY
-    #driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
-    driver.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3AstyleDiscountPercent%3ASALE%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual")
-    time.sleep(5)
+    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions) # FOR HEROKU ONLY
+    driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+    driver.get("https://www.sportinglife.ca/en-CA/adidas/sale/shoe-sale/")
+    time.sleep(1)
     body = driver.find_element_by_tag_name("body")
 
     response = driver.page_source
     driver.quit()
+
     soup = BeautifulSoup(response, "html.parser")
     print(soup)
     #shoe = soup.find("div", attrs={"class":"ProductCard"})
@@ -286,23 +287,23 @@ def main():
     chromeOptions.add_argument("--no-sandbox")
     print("Initialized ChromeDrivers!")
 
-    #scrape_adidas_running_sales(shoeReleaseDB, chromeOptions)
+    scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) #- Will fix later (to bypass blocked sites lol)
 
-    while True:
-        print("NIKE RUNNING SALE")
-        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
-        print("NIKE LIFESTYLE SALE")
-        scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
-        print("ALL SHOES")
-        scrape_all_releases(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
-        print("JORDANS")
-        scrape_jordan_releases(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
-        print("YEEZYS")
-        scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+    # while True:
+    #     print("NIKE RUNNING SALE")
+    #     scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+    #     time.sleep(3)
+    #     print("NIKE LIFESTYLE SALE")
+    #     scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
+    #     time.sleep(3)
+    #     print("ALL SHOES")
+    #     scrape_all_releases(shoeReleaseDB, chromeOptions)
+    #     time.sleep(3)
+    #     print("JORDANS")
+    #     scrape_jordan_releases(shoeReleaseDB, chromeOptions)
+    #     time.sleep(3)
+    #     print("YEEZYS")
+    #     scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
+    #     time.sleep(3)
 
 main()
