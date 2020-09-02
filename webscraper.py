@@ -262,7 +262,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     driver.get("https://www.adidas.ca/en/running-shoes-outlet?start=0")
     time.sleep(1)
 
-    numPages = driver.find_element_by_class_name("gl-label gl-label--l").text
+    numPages = driver.find_element_by_class_name("gl-label.gl-label--l").text
     print(numPages)
 
 def main():
