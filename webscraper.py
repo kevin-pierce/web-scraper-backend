@@ -280,6 +280,8 @@ def main():
     chromeOptions.add_argument("--no-sandbox")
     print("Initialized ChromeDrivers!")
 
+    scrape_adidas_running_sales(shoeReleaseDB, chromeOptions)
+
     while True:
         print("NIKE RUNNING SALE")
         scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
