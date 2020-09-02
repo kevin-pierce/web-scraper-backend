@@ -200,32 +200,22 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
 
         response = requests.get(str(link), timeout=20)
         soup = BeautifulSoup(response.content, "html.parser")
-        shoeName = soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text
-        shoeType = soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text
-        print(shoeName)
-        print(shoeType)
-
     
-    print(shoeSubLinks)
+        nikeRunnerObject = {
+            "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
+            "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
+            "shoeReducedPrice":soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
+            "shoeOldPrice":soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
+            "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
+            "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:]
+        }
+        allSaleNikeRunner.append(nikeRunnerObject)
 
-        # shoeDetails = shoe.find('div', attrs={"class":"product-card__info disable-animations"})
-        
-
-        # nikeRunnerObject = {
-        #     "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
-        #     "shoeType":shoeDetails.find('div', attrs={"class":"product-card__subtitle"}).text,
-        #     "shoeReducedPrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
-        #     "shoeOldPrice":shoeDetails.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
-        #     "shoeImg":shoeLink.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
-        #     "shoeCW":shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text
-        # }
-        # allSaleNikeRunner.append(nikeRunnerObject)
-
-    # if (nikeRunnerSaleCollection.count_documents({}) != 0):
-    #     nikeRunnerSaleCollection.delete_many({})
-    #     nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
-    # else:
-    #     nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
+    if (nikeRunnerSaleCollection.count_documents({}) != 0):
+        nikeRunnerSaleCollection.delete_many({})
+        nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
+    else:
+        nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
 
 def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     allSaleNikeLifestyle = []
