@@ -207,6 +207,47 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     else:
         nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
 
+def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
+    allSaleNikeRunner = []
+
+    nikeRunnerSaleCollection = shoeReleaseDB.nikeRunnerSales
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    driver.get("https://www.nike.com/ca/w/sale-running-shoes-37v7jz3yaepzy7ok")
+    time.sleep(2)
+    body = driver.find_element_by_tag_name("body")
+
+    numPageDowns = 30
+    while numPageDowns:
+        body.send_keys(Keys.PAGE_DOWN)
+        time.sleep(0.5)
+        numPageDowns-=1
+
+    response = driver.page_source
+    driver.quit()
+    soup = BeautifulSoup(response, "html.parser")
+
+    runnerSales = soup.findAll('div', attrs={"class":"product-card__body"})
+
+    for shoe in runnerSales:
+        shoeDetails = shoe.find('div', attrs={"class":"product-card__info disable-animations"})
+        shoeImageData = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
+
+        nikeRunnerObject = {
+            "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
+            "shoeType":shoeDetails.find('div', attrs={"class":"product-card__subtitle"}).text,
+            "shoeReducedPrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
+            "shoeOldPrice":shoeDetails.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
+            "shoeImg":shoeImageData.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
+            "shoeCW":shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text
+        }
+        allSaleNikeRunner.append(nikeRunnerObject)
+
+    if (nikeRunnerSaleCollection.count_documents({}) != 0):
+        nikeRunnerSaleCollection.delete_many({})
+        nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
+    else:
+        nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
+
 def main():
     # Connect to DB
     client = pymongo.MongoClient("mongodb+srv://webscraper:webscraper2193@webscraper-db.urihh.azure.mongodb.net/shoepicDB?retryWrites=true&w=majority", ssl=True,ssl_cert_reqs='CERT_NONE')
