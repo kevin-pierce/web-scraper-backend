@@ -177,7 +177,7 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     time.sleep(2)
     body = driver.find_element_by_tag_name("body")
 
-    numPageDowns = 30
+    numPageDowns = 10
     while numPageDowns:
         body.send_keys(Keys.PAGE_DOWN)
         time.sleep(0.5)
@@ -189,26 +189,44 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
 
     runnerSales = soup.findAll('div', attrs={"class":"product-card__body"})
 
+    # Compile Links
     for shoe in runnerSales:
-        shoeDetails = shoe.find('div', attrs={"class":"product-card__info disable-animations"})
         shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
         shoeSubLinks.append(shoeLink["href"])
 
-        nikeRunnerObject = {
-            "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
-            "shoeType":shoeDetails.find('div', attrs={"class":"product-card__subtitle"}).text,
-            "shoeReducedPrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
-            "shoeOldPrice":shoeDetails.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
-            "shoeImg":shoeLink.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
-            "shoeCW":shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text
-        }
-        allSaleNikeRunner.append(nikeRunnerObject)
+    driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+    newShoe = driver.get(str(shoeSubLinks[0]))
+    time.sleep(2)
+    newBody = driver.find_element_by_tag_name("body")
+    print(newBody)
 
-    if (nikeRunnerSaleCollection.count_documents({}) != 0):
-        nikeRunnerSaleCollection.delete_many({})
-        nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
-    else:
-        nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
+    # for link in shoeSubLinks:
+    #     driver.get(link)
+    #     time.sleep(2)
+    #     body = driver.find_element_by_tag_name("body")
+    #     print(body)
+    #     driver.quit()
+
+    print(shoeSubLinks)
+
+        # shoeDetails = shoe.find('div', attrs={"class":"product-card__info disable-animations"})
+        
+
+        # nikeRunnerObject = {
+        #     "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
+        #     "shoeType":shoeDetails.find('div', attrs={"class":"product-card__subtitle"}).text,
+        #     "shoeReducedPrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
+        #     "shoeOldPrice":shoeDetails.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
+        #     "shoeImg":shoeLink.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
+        #     "shoeCW":shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text
+        # }
+        # allSaleNikeRunner.append(nikeRunnerObject)
+
+    # if (nikeRunnerSaleCollection.count_documents({}) != 0):
+    #     nikeRunnerSaleCollection.delete_many({})
+    #     nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
+    # else:
+    #     nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
 
 def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     allSaleNikeLifestyle = []
