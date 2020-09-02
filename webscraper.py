@@ -230,7 +230,8 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     print(lifestyleSales)
 
     for shoe in lifestyleSales:
-        shoeDetails = shoe.find('div', attrs={"class":"product-card__info disable-animations"})
+        shoeDetails = shoe.find('div', attrs={"class":["product-card__info disable-animations", 
+                                                       "product-card__info for--product disable-animations"]})
         print(shoeDetails)
         shoeImageData = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
         print(shoeImageData)
