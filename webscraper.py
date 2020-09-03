@@ -218,7 +218,8 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
             "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
             "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
-            "shoeSizeRun":shoeSizeAvailability
+            "shoeSizeRun":shoeSizeAvailability,
+            "shoeLink":str(link)
         }
         allSaleNikeRunner.append(nikeRunnerObject)
 
@@ -280,7 +281,8 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
             "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
             "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
             "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
-            "shoeSizeRun":shoeSizeAvailability
+            "shoeSizeRun":shoeSizeAvailability,
+            "shoeLink":str(link)
         }
         allSaleNikeLifestyle.append(nikeLifestyleObject)
 
@@ -303,7 +305,6 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     response = requests.get("https://www.adidas.ca/en/running-shoes-outlet", headers=adidasHeader, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
     allShoes = soup.find_all('div', attrs={"class":"gl-product-card color-variations__fixed-size glass-product-card___1dpKX"})
-    print(len(allShoes))
     
     # Compile links FIRST 
     for shoe in allShoes:
@@ -327,6 +328,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
             "shoeImg":soup.find("div", attrs={"class":"view___CgbJj"}).find('img')["src"],
             "shoeCW":soup.find('h5').text,
             "shoeDesc":soup.find('div', attrs={"class":"text-content___1EWJO"}).find('p').text,
+            "shoeLink":str(link)
         }
 
 def main():
@@ -345,12 +347,12 @@ def main():
     print("Initialized ChromeDrivers!")
 
     while True:
-        print("NIKE RUNNING SALE")
-        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
-        print("NIKE LIFESTYLE SALE")
-        scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+        # print("NIKE RUNNING SALE")
+        # scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
+        # print("NIKE LIFESTYLE SALE")
+        # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
         print("ADIDAS RUNNING SALE")
         scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
         time.sleep(3)
