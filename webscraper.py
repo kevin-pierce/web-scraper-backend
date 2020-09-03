@@ -198,8 +198,7 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
         driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
         #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
         driver.get(str(link))
-        time.sleep(2)
-        body = driver.find_element_by_tag_name("body")
+        time.sleep(0.5)
 
         response = driver.page_source
         driver.quit()
@@ -231,9 +230,11 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
 
 def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     allSaleNikeLifestyle = []
+    shoeSubLinks = []
 
     nikeLifestyleSaleCollection = shoeReleaseDB.nikeLifestyleSales
-    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
     driver.get("https://www.nike.com/ca/w/sale-lifestyle-shoes-13jrmz3yaepzy7ok")
     time.sleep(2)
     body = driver.find_element_by_tag_name("body")
@@ -249,24 +250,41 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     soup = BeautifulSoup(response, "html.parser")
 
     lifestyleSales = soup.findAll('div', attrs={"class":"product-card__body"})
-    print(lifestyleSales)
-
+    
+    # Compile Links
     for shoe in lifestyleSales:
-        shoeDetails = shoe.find('div', attrs={"class":["product-card__info disable-animations", 
-                                                       "product-card__info for--product disable-animations"]})
-        print(shoeDetails)
-        shoeImageData = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
-        print(shoeImageData)
+        shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
+        shoeSubLinks.append(shoeLink["href"])
+
+    for link in shoeSubLinks:
+        driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+
+        driver.get(str(link))
+        time.sleep(0.5)
+
+        response = driver.page_source
+        driver.quit()
+        soup = BeautifulSoup(response, "html.parser")
+
+        # Scrape all available sizes, strip tags and place the data into an array
+        shoeSizeAvailability = []
+        sizeData = soup.find('form', attrs={"class":"add-to-cart-form nike-buying-tools"}).find_all('label', attrs={"class":"css-xf3ahq"})
+        for size in sizeData:
+            shoeSizeAvailability.append(str(size.get_text()))
 
         nikeLifestyleObject = {
-            "shoeName":shoeDetails.find('div', attrs={"class":"product-card__title"}).text,
-            "shoeType":shoeDetails.find('div', attrs={"class":"product-card__subtitle"}).text,
-            "shoeReducedPrice":shoeDetails.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
-            "shoeOldPrice":shoeDetails.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
-            "shoeImg":shoeImageData.find('div', attrs={"class":"image-loader css-zrrhrw product-card__hero-image is--loaded"}).find("source", attrs={"srcset":True})["srcset"],
-            "shoeCW":shoeDetails.find('div', attrs={"class":"product-card__product-count"}).find('span').text
+            "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
+            "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
+            "shoeReducedPrice":soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
+            "shoeOldPrice":soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
+            "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
+            "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
+            "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
+            "shoeSizeRun":shoeSizeAvailability
         }
         allSaleNikeLifestyle.append(nikeLifestyleObject)
+        print(nikeLifestyleObject)
 
     if (nikeLifestyleSaleCollection.count_documents({}) != 0):
         nikeLifestyleSaleCollection.delete_many({})
@@ -312,12 +330,12 @@ def main():
     #scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) #- Will fix later (to bypass blocked sites lol)
 
     while True:
-        print("NIKE RUNNING SALE")
-        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
-        # print("NIKE LIFESTYLE SALE")
-        # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
+        # print("NIKE RUNNING SALE")
+        # scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
+        print("NIKE LIFESTYLE SALE")
+        scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
         # print("ALL SHOES")
         # scrape_all_releases(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
