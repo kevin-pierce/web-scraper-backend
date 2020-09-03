@@ -296,22 +296,30 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
 # We must scrape subsequent pages with differing URLs
 # Also, we must rely SOLELY on requests, and cannot use Selenium for Adidas at all (Selenium CANNOT pass headers in a request, meaning Adidas will block us everytime in --headless mode)
 def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
+    allShoes = []
     allAdidasRunningLinks = []
     allAdidasRunningSale = []
     adidasHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
 
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
-    print("Getting page")
+    print("Getting MAIN page")
     response = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=0", headers=adidasHeader, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
-    allShoes = soup.find_all('div', attrs={"class":"gl-product-card color-variations__fixed-size glass-product-card___1dpKX"})
     numPages = soup.find('span', attrs={"data-auto-id":"pagination-pages-container"}).text[3:]
     print(numPages)
-    
-    # Compile links FIRST 
+
+    # Scrape each page and compile all products
+    for page in range(1, int(numPages) + 1):
+        pageResponse = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=" + str(48 * int(page-1)), headers=adidasHeader, timeout=15)
+        pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
+        allShoes += soup.find_all('div', attrs={"class":"gl-product-card color-variations__fixed-size glass-product-card___1dpKX"})
+        
+    # Using all products, acquire link
     for shoe in allShoes:
         shoeLink = shoe.find('a', attrs={"class":"gl-product-card__assets-link"})["href"]
         allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
+
+    print(allAdidasRunningLinks)
 
     for link in allAdidasRunningLinks:
         response = requests.get(str(link), headers=adidasHeader, timeout=15)
