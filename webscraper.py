@@ -292,6 +292,7 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
 
 # Adidas has the issue where we cannot simply gather all data on the page by spam-scrolling down
 # We must scrape subsequent pages with differing URLs
+# Also, we must rely SOLELY on requests, and cannot use Selenium for Adidas at all (Selenium CANNOT pass headers in a request, meaning Adidas will block us everytime in --headless mode)
 def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     allAdidasRunningLinks = []
     allAdidasRunningSale = []
@@ -302,7 +303,9 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     response = requests.get("https://www.adidas.ca/en/running-shoes-outlet", headers=adidasHeader, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
     allShoes = soup.find_all('div', attrs={"class":"gl-product-card color-variations__fixed-size glass-product-card___1dpKX"})
+    print(len(allShoes))
     
+    # Compile links FIRST 
     for shoe in allShoes:
         shoeLink = shoe.find('a', attrs={"class":"gl-product-card__assets-link"})["href"]
         allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
@@ -311,6 +314,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         response = requests.get(str(link), headers=adidasHeader, timeout=15)
         soup = BeautifulSoup(response.content, "html.parser")
 
+        # Some shoes may have a placeholder value (Dynamically) - because we are using Requests, we cannot actually "wait until element has loaded"
         if ("placeholder" in str(soup.find('div', attrs={"class":"product-description___2cJO2"}).find('span', attrs={"class":True}))):
             print("SKIPPING")
             continue
@@ -320,6 +324,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
             "shoeReducedPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--sale"}).text,
             "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text,
             "shoeOldPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--crossed"}).text,
+            "shoeImg":soup.find("div", attrs={"class":"view___CgbJj"}).find('img')["src"],
             "shoeCW":soup.find('h5').text,
             "shoeDesc":soup.find('div', attrs={"class":"text-content___1EWJO"}).find('p').text,
         }
@@ -339,15 +344,16 @@ def main():
     chromeOptions.add_argument("--no-sandbox")
     print("Initialized ChromeDrivers!")
 
-    scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) #- Will fix later (to bypass blocked sites lol)
-
-    #while True:
-        # print("NIKE RUNNING SALE")
-        # scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3)
-        # print("NIKE LIFESTYLE SALE")
-        # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3)
+    while True:
+        print("NIKE RUNNING SALE")
+        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
+        print("NIKE LIFESTYLE SALE")
+        scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
+        print("ADIDAS RUNNING SALE")
+        scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
+        time.sleep(3)
 
         #"""THE ABOVE WORKS"""       
 
