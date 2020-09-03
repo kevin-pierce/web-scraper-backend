@@ -206,9 +206,14 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
 
         # Scrape all available sizes, strip tags and place the data into an array
         shoeSizeAvailability = []
-        sizeData = soup.find('form', attrs={"class":"add-to-cart-form nike-buying-tools"}).find_all('label', attrs={"class":"css-xf3ahq"})
+        sizeData = soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"}).find_all('div', attrs={"class":False})
         for size in sizeData:
-            shoeSizeAvailability.append(str(size.get_text()))
+            if ("disabled" in str(size)):
+                continue
+            else:
+                availableSize = size.find("label").text
+                shoeSizeAvailability.append(str(size.get_text()))
+                print(shoeSizeAvailability)
     
         nikeRunnerObject = {
             "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
@@ -218,7 +223,7 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
             "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
             "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
-            "shoeSizeRun":shoeSizeAvailability,
+            "shoeSizeAvailability":shoeSizeAvailability,
             "shoeLink":str(link)
         }
         allSaleNikeRunner.append(nikeRunnerObject)
@@ -320,8 +325,6 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         shoeLink = shoe.find('a', attrs={"class":"gl-product-card__assets-link"})["href"]
         allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
 
-    print(allAdidasRunningLinks)
-
     # Begin visiting each individual product page
     for link in allAdidasRunningLinks:
         response = requests.get(str(link), headers=adidasHeader, timeout=15)
@@ -343,6 +346,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
             "shoeLink":str(link)
         }
         allAdidasRunningSale.append(adidasRunnerObject)
+        print(len(allAdidasRunningSale))
 
     if (adidasRunningSaleCollection.count_documents({}) != 0):
         adidasRunningSaleCollection.delete_many({})
@@ -366,15 +370,15 @@ def main():
     print("Initialized ChromeDrivers!")
 
     while True:
-        # print("NIKE RUNNING SALE")
-        # scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3)
+        print("NIKE RUNNING SALE")
+        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
         # print("NIKE LIFESTYLE SALE")
         # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        print("ADIDAS RUNNING SALE")
-        scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
-        time.sleep(3)
+        # print("ADIDAS RUNNING SALE")
+        # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
+        # time.sleep(3)
 
         #"""THE ABOVE WORKS"""       
 
