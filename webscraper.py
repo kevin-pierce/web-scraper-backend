@@ -310,7 +310,13 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     for link in allAdidasRunningLinks:
         response = requests.get(str(link), headers=adidasHeader, timeout=15)
         soup = BeautifulSoup(response.content, "html.parser")
-        print(soup)
+        print(soup.find('h1', attrs={"data-auto-id":"product-title"}).text)
+        print(soup.find('h5').text)
+        
+        adidasRunnerObject = {
+            "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
+            "shoeCW":soup.find('h5').text
+        }
 
 def main():
     # Connect to DB
