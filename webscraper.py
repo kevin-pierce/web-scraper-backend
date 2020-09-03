@@ -302,9 +302,11 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
 
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
     print("Getting page")
-    response = requests.get("https://www.adidas.ca/en/running-shoes-outlet", headers=adidasHeader, timeout=15)
+    response = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=0", headers=adidasHeader, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
     allShoes = soup.find_all('div', attrs={"class":"gl-product-card color-variations__fixed-size glass-product-card___1dpKX"})
+    numPages = soup.find('span', attrs={"data-auto-id":"pagination-pages-container"}).text[3:]
+    print(numPages)
     
     # Compile links FIRST 
     for shoe in allShoes:
