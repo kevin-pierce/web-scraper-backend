@@ -310,18 +310,18 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     for link in allAdidasRunningLinks:
         response = requests.get(str(link), headers=adidasHeader, timeout=15)
         soup = BeautifulSoup(response.content, "html.parser")
-        print(soup.find('h1', attrs={"data-auto-id":"product-title"}).text)
-        print(soup.find('h5').text)
-        print(soup.find('div', attrs={"data-auto-id":"product-category"}).text)
-        print(soup.find('span', attrs={"class":"gl-price__value gl-price__value--sale"}).text)
-        print(soup.find('span', attrs={"class":"gl-price__value gl-price__value--crossed"}).text)
+
+        if ("placeholder" in str(soup.find('div', attrs={"class":"product-description___2cJO2"}).find('span', attrs={"class":True}))):
+            print("SKIPPING")
+            continue
         
         adidasRunnerObject = {
             "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
             "shoeReducedPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--sale"}).text,
             "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text,
             "shoeOldPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--crossed"}).text,
-            "shoeCW":soup.find('h5').text
+            "shoeCW":soup.find('h5').text,
+            "shoeDesc":soup.find('div', attrs={"class":"text-content___1EWJO"}).find('p').text,
         }
 
 def main():
