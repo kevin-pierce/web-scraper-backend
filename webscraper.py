@@ -300,8 +300,9 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     allAdidasRunningLinks = []
     allAdidasRunningSale = []
     adidasHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
-
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
+
+    # Obtain JUST the first page, where we will scrape the total num of pages
     print("Getting MAIN page")
     response = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=0", headers=adidasHeader, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
@@ -321,6 +322,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
 
     print(allAdidasRunningLinks)
 
+    # Begin visiting each individual product page
     for link in allAdidasRunningLinks:
         response = requests.get(str(link), headers=adidasHeader, timeout=15)
         soup = BeautifulSoup(response.content, "html.parser")
@@ -340,6 +342,13 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
             "shoeDesc":soup.find('div', attrs={"class":"text-content___1EWJO"}).find('p').text,
             "shoeLink":str(link)
         }
+        allAdidasRunningSale.append(adidasRunnerObject)
+
+    if (adidasRunningSaleCollection.count_documents({}) != 0):
+        adidasRunningSaleCollection.delete_many({})
+        adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
+    else:
+        adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
 
 def main():
     # Connect to DB
