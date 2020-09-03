@@ -293,14 +293,24 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
 # Adidas has the issue where we cannot simply gather all data on the page by spam-scrolling down
 # We must scrape subsequent pages with differing URLs
 def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
+    allAdidasRunningLinks = []
     allAdidasRunningSale = []
     adidasHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
 
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
     print("Getting page")
-    response = requests.get("https://www.adidas.ca/en/men-running-shoes-outlet", headers=adidasHeader, timeout=15)
+    response = requests.get("https://www.adidas.ca/en/running-shoes-outlet", headers=adidasHeader, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
-    print(soup)
+    allShoes = soup.find_all('div', attrs={"class":"gl-product-card color-variations__fixed-size glass-product-card___1dpKX"})
+    
+    for shoe in allShoes:
+        shoeLink = shoe.find('a', attrs={"class":"gl-product-card__assets-link"})["href"]
+        allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
+
+    for link in allAdidasRunningLinks:
+        response = requests.get(str(link), headers=adidasHeader, timeout=15)
+        soup = BeautifulSoup(response.content, "html.parser")
+        print(soup)
 
 def main():
     # Connect to DB
@@ -311,7 +321,7 @@ def main():
     # Initialize Chrome web driver for selenium 
     chromeOptions = webdriver.ChromeOptions()
     chromeOptions.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    #chromeOptions.add_argument("--headless") 
+    chromeOptions.add_argument("--headless") 
     chromeOptions.add_argument('--disable-gpu')
     chromeOptions.add_argument("--disable-dev-shm-usage")
     chromeOptions.add_argument("--no-sandbox")
