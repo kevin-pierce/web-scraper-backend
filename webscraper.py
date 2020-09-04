@@ -363,7 +363,6 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
     allJordans = []
     allJordanLinks = []
     allJordansOnSale = []
-    shoeSizeAvailability = []
     footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
     
     print("Getting MAIN page")
@@ -399,10 +398,10 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         # Footlocker doesn't update their sale page regularly, so certain shoes may have been sold out, prompting us with an error page
         # If we receive this error page (Denoted by a single Heading class) then we skip the link
         # Also weirdly some shoes load a FRENCH page first, resulting in weird stuff happening when we request
-        if (not soup.find('div', attrs={"class":"ProductDetails-info"}) or "homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text):
+        if (not soup.find('div', attrs={"class":"ProductDetails-info"})): #or "homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text): <- THIS IS BUGGED OUT FOR SOME REASON
             continue
         else:
-            # shoeName = soup.find('h1', attrs={"id":"pageTitle"}).find('span').text
+            shoeName = soup.find('h1', attrs={"id":"pageTitle"}).find('span').text
             # shoeType = soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text
             # shoeImg = soup.find('div', attrs={"class":"AltImages"}).find('img')["src"]
             # shoeReducedPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text
@@ -412,7 +411,17 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             # shoeDesc = shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else "")
 
             jordanShoeSizeAvailability = soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"})
-            print (jordanShoeSizeAvailability)
+
+            print(shoeName)
+            shoeSizeAvailability = []
+            for size in jordanShoeSizeAvailability:
+                print(size)
+                time.sleep(4)
+                if ("unavailable" in str(size)):
+                    continue
+                else:
+                    print("WOOOO")
+                
 
 
     #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
