@@ -396,7 +396,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         # Footlocker doesn't update their sale page regularly, so certain shoes may have been sold out, prompting us with an error page
         # If we receive this error page (Denoted by a single Heading class) then we skip the link
         # Also weirdly some shoes load a FRENCH page first, resulting in weird stuff happening when we request
-        if (not soup.find('div', attrs={"class":"ProductDetails-info"})): #or "homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text): <- THIS IS BUGGED OUT FOR SOME REASON
+        if (not soup.find('div', attrs={"class":"ProductDetails-info"}) or ("homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text)): #<- THIS IS BUGGED OUT FOR SOME REASON
             continue
         else:
             shoeSizeAvailability = []
