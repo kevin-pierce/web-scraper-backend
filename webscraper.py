@@ -403,7 +403,9 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             continue
         else:
             shoeName = soup.find('h1', attrs={"id":"pageTitle"}).find('span').text
+            shoeType = soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text
             print(shoeName)
+            print(shoeType)
 
 
     #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
