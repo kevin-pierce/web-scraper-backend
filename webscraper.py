@@ -360,11 +360,20 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
 
 def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
+    allShoes = []
+    allJordanLinks = []
+    allJordansOnSale = []
     footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+    
     print("Getting MAIN page")
     response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s", headers=footlockerHeader, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
-    print(soup)
+    numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"}).find('a').text
+    print(numPages)
+
+
+    allShoes = soup.find_all('li', attrs={"class":"product-container col"})
+    print(allShoes)
 
 
 def main():
