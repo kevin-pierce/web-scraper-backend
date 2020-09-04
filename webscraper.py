@@ -360,7 +360,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
 
 def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
-    allShoes = []
+    allJordans = []
     allJordanLinks = []
     allJordansOnSale = []
     footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
@@ -384,8 +384,12 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s%3Ashoestyle%3ACasual%2BSneakers&sort=relevance&currentPage=" + str(page), headers=footlockerHeader, timeout=15)
 
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
-        allShoes += soup.find_all('li', attrs={"class":"product-container col"})
-        print(allShoes)
+        allJordans += soup.find_all('li', attrs={"class":"product-container col"})
+
+    for jordan in allJordans:
+        jordanLink = jordan.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
+        print(jordanLink)
+        allJordanLinks.append("https://www.footlocker.ca" + str(jordanLink))
 
 
     #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
