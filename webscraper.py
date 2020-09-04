@@ -406,6 +406,9 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             shoeReducedPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text
             shoeOldPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text
             shoeCW = soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0]
+            shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
+            shoeDesc = shoeDescUnformatted[0] + "." + shoeDescUnformatted[1]
+
 
             print(shoeName)
             print(shoeType)
@@ -413,6 +416,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             print(shoeOldPrice)
             print(shoeReducedPrice)
             print(shoeCW)
+            print(shoeDesc)
 
 
     #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
