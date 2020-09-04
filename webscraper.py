@@ -406,7 +406,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
                 if ("unavailable" in str(size)):
                     continue
                 else:
-                    shoeSizeAvailability.append(size.find('span').text)
+                    shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
 
             shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
 
@@ -419,12 +419,9 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
                 "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
                 "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
                 "shoeSizeAvailability":shoeSizeAvailability,
+                "shoeLink":str(link)
             }
-            print(jordanShoeObject)
-
-
-    #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
-    #print(allShoes)
+            allJordansOnSale.append(jordanShoeObject)
 
 
 def main():
