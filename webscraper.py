@@ -366,14 +366,22 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
     footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
     
     print("Getting MAIN page")
-    response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s", headers=footlockerHeader, timeout=15)
+    response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s%3Ashoestyle%3ACasual%2BSneakers&currentPage=0", headers=footlockerHeader, timeout=15)
+
     soup = BeautifulSoup(response.content, "html.parser")
     numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"}).find('a').text
     print(numPages)
 
+    # Scrape each page and compile all products
+    for page in range(0, int(numPages)):
+        pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s%3Ashoestyle%3ACasual%2BSneakers&currentPage=" + str(page), headers=footlockerHeader, timeout=15)
+        pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
+        allShoes += soup.find_all('li', attrs={"class":"product-container col"})
+        print(allShoes)
 
-    allShoes = soup.find_all('li', attrs={"class":"product-container col"})
-    print(allShoes)
+
+    #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
+    #print(allShoes)
 
 
 def main():
