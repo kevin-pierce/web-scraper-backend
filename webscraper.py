@@ -397,7 +397,8 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         
         # Footlocker doesn't update their sale page regularly, so certain shoes may have been sold out, prompting us with an error page
         # If we receive this error page (Denoted by a single Heading class) then we skip the link
-        if (not soup.find('div', attrs={"class":"ProductDetails-info"})):
+        # Also weirdly some shoes load a FRENCH page first, resulting in weird stuff happening when we request
+        if (not soup.find('div', attrs={"class":"ProductDetails-info"}) or "homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text):
             continue
         else:
             shoeName = soup.find('h1', attrs={"id":"pageTitle"}).find('span').text
@@ -406,8 +407,11 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             shoeReducedPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text
             shoeOldPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text
             shoeCW = soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0]
+
+            print(shoeName)
+
             shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
-            shoeDesc = shoeDescUnformatted[0] + "." + shoeDescUnformatted[1]
+            shoeDesc = shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else "")
 
 
             print(shoeName)
