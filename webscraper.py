@@ -405,9 +405,14 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             shoeName = soup.find('h1', attrs={"id":"pageTitle"}).find('span').text
             shoeType = soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text
             shoeImg = soup.find('div', attrs={"class":"AltImages"}).find('img')["src"]
+            shoeReducedPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text
+            shoeOldPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text
+
             print(shoeName)
             print(shoeType)
             print(shoeImg)
+            print(shoeOldPrice)
+            print(shoeReducedPrice)
 
 
     #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
