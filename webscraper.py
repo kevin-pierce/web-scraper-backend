@@ -363,6 +363,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
     allJordans = []
     allJordanLinks = []
     allJordansOnSale = []
+    shoeSizeAvailability = []
     footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
     
     print("Getting MAIN page")
@@ -401,26 +402,17 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         if (not soup.find('div', attrs={"class":"ProductDetails-info"}) or "homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text):
             continue
         else:
-            shoeName = soup.find('h1', attrs={"id":"pageTitle"}).find('span').text
-            shoeType = soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text
-            shoeImg = soup.find('div', attrs={"class":"AltImages"}).find('img')["src"]
-            shoeReducedPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text
-            shoeOldPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text
-            shoeCW = soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0]
+            # shoeName = soup.find('h1', attrs={"id":"pageTitle"}).find('span').text
+            # shoeType = soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text
+            # shoeImg = soup.find('div', attrs={"class":"AltImages"}).find('img')["src"]
+            # shoeReducedPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text
+            # shoeOldPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text
+            # shoeCW = soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0]
+            # shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
+            # shoeDesc = shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else "")
 
-            print(shoeName)
-
-            shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
-            shoeDesc = shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else "")
-
-
-            print(shoeName)
-            print(shoeType)
-            print(shoeImg)
-            print(shoeOldPrice)
-            print(shoeReducedPrice)
-            print(shoeCW)
-            print(shoeDesc)
+            jordanShoeSizeAvailability = soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"})
+            print (jordanShoeSizeAvailability)
 
 
     #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
