@@ -359,6 +359,14 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     else:
         adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
 
+def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
+    footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+    print("Getting MAIN page")
+    response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s", headers=footlockerHeader, timeout=15)
+    soup = BeautifulSoup(response.content, "html.parser")
+    print(soup)
+
+
 def main():
     # Connect to DB
     client = pymongo.MongoClient("mongodb+srv://webscraper:webscraper2193@webscraper-db.urihh.azure.mongodb.net/shoepicDB?retryWrites=true&w=majority", ssl=True,ssl_cert_reqs='CERT_NONE')
@@ -375,15 +383,19 @@ def main():
     print("Initialized ChromeDrivers!")
 
     while True:
-        print("NIKE RUNNING SALE")
-        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+        #print("NIKE RUNNING SALE")
+        #scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        #time.sleep(3)
         # print("NIKE LIFESTYLE SALE")
         # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
         # print("ADIDAS RUNNING SALE")
         # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
         # time.sleep(3)
+
+        print("FOOTLOCKER JORDANS SALE")
+        scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
 
         #"""THE ABOVE WORKS"""       
 
