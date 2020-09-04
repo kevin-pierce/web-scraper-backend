@@ -389,7 +389,6 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
     # Compile all links
     for jordan in allJordans:
         jordanLink = jordan.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
-        print(jordanLink)
         allJordanLinks.append("https://www.footlocker.ca" + str(jordanLink))
 
     for link in allJordanLinks:
@@ -399,7 +398,6 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         # Footlocker doesn't update their sale page regularly, so certain shoes may have been sold out, prompting us with an error page
         # If we receive this error page (Denoted by a single Heading class) then we skip the link
         if (not soup.find('div', attrs={"class":"ProductDetails-info"})):
-            print ("NO SHOE FOUND - SKIPPING")
             continue
         else:
             shoeName = soup.find('h1', attrs={"id":"pageTitle"}).find('span').text
@@ -407,12 +405,14 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             shoeImg = soup.find('div', attrs={"class":"AltImages"}).find('img')["src"]
             shoeReducedPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text
             shoeOldPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text
+            shoeCW = soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0]
 
             print(shoeName)
             print(shoeType)
             print(shoeImg)
             print(shoeOldPrice)
             print(shoeReducedPrice)
+            print(shoeCW)
 
 
     #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
