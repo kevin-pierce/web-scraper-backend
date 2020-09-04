@@ -34,7 +34,7 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
     # Now finds all release-containing divs, including the ones that load on scroll
-    shoeReleases = soup.findAll('div', attrs={"class": [
+    shoeReleases = soup.find_all('div', attrs={"class": [
                                                         "releases-box col lg-2 sm-6 paged-1", 
                                                         "releases-box col lg-2 sm-6 paged-1 just_added", 
                                                         "releases-box col lg-2 sm-6 paged-2",
@@ -49,9 +49,9 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
         shoeDetails = shoeContent.find("div", attrs={"class":"post-data"})
         
         shoeObject = {
-            "releaseRegion":shoeDetails.findAll("p")[3].text[8:].strip(),
-            "sizeRun":shoeDetails.findAll("p")[0].text[10:].strip(),
-            "shoeCW":shoeDetails.findAll("p")[1].text[7:].strip(),
+            "releaseRegion":shoeDetails.find_all("p")[3].text[8:].strip(),
+            "sizeRun":shoeDetails.find_all("p")[0].text[10:].strip(),
+            "shoeCW":shoeDetails.find_all("p")[1].text[7:].strip(),
             "shoeName":shoeContent.find("h2").find("a").text,
             "shoePrice":shoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
             "shoeReleaseDate":shoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
@@ -82,7 +82,7 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
     response = driver.page_source
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
-    jordanReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
+    jordanReleases = soup.find_all('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
                                                         "releases-box col lg-2 sm-6 paged-1 just_added", 
                                                         "releases-box col lg-2 sm-6 paged-2",
                                                         "releases-box col lg-2 sm-6 paged-2 just_added", 
@@ -99,9 +99,9 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
         jShoeDetails = jShoeContent.find("div", attrs={"class":"post-data"})
         
         jordanShoeObject = {
-            "releaseRegion":jShoeDetails.findAll("p")[3].text[8:].strip(),
-            "sizeRun":jShoeDetails.findAll("p")[0].text[10:].strip(),
-            "shoeCW":jShoeDetails.findAll("p")[1].text[7:].strip(),
+            "releaseRegion":jShoeDetails.find_all("p")[3].text[8:].strip(),
+            "sizeRun":jShoeDetails.find_all("p")[0].text[10:].strip(),
+            "shoeCW":jShoeDetails.find_all("p")[1].text[7:].strip(),
             "shoeName":jShoeContent.find("h2").find("a").text,
             "shoePrice":jShoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
             "shoeReleaseDate":jShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
@@ -135,7 +135,7 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
     response = driver.page_source
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
-    yeezyReleases = soup.findAll('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
+    yeezyReleases = soup.find_all('div', attrs={"class": ["releases-box col lg-2 sm-6 paged-1", 
                                                         "releases-box col lg-2 sm-6 paged-1 just_added", 
                                                         "releases-box col lg-2 sm-6 paged-2",
                                                         "releases-box col lg-2 sm-6 paged-2 just_added", 
@@ -148,9 +148,9 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
         yShoeDetails = yShoeContent.find("div", attrs={"class":"post-data"})
         
         yeezyShoeObject = {
-            "releaseRegion":yShoeDetails.findAll("p")[3].text[8:].strip(),
-            "sizeRun":yShoeDetails.findAll("p")[0].text[10:].strip(),
-            "shoeCW":yShoeDetails.findAll("p")[1].text[7:].strip(),
+            "releaseRegion":yShoeDetails.find_all("p")[3].text[8:].strip(),
+            "sizeRun":yShoeDetails.find_all("p")[0].text[10:].strip(),
+            "shoeCW":yShoeDetails.find_all("p")[1].text[7:].strip(),
             "shoeName":yShoeContent.find("h2").find("a").text,
             "shoePrice":yShoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
             "shoeReleaseDate":yShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
@@ -187,7 +187,7 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
 
-    runnerSales = soup.findAll('div', attrs={"class":"product-card__body"})
+    runnerSales = soup.find_all('div', attrs={"class":"product-card__body"})
 
     # Compile Links
     for shoe in runnerSales:
@@ -255,7 +255,7 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
 
-    lifestyleSales = soup.findAll('div', attrs={"class":"product-card__body"})
+    lifestyleSales = soup.find_all('div', attrs={"class":"product-card__body"})
     
     # Compile Links
     for shoe in lifestyleSales:
@@ -364,6 +364,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
     allJordanLinks = []
     allJordansOnSale = []
     footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+    footlockerJordanSaleCollection = shoeReleaseDB.footlockerJordanSales
     
     print("Getting MAIN page")
     response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s%3Ashoestyle%3ACasual+Sneakers&sort=relevance", headers=footlockerHeader, timeout=15)
@@ -371,16 +372,13 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
 
     soup = BeautifulSoup(response.content, "html.parser")
     numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"}).find('a').text
-    print(numPages)
 
     # Scrape each page and compile all products
     for page in range(0, int(numPages)):
         # First page has no currentPage param - inputting it will break all subsequent links
         if (page == 0):
-            print("FIRST PAGE")
             pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s%3Ashoestyle%3ACasual+Sneakers&sort=relevance", headers=footlockerHeader, timeout=15)
         else:
-            print("SECOND PAGE")
             pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s%3Ashoestyle%3ACasual%2BSneakers&sort=relevance&currentPage=" + str(page), headers=footlockerHeader, timeout=15)
 
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
@@ -422,6 +420,12 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
                 "shoeLink":str(link)
             }
             allJordansOnSale.append(jordanShoeObject)
+
+        if (footlockerJordanSaleCollection.count_documents({}) != 0):
+            footlockerJordanSaleCollection.delete_many({})
+            footlockerJordanSaleCollection.insert_many(allJordansOnSale)
+        else:
+            footlockerJordanSaleCollection.insert_many(allJordansOnSale)
 
 
 def main():
