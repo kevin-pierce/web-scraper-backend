@@ -401,27 +401,26 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         if (not soup.find('div', attrs={"class":"ProductDetails-info"})): #or "homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text): <- THIS IS BUGGED OUT FOR SOME REASON
             continue
         else:
-            shoeName = soup.find('h1', attrs={"id":"pageTitle"}).find('span').text
-            # shoeType = soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text
-            # shoeImg = soup.find('div', attrs={"class":"AltImages"}).find('img')["src"]
-            # shoeReducedPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text
-            # shoeOldPrice = soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text
-            # shoeCW = soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0]
-            # shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
-            # shoeDesc = shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else "")
-
-            jordanShoeSizeAvailability = soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"})
-
-            print(shoeName)
             shoeSizeAvailability = []
-            for size in jordanShoeSizeAvailability:
-                print(size)
-                time.sleep(4)
+            for size in soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"}):
                 if ("unavailable" in str(size)):
                     continue
                 else:
-                    print("WOOOO")
-                
+                    shoeSizeAvailability.append(size.find('span').text)
+
+            shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
+
+            jordanShoeObject = {
+                "shoeName":soup.find('h1', attrs={"id":"pageTitle"}).find('span').text,
+                "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
+                "shoeReducedPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text,
+                "shoeOldPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
+                "shoeImg":soup.find('div', attrs={"class":"AltImages"}).find('img')["src"],
+                "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
+                "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
+                "shoeSizeAvailability":shoeSizeAvailability,
+            }
+            print(jordanShoeObject)
 
 
     #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
