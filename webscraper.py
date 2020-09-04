@@ -386,10 +386,24 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
         allJordans += soup.find_all('li', attrs={"class":"product-container col"})
 
+    # Compile all links
     for jordan in allJordans:
         jordanLink = jordan.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
         print(jordanLink)
         allJordanLinks.append("https://www.footlocker.ca" + str(jordanLink))
+
+    for link in allJordanLinks:
+        response = requests.get(str(link), headers=footlockerHeader, timeout=15)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Footlocker doesn't update their sale page regularly, so certain shoes may have been sold out, prompting us with an error page
+        # If we receive this error page (Denoted by a single Heading class) then we skip the link
+        if (not soup.find('div', attrs={"class":"ProductDetails-info"})):
+            print ("NO SHOE FOUND - SKIPPING")
+            continue
+        else:
+            shoeName = soup.find('h1', attrs={"id":"pageTitle"}).find('span').text
+            print(shoeName)
 
 
     #allShoes = soup.find_all('li', attrs={"class":"product-container col"})
