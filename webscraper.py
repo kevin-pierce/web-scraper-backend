@@ -453,7 +453,18 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     for link in allRunnerLinks:
         response = requests.get(str(link), headers=footlockerHeader, timeout=15)
         soup = BeautifulSoup(response.content, 'html.parser')
-        print(soup.find('h1', attrs={"id":"pageTitle"}).find('span').text)
+        
+        if (not soup.find('div', attrs={"class":"ProductDetails-info"}) or ("homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text)): #<- THIS IS BUGGED OUT FOR SOME REASON
+            print("Product Sold Out")
+            continue
+        else:
+            print("Shoe is in Stock")
+            shoeSizeAvailability = []
+            for size in soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"}):
+                if ("unavailable" in str(size)):
+                    continue
+                else:
+                    shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
 
 
 
