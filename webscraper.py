@@ -441,9 +441,21 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     soup = BeautifulSoup(response.content, "html.parser")
 
     if (str(soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})) == "None"):
-        print("LOL YEET")
+        runnersOnSale = soup.find_all('li', attrs={"class":"product-container col"})
     else:
+        # DO this later
         print("There are multiple pages")
+
+    for runner in runnersOnSale:
+        runnerLink = runner.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
+        allRunnerLinks.append("https://www.footlocker.ca" + str(runnerLink))
+
+    for link in allRunnerLinks:
+        response = requests.get(str(link), headers=footlockerHeader, timeout=15)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        print(soup.find('h1', attrs={"id":"pageTitle"}).find('span').text)
+
+
 
 
     #numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})
