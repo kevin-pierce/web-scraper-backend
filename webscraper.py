@@ -455,10 +455,8 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
         soup = BeautifulSoup(response.content, 'html.parser')
         
         if (not soup.find('div', attrs={"class":"ProductDetails-info"}) or ("homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text)): #<- THIS IS BUGGED OUT FOR SOME REASON
-            print("Product Sold Out")
             continue
         else:
-            print("Shoe is in Stock")
             shoeSizeAvailability = []
             for size in soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"}):
                 if ("unavailable" in str(size)):
@@ -479,14 +477,16 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 "shoeSizeAvailability":shoeSizeAvailability,
                 "shoeLink":str(link)
             }
+            print(adidasRunnerObject)
             allAdidasRunnersOnSale.append(adidasRunnerObject)
 
+    if (adidasRunningSaleCollection.count_documents({}) != 0):
+        adidasRunningSaleCollection.delete_many({})
+        adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
+    else:
+        adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
 
 
-
-    #numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})
-    #.find('a').text
-    #print(numPages)
 
 
 
