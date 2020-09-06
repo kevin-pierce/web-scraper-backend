@@ -427,6 +427,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         else:
             footlockerJordanSaleCollection.insert_many(allJordansOnSale)
 
+
 def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     allAdidasRunners = []
     allRunnerLinks = []
@@ -436,6 +437,19 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     
     print("Getting MAIN page")
     response = requests.get("https://www.footlocker.ca/en/category/mens/adidas.html?query=Men%27s+adidas%3AtopSellers%3Agender%3AMen%27s%3Asport%3ARunning%3AstyleDiscountPercent%3ASALE", headers=footlockerHeader, timeout=15)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    if (str(soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})) == "None"):
+        print("LOL YEET")
+    else:
+        print("There are multiple pages")
+
+
+    #numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})
+    #.find('a').text
+    #print(numPages)
+
 
 
 def main():
