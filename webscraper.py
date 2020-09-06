@@ -427,6 +427,16 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         else:
             footlockerJordanSaleCollection.insert_many(allJordansOnSale)
 
+def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
+    allAdidasRunners = []
+    allRunnerLinks = []
+    allAdidasRunnersOnSale = []
+    footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+    adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
+    
+    print("Getting MAIN page")
+    response = requests.get("https://www.footlocker.ca/en/category/mens/adidas.html?query=Men%27s+adidas%3AtopSellers%3Agender%3AMen%27s%3Asport%3ARunning%3AstyleDiscountPercent%3ASALE", headers=footlockerHeader, timeout=15)
+
 
 def main():
     # Connect to DB
@@ -453,9 +463,11 @@ def main():
         # print("ADIDAS RUNNING SALE")
         # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
         # time.sleep(3)
-
-        print("FOOTLOCKER JORDANS SALE")
-        scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
+        # print("FOOTLOCKER JORDANS SALE")
+        # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
+        print("FOOTLOCKER ADIDAS RUNNER SALES")
+        scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
         time.sleep(3)
 
         #"""THE ABOVE WORKS"""       
