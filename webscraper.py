@@ -466,6 +466,21 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 else:
                     shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
 
+            shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
+
+            adidasRunnerObject = {
+                "shoeName":soup.find('h1', attrs={"id":"pageTitle"}).find('span').text,
+                "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
+                "shoeReducedPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text,
+                "shoeOldPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
+                "shoeImg":soup.find('div', attrs={"class":"AltImages"}).find('img')["src"],
+                "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
+                "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
+                "shoeSizeAvailability":shoeSizeAvailability,
+                "shoeLink":str(link)
+            }
+            allAdidasRunnersOnSale.append(adidasRunnerObject)
+
 
 
 
