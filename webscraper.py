@@ -16,7 +16,7 @@ from bson import json_util
 from bson.json_util import dumps
 import json
 
-def scrape_all_releases(shoeReleaseDB, chromeOptions):
+def scrape_all_releases_sneakerNews(shoeReleaseDB, chromeOptions):
     allShoeReleasesCollection = shoeReleaseDB.shoeReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chromeOptions)
     driver.get("https://sneakernews.com/release-dates/")
@@ -65,7 +65,7 @@ def scrape_all_releases(shoeReleaseDB, chromeOptions):
         allShoeReleasesCollection.delete_many({})
         allShoeReleasesCollection.insert_many(shoes)
 
-def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
+def scrape_jordan_releases_sneakerNews(shoeReleaseDB, chromeOptions):
     allJordans = []
     jordanShoeReleasesCollection = shoeReleaseDB.jordanReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
@@ -116,8 +116,7 @@ def scrape_jordan_releases(shoeReleaseDB, chromeOptions):
     else:
         jordanShoeReleasesCollection.insert_many(jordans)
 
-
-def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
+def scrape_yeezy_releases_sneakerNews(shoeReleaseDB, chromeOptions):
     allYeezys = []
     yeezyShoeReleasesCollection = shoeReleaseDB.yeezyReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
@@ -164,6 +163,14 @@ def scrape_yeezy_releases(shoeReleaseDB, chromeOptions):
         yeezyShoeReleasesCollection.insert_many(yeezys)
     else:
         yeezyShoeReleasesCollection.insert_many(yeezys)
+
+def scrape_all_releases_footlocker(shoeReleaseDB):
+    allReleases = []
+    allShoeReleasesCollection = shoeReleaseDB.shoeReleases # We are not going to be using a "Line-specific" shoe DB
+    footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+    print("Getting RELEASES")
+    response = requests.get("https://www.footlocker.ca/en/release-dates", headers=footlockerHeader, timeout=15)
+    
 
 # Sale Running Shoes
 def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
@@ -427,7 +434,6 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         else:
             footlockerJordanSaleCollection.insert_many(allJordansOnSale)
 
-
 def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     allAdidasRunners = []
     allRunnerLinks = []
@@ -486,10 +492,6 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     else:
         adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
 
-
-
-
-
 def main():
     # Connect to DB
     client = pymongo.MongoClient("mongodb+srv://webscraper:webscraper2193@webscraper-db.urihh.azure.mongodb.net/shoepicDB?retryWrites=true&w=majority", ssl=True,ssl_cert_reqs='CERT_NONE')
@@ -518,20 +520,23 @@ def main():
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        print("FOOTLOCKER ADIDAS RUNNER SALES")
-        scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+        # print("FOOTLOCKER ADIDAS RUNNER SALES")
+        # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
 
         #"""THE ABOVE WORKS"""       
 
+        scrape_all_releases_footlocker(shoeReleaseDB)
+        time.sleep(3)
+
         # print("ALL SHOES")
-        # scrape_all_releases(shoeReleaseDB, chromeOptions)
+        # scrape_all_releases_sneakerNews(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
         # print("JORDANS")
-        # scrape_jordan_releases(shoeReleaseDB, chromeOptions)
+        # scrape_jordan_releases_sneakerNews(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
         # print("YEEZYS")
-        # scrape_yeezy_releases(shoeReleaseDB, chromeOptions)
+        # scrape_yeezy_releases_sneakerNews(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
 
 main()
