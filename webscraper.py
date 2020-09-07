@@ -180,6 +180,7 @@ def scrape_all_releases_footlocker(shoeReleaseDB):
         print(shoe.find('span', attrs={"class":"c-release-product-month"}).text) # Found Date
         # print(shoe.find('span', attrs={"class":"c-image"}).find('span')["src"]) # DOES NOT WORK
         print(shoe.find('p', attrs={"class":"c-prd-name"}).text) # Shoe Name
+        print(shoe.find('p', attrs={"class":"c-prd-text-color"}).text) # Shoe Colourway
 
 # Sale Running Shoes
 def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
