@@ -164,6 +164,18 @@ def scrape_yeezy_releases_sneakerNews(shoeReleaseDB, chromeOptions):
     else:
         yeezyShoeReleasesCollection.insert_many(yeezys)
 
+def scrape_all_releases_kicksOnFire(shoeReleaseDB):
+    allReleases = []
+    allShoeReleasesCollection = shoeReleaseDB.shoeReleases
+
+    print("GETTING RELEASES")
+    releaseHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+    response = requests.get("https://www.kicksonfire.com/app/", headers=releaseHeader, timeout=15)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    print(soup)
+
+
+# WILL FIX LATER
 def scrape_all_releases_footlocker(shoeReleaseDB):
     allReleases = []
     allShoeReleasesCollection = shoeReleaseDB.shoeReleases # We are not going to be using a "Line-specific" shoe DB
@@ -533,11 +545,12 @@ def main():
         # print("FOOTLOCKER ADIDAS RUNNER SALES")
         # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-
+        scrape_all_releases_kicksOnFire(shoeReleaseDB)
+        
         #"""THE ABOVE WORKS"""       
 
-        scrape_all_releases_footlocker(shoeReleaseDB)
-        time.sleep(3)
+        #scrape_all_releases_footlocker(shoeReleaseDB)
+        #time.sleep(3)
 
         # print("ALL SHOES")
         # scrape_all_releases_sneakerNews(shoeReleaseDB, chromeOptions)
