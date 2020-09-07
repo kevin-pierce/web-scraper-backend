@@ -164,17 +164,27 @@ def scrape_yeezy_releases_sneakerNews(shoeReleaseDB, chromeOptions):
     else:
         yeezyShoeReleasesCollection.insert_many(yeezys)
 
-def scrape_all_releases_footlocker(shoeReleaseDB):
+def scrape_all_releases_footlocker(shoeReleaseDB, chromeOptions):
     allReleases = []
     allShoeReleasesCollection = shoeReleaseDB.shoeReleases # We are not going to be using a "Line-specific" shoe DB
-    footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+    #footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
     print("Getting RELEASES")
-    response = requests.get("https://www.footlocker.ca/en/release-dates", headers=footlockerHeader, timeout=15)
+    #response = requests.get("https://www.footlocker.ca/en/release-dates", headers=footlockerHeader, timeout=15)
+    driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+    driver.get("https://www.footlocker.ca/en/release-dates")
+    time.sleep(2)
+   
+    response = driver.page_source
 
-    soup = BeautifulSoup(response.content, 'html.parser')
+    soup = BeautifulSoup(response, 'html.parser')
+    print(soup)
 
-    shoeReleases = soup.find_all('div', attrs={"class":"c-release-product-wrap flex col"})
-    print(len(shoeReleases))
+    # shoeReleases = soup.find_all('div', attrs={"class":"c-release-product-wrap flex col"})
+    # print(len(shoeReleases))
+
+    # for shoe in shoeReleases:
+    #     print(shoe.find('span', attrs={"class":"c-release-product-month"}).text) # Found Date
+    #     print(shoe.find('span', attrs={"class":"c-image"}))
     
 
 # Sale Running Shoes
@@ -531,7 +541,7 @@ def main():
 
         #"""THE ABOVE WORKS"""       
 
-        scrape_all_releases_footlocker(shoeReleaseDB)
+        scrape_all_releases_footlocker(shoeReleaseDB, chromeOptions)
         time.sleep(3)
 
         # print("ALL SHOES")
