@@ -170,6 +170,11 @@ def scrape_all_releases_footlocker(shoeReleaseDB):
     footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
     print("Getting RELEASES")
     response = requests.get("https://www.footlocker.ca/en/release-dates", headers=footlockerHeader, timeout=15)
+
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    shoeReleases = soup.find_all('div', attrs={"class":"c-release-product-wrap flex col"})
+    print(len(shoeReleases))
     
 
 # Sale Running Shoes
