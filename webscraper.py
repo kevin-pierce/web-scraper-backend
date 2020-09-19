@@ -173,6 +173,9 @@ def scrape_all_releases_kicksOnFire(shoeReleaseDB):
     response = requests.get("https://www.kicksonfire.com/app/", headers=releaseHeader, timeout=15)
     soup = BeautifulSoup(response.content, 'html.parser')
     print(soup)
+    
+    allShoes = soup.find_all('div', attrs={"class":"col-xs-12 col-sm-6 col-md-4 release-date-item-continer clear-padding"})
+    print(allShoes)
 
 
 # WILL FIX LATER
@@ -255,7 +258,9 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeSizeAvailability":shoeSizeAvailability,
             "shoeLink":str(link)
         }
+        nikeRunnerObject["shoeDiscount":(float(nikeRunnerObject["shoeReducedPrice"])/float(nikeRunnerObject["shoeOldPrice"]))]
         allSaleNikeRunner.append(nikeRunnerObject)
+        print(nikeRunnerObject)
 
     if (nikeRunnerSaleCollection.count_documents({}) != 0):
         nikeRunnerSaleCollection.delete_many({})
@@ -530,22 +535,25 @@ def main():
     print("Initialized ChromeDrivers!")
 
     while True:
-        #print("NIKE RUNNING SALE")
-        #scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        print("NIKE RUNNING SALE")
+        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
+        #print("NIKE LIFESTYLE SALE")
+        #scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
         #time.sleep(3)
-        # print("NIKE LIFESTYLE SALE")
-        # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3)
-        # print("ADIDAS RUNNING SALE")
-        # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
-        # time.sleep(3)
+        #print("ADIDAS RUNNING SALE")
+        #scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
+        #time.sleep(3)
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
         # print("FOOTLOCKER ADIDAS RUNNER SALES")
         # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        scrape_all_releases_kicksOnFire(shoeReleaseDB)
+
+        
+        #scrape_all_releases_redFlagDeals(shoeReleaseDB)
+        #time.sleep(5)
         
         #"""THE ABOVE WORKS"""       
 
