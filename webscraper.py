@@ -519,13 +519,21 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     else:
         adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
 
-def scrape_sportchek_nike_runner_sales(shoeReleaseDB, chromeOptions):
+def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     sportchekHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+    driver.get("https://ca.shop.runningroom.com/en_ca/sale-1/shoes.html#?profile_id=5a6d1b7d25e905d046cd87722be40a94&session_id=3a91a736-ffb0-11ea-b859-0242ac110003&Category0=Sale&Category1=Shoes&search_return=all&Brand=Nike")
+    time.sleep(2)
+    body = driver.find_element_by_tag_name("body")
 
-    response = requests.get("https://www.sportchek.ca/clearance/mens.html?preselectedBrandsNumber=0;preselectedCategoriesNumber=1;q2=INACTIVE%7CPERM;q4=men%3A%3Ashoes-footwear%3A%3Arunning;x2=productStatus;x4=ast-id-level-3;page=1", headers=sportchekHeader, timeout=15);
-    soup = BeautifulSoup(response.content, "html.parser")
+    response = driver.page_source
+    driver.quit()
+    soup = BeautifulSoup(response, "html.parser")
 
     print(soup)
+
+    
 
 def main():
     # Connect to DB
@@ -547,8 +555,8 @@ def main():
         #scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
         #time.sleep(3)
         print("NIKE RUNNING SALE @ SPORTCHEK")
-        scrape_sportchek_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+        scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3);
         #print("NIKE LIFESTYLE SALE")
         #scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
         #time.sleep(3)
