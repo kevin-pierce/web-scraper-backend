@@ -520,7 +520,6 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
         adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
 
 def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
-    sportchekHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
     #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
     driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
     driver.get("https://ca.shop.runningroom.com/en_ca/sale-1/shoes.html#?profile_id=5a6d1b7d25e905d046cd87722be40a94&session_id=3a91a736-ffb0-11ea-b859-0242ac110003&Category0=Sale&Category1=Shoes&search_return=all&Brand=Nike")
@@ -531,7 +530,14 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
 
-    print(soup)
+    runningSales = soup.find_all('li', attrs={"class":"item product product-item"})
+
+    for shoe in runningSales:
+        nikeRunnerObject = {
+            "shoeName":shoe.find('h2', attrs={"class":"product-name"}).find('a').text,
+            "shoeImg":shoe.find("img", attrs={"class":"product-image-photo"})["src"]
+        }
+        print(nikeRunnerObject)
 
     
 
@@ -554,7 +560,7 @@ def main():
         #print("NIKE RUNNING SALE")
         #scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
         #time.sleep(3)
-        print("NIKE RUNNING SALE @ SPORTCHEK")
+        print("NIKE RUNNING SALE @ RUNNINGROOM")
         scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
         time.sleep(3);
         #print("NIKE LIFESTYLE SALE")
