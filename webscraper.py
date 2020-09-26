@@ -535,11 +535,14 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     for shoe in runningSales:
         nikeRunnerObject = {
             "shoeName":shoe.find('h2', attrs={"class":"product-name"}).find('a').text,
-            "shoeImg":shoe.find("img", attrs={"class":"product-image-photo"})["src"]
+            "shoeImg":shoe.find("img", attrs={"class":"product-image-photo"})["src"],
+            "shoeType":"Running",
+            "shoeReducedPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[0].strip(),
+            "shoeOldPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[1].strip(),
+
         }
         print(nikeRunnerObject)
 
-    
 
 def main():
     # Connect to DB
