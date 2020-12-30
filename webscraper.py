@@ -458,11 +458,12 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
         allJordans += soup.find_all('li', attrs={"class":"product-container col"})
 
-    # Compile all links
+    # Compile all links for each product
     for jordan in allJordans:
         jordanLink = jordan.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
         allJordanLinks.append("https://www.footlocker.ca" + str(jordanLink))
 
+    # Iterate through each product page, creating an object 
     for link in allJordanLinks:
         response = requests.get(str(link), headers=footlockerHeader, timeout=3)
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -472,6 +473,8 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         if (soup.find('div', attrs={"class":"Page-wrapper Page--large Page--productNotFound"})): 
             print("Empty product page") # TESTING
             continue
+
+        # If there is a product available, we acquire all available sizes and the shoe's description
         else:
             shoeSizeAvailability = []
             for size in soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"}):
@@ -482,6 +485,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
 
             shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
 
+            # Create the shoe object with corresponding entries about its information
             jordanShoeObject = {
                 "shoeName":soup.find('h1', attrs={"id":"pageTitle"}).find('span').text,
                 "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
@@ -499,6 +503,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             allJordansOnSale.append(jordanShoeObject)
             print(jordanShoeObject) # TESTING
 
+        # Wipe the DB and fill with all newly scraped products 
         if (footlockerJordanSaleCollection.count_documents({}) != 0):
             footlockerJordanSaleCollection.delete_many({})
             footlockerJordanSaleCollection.insert_many(allJordansOnSale)
@@ -516,6 +521,7 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     allAdidasRunners = []
     allRunnerLinks = []
     allAdidasRunnersOnSale = []
+    runnersOnSale = []
 
     # Create header for Selenium browser (makes us look human)
     footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
@@ -523,17 +529,22 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     # Specify the collection we wish to access in the DB
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
     
-    # Obtain the main page (Used to create an array of links for each shoe object on the page)
+    # Obtain the main page (Used to create an array of links for each shoe object on the page) and the number of pages
     response = requests.get("https://www.footlocker.ca/en/category/mens/adidas.html?query=Men%27s+adidas%3AtopSellers%3Agender%3AMen%27s%3Asport%3ARunning%3AstyleDiscountPercent%3ASALE", headers=footlockerHeader, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
-    runnersOnSale = soup.find_all('li', attrs={"class":"product-container col"})
+    numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"}).find('a').text
+    print("Number of Pages " + numPages)
 
-    # THIS IS TO BE ADDED LATER - SUPPORT FOR MULTIPLE PAGES
-    # if (str(soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})) == "None"):
-    #     runnersOnSale = soup.find_all('li', attrs={"class":"product-container col"})
-    # else:
-    #     # DO this later
-    #     print("There are multiple pages")
+    # Scrape each page and compile all products
+    for page in range(0, int(numPages)):
+        # First page has no currentPage param - inputting it will break all subsequent links
+        if (page == 0):
+            pageResponse = requests.get("https://www.footlocker.ca/en/category/mens/adidas.html?query=Men%27s+adidas%3AtopSellers%3Agender%3AMen%27s%3Asport%3ARunning%3AstyleDiscountPercent%3ASALE", headers=footlockerHeader, timeout=3)
+        else:
+            pageResponse = requests.get("https://www.footlocker.ca/en/category/mens/adidas.html?query=Men%27s+adidas%3AtopSellers%3Agender%3AMen%27s%3Asport%3ARunning%3AstyleDiscountPercent%3ASALE&currentPage=" + str(page), headers=footlockerHeader, timeout=3)
+
+        pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
+        runnersOnSale += soup.find_all('li', attrs={"class":"product-container col"})
 
     # Fill the links array with each product page
     for runner in runnersOnSale:
@@ -546,7 +557,8 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
         soup = BeautifulSoup(response.content, 'html.parser')
         
         # Ensure that the product is actually there (Doesn't redirect to Footlocker's default error page)
-        if (not soup.find('div', attrs={"class":"ProductDetails-info"}) or ("homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text)): #<- THIS IS BUGGED OUT FOR SOME REASON
+        if (soup.find('div', attrs={"class":"Page-wrapper Page--large Page--productNotFound"})): 
+            print("Empty product page") # TESTING
             continue
         else:
 
@@ -654,12 +666,12 @@ def main():
         #print("ADIDAS RUNNING SALE")
         #scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
         #time.sleep(3)
-        print("FOOTLOCKER JORDANS SALE")
-        scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
-        # print("FOOTLOCKER ADIDAS RUNNER SALES")
-        # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
+        # print("FOOTLOCKER JORDANS SALE")
+        # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
+        print("FOOTLOCKER ADIDAS RUNNER SALES")
+        scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
 
         
         #scrape_all_releases_redFlagDeals(shoeReleaseDB)
