@@ -378,7 +378,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     allShoes = []
     allAdidasRunningLinks = []
     allAdidasRunningSale = []
-    adidasHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+    adidasHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4147.105 Safari/537.36'}
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
 
     # Obtain JUST the first page, where we will scrape the total num of pages
@@ -390,13 +390,15 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     # Scrape each page and compile all products
     for page in range(0, int(numPages)):
         pageResponse = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=" + str(48 * int(page)), headers=adidasHeader, timeout=15)
-        pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
-        allShoes += soup.find_all('div', attrs={"class":"gl-product-card color-variations__fixed-size glass-product-card___1dpKX"})
-        
-    print(len(allShoes))   
+        pageSoup = BeautifulSoup(pageResponse.content, "html.parser").find('div', attrs={"class":"plp-grid___hCUwO"})
+        allShoes += pageSoup.find_all('div', attrs={"class":"gl-product-card__details"})
+
+    print(len(allShoes))
+             
     # Iterate through the list of all shoes, and acquire all our links
     for shoe in allShoes:
-        shoeLink = shoe.find('a', attrs={"class":"gl-product-card__assets-link"})["href"]
+        shoeLink = shoe.find('a')["href"]
+        print(shoeLink)
         allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
 
     # Iterate through each individual product page
@@ -429,7 +431,6 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
 
         allAdidasRunningSale.append(adidasRunnerObject)
-        print(len(allAdidasRunningSale))
         print(adidasRunnerObject)
 
     if (adidasRunningSaleCollection.count_documents({}) != 0):
