@@ -614,8 +614,12 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeType":"Running",
             "shoeReducedPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[0].strip(),
             "shoeOriginalPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[1].strip(),
-
+            "shoeLink":shoe.find('h2', attrs={"class":"product-name"}).find('a')["href"],
+            "salePercent":""
         }
+
+        # Obtain the sale value (Rounded to one decimal place)
+        nikeRunnerObject["salePercent"] = str(round((100 - (float(nikeRunnerObject["shoeReducedPrice"][1:]) / float(nikeRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
         print(nikeRunnerObject)
 
 
@@ -638,9 +642,9 @@ def main():
         #print("NIKE RUNNING SALE")
         #scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
         #time.sleep(3)
-        # print("NIKE RUNNING SALE @ RUNNINGROOM")
-        # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3);
+        print("NIKE RUNNING SALE @ RUNNINGROOM")
+        scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3);
         #print("NIKE LIFESTYLE SALE")
         #scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
         #time.sleep(3)
@@ -650,9 +654,9 @@ def main():
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        print("FOOTLOCKER ADIDAS RUNNER SALES")
-        scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+        # print("FOOTLOCKER ADIDAS RUNNER SALES")
+        # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
 
         
         #scrape_all_releases_redFlagDeals(shoeReleaseDB)
