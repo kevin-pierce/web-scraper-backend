@@ -16,6 +16,11 @@ from bson import json_util
 from bson.json_util import dumps
 import json
 
+##################################################
+#                                                #
+#          SNEAKERNEWS - ALL RELEASES            #
+#                                                #
+##################################################
 def scrape_all_releases_sneakerNews(shoeReleaseDB, chromeOptions):
     allShoeReleasesCollection = shoeReleaseDB.shoeReleases
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chromeOptions)
@@ -65,6 +70,11 @@ def scrape_all_releases_sneakerNews(shoeReleaseDB, chromeOptions):
         allShoeReleasesCollection.delete_many({})
         allShoeReleasesCollection.insert_many(shoes)
 
+##################################################
+#                                                #
+#          SNEAKERNEWS - JORDAN RELEASES         #
+#                                                #
+##################################################
 def scrape_jordan_releases_sneakerNews(shoeReleaseDB, chromeOptions):
     allJordans = []
     jordanShoeReleasesCollection = shoeReleaseDB.jordanReleases
@@ -116,6 +126,11 @@ def scrape_jordan_releases_sneakerNews(shoeReleaseDB, chromeOptions):
     else:
         jordanShoeReleasesCollection.insert_many(jordans)
 
+##################################################
+#                                                #
+#          SNEAKERNEWS - YEEZY RELEASES          #
+#                                                #
+##################################################
 def scrape_yeezy_releases_sneakerNews(shoeReleaseDB, chromeOptions):
     allYeezys = []
     yeezyShoeReleasesCollection = shoeReleaseDB.yeezyReleases
@@ -164,6 +179,11 @@ def scrape_yeezy_releases_sneakerNews(shoeReleaseDB, chromeOptions):
     else:
         yeezyShoeReleasesCollection.insert_many(yeezys)
 
+##################################################
+#                                                #
+#            KICKSONFIRE - RELEASES              #
+#                                                #
+##################################################
 def scrape_all_releases_kicksOnFire(shoeReleaseDB):
     allReleases = []
     allShoeReleasesCollection = shoeReleaseDB.shoeReleases
@@ -197,7 +217,11 @@ def scrape_all_releases_footlocker(shoeReleaseDB):
         print(shoe.find('p', attrs={"class":"c-prd-name"}).text) # Shoe Name
         print(shoe.find('p', attrs={"class":"c-prd-text-color"}).text) # Shoe Colourway
 
-# Sale Running Shoes
+##################################################
+#                                                #
+#            NIKE.CA - RUNNING SHOES             #
+#                                                #
+##################################################
 def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     allSaleNikeRunner = []
     shoeSubLinks = []
@@ -268,6 +292,11 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     else:
         nikeRunnerSaleCollection.insert_many(allSaleNikeRunner)
 
+##################################################
+#                                                #
+#            NIKE.CA - LIFESTYLE SHOES           #
+#                                                #
+##################################################
 def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     allSaleNikeLifestyle = []
     shoeSubLinks = []
@@ -336,6 +365,12 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     else:
         nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
 
+##################################################
+#                                                #
+#            ADIDAS.CA - ADIDAS RUNNERS          #
+#                                                #
+##################################################
+
 # Adidas has the issue where we cannot simply gather all data on the page by spam-scrolling down
 # We must scrape subsequent pages with differing URLs
 # Also, we must rely SOLELY on requests, and cannot use Selenium for Adidas at all (Selenium CANNOT pass headers in a request, meaning Adidas will block us everytime in --headless mode)
@@ -393,6 +428,12 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     else:
         adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
 
+
+##################################################
+#                                                #
+#            FOOTLOCKER - NIKE JORDANS           #
+#                                                #
+##################################################
 def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
     allJordans = []
     allJordanLinks = []
@@ -461,17 +502,28 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         else:
             footlockerJordanSaleCollection.insert_many(allJordansOnSale)
 
+
+##################################################
+#                                                #
+#          FOOTLOCKER - ADIDAS RUNNERS           #
+#                                                #
+##################################################
+
 def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     allAdidasRunners = []
     allRunnerLinks = []
     allAdidasRunnersOnSale = []
+
+    # Create header for Selenium browser (makes us look human)
     footlockerHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+
+    # Specify the collection we wish to access in the DB
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
     
-    print("Getting MAIN page")
+    # Obtain the main page (Used to create an array of links for each shoe object on the page)
     response = requests.get("https://www.footlocker.ca/en/category/mens/adidas.html?query=Men%27s+adidas%3AtopSellers%3Agender%3AMen%27s%3Asport%3ARunning%3AstyleDiscountPercent%3ASALE", headers=footlockerHeader, timeout=15)
-
     soup = BeautifulSoup(response.content, "html.parser")
+    runnersOnSale = soup.find_all('li', attrs={"class":"product-container col"})
 
     # THIS IS TO BE ADDED LATER - SUPPORT FOR MULTIPLE PAGES
     # if (str(soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})) == "None"):
@@ -480,19 +532,22 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     #     # DO this later
     #     print("There are multiple pages")
 
-    runnersOnSale = soup.find_all('li', attrs={"class":"product-container col"})
-
+    # Fill the links array with each product page
     for runner in runnersOnSale:
         runnerLink = runner.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
         allRunnerLinks.append("https://www.footlocker.ca" + str(runnerLink))
 
+    # Parse each page individually with BS4 - TO BE CHANGED TO SELENIUM LATER
     for link in allRunnerLinks:
         response = requests.get(str(link), headers=footlockerHeader, timeout=15)
         soup = BeautifulSoup(response.content, 'html.parser')
         
+        # Ensure that the product is actually there (Doesn't redirect to Footlocker's default error page)
         if (not soup.find('div', attrs={"class":"ProductDetails-info"}) or ("homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text)): #<- THIS IS BUGGED OUT FOR SOME REASON
             continue
         else:
+
+            # Obtain all available sizes for the product
             shoeSizeAvailability = []
             for size in soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"}):
                 if ("unavailable" in str(size)):
@@ -500,8 +555,10 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 else:
                     shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
 
+            # Obtain the shoe's description
             shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
 
+            # Create the shoe object with all corresponding properties
             adidasRunnerObject = {
                 "shoeName":soup.find('h1', attrs={"id":"pageTitle"}).find('span').text,
                 "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
@@ -514,29 +571,42 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 "shoeLink":str(link),
                 "salePercent":"",
             }
+            # Obtain the sale value
             adidasRunnerObject["salePercent"] = str(100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100) + "%"
-            print(adidasRunnerObject)
+            print(adidasRunnerObject) 
+
             allAdidasRunnersOnSale.append(adidasRunnerObject)
 
+    # Clear the current entries in the DB, and proceed to fill it with the new entries
     if (adidasRunningSaleCollection.count_documents({}) != 0):
         adidasRunningSaleCollection.delete_many({})
         adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
     else:
         adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
 
+
+# NOT FINISHED
+##################################################
+#                                                #
+#               RUNNING ROOM - NIKE              #
+#                                                #
+##################################################
 def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
+
+    # Initialize the driver and scrape site
     #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions) # FOR PRODUCTION
     driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
     driver.get("https://ca.shop.runningroom.com/en_ca/sale-1/shoes.html#?profile_id=5a6d1b7d25e905d046cd87722be40a94&session_id=3a91a736-ffb0-11ea-b859-0242ac110003&Category0=Sale&Category1=Shoes&search_return=all&Brand=Nike")
     time.sleep(2)
     body = driver.find_element_by_tag_name("body")
-
     response = driver.page_source
     driver.quit()
-    soup = BeautifulSoup(response, "html.parser")
 
+    # Parse the response obtained from the Selenium loaded page, and create a list of all products on the page
+    soup = BeautifulSoup(response, "html.parser")
     runningSales = soup.find_all('li', attrs={"class":"item product product-item"})
 
+    # Create each running shoe object with specified fields
     for shoe in runningSales:
         nikeRunnerObject = {
             "shoeName":shoe.find('h2', attrs={"class":"product-name"}).find('a').text,
