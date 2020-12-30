@@ -394,30 +394,33 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
         allShoes += soup.find_all('div', attrs={"class":"gl-product-card color-variations__fixed-size glass-product-card___1dpKX"})
         
-    # Using all products, acquire link
+    # Iterate through the list of all shoes, and acquire all our links
     for shoe in allShoes:
         shoeLink = shoe.find('a', attrs={"class":"gl-product-card__assets-link"})["href"]
         allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
 
-    # Begin visiting each individual product page
+    # Iterate through each individual product page
     for link in allAdidasRunningLinks:
         response = requests.get(str(link), headers=adidasHeader, timeout=15)
         soup = BeautifulSoup(response.content, "html.parser")
 
         # Some shoes may have a placeholder value (Dynamically) - because we are using Requests, we cannot actually "wait until element has loaded"
+        # WILL ADD SELENIUM SUPPORT FOR THIS
         if ("placeholder" in str(soup.find('div', attrs={"class":"product-description___2cJO2"}).find('span', attrs={"class":True}))):
             print("SKIPPING")
             continue
+
+        print(soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text)
         
         adidasRunnerObject = {
             "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
-            "shoeReducedPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--sale"}).text,
-            "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text,
-            "shoeOriginalPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--crossed"}).text,
-            "shoeImg":soup.find("div", attrs={"class":"view___CgbJj"}).find('img')["src"],
-            "shoeCW":soup.find('h5').text,
-            "shoeDesc":soup.find('div', attrs={"class":"text-content___1EWJO"}).find('p').text,
-            "shoeLink":str(link)
+            # "shoeReducedPrice":soup.find('span', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text,
+            # "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text,
+            # "shoeOriginalPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--crossed"}).text,
+            # "shoeImg":soup.find("div", attrs={"class":"view___CgbJj"}).find('img')["src"],
+            # "shoeCW":soup.find('h5').text,
+            # "shoeDesc":soup.find('div', attrs={"class":"text-content___1EWJO"}).find('p').text,
+            # "shoeLink":str(link)
         }
         allAdidasRunningSale.append(adidasRunnerObject)
         print(len(allAdidasRunningSale))
@@ -428,7 +431,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     else:
         adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
 
-
+# WORKS FOR NOW
 ##################################################
 #                                                #
 #            FOOTLOCKER - NIKE JORDANS           #
@@ -510,7 +513,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         else:
             footlockerJordanSaleCollection.insert_many(allJordansOnSale)
 
-
+# WORKS FOR NOW
 ##################################################
 #                                                #
 #          FOOTLOCKER - ADIDAS RUNNERS           #
@@ -663,15 +666,15 @@ def main():
         #print("NIKE LIFESTYLE SALE")
         #scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
         #time.sleep(3)
-        #print("ADIDAS RUNNING SALE")
-        #scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
-        #time.sleep(3)
+        print("ADIDAS RUNNING SALE")
+        scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
+        time.sleep(3)
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        print("FOOTLOCKER ADIDAS RUNNER SALES")
-        scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+        # print("FOOTLOCKER ADIDAS RUNNER SALES")
+        # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
 
         
         #scrape_all_releases_redFlagDeals(shoeReleaseDB)
