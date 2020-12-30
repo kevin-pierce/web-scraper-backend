@@ -251,14 +251,14 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
             "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
             "shoeReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text[1:]),
-            "shoeOldPrice":float(soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text[1:]),
+            "shoeOriginalPrice":float(soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text[1:]),
             "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
             "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
             "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
             "shoeSizeAvailability":shoeSizeAvailability,
             "shoeLink":str(link)
         }
-        nikeRunnerObject["shoeDiscount"] = nikeRunnerObject["shoeReducedPrice"] / nikeRunnerObject["shoeOldPrice"]
+        nikeRunnerObject["shoeDiscount"] = nikeRunnerObject["shoeReducedPrice"] / nikeRunnerObject["shoeOriginalPrice"]
         allSaleNikeRunner.append(nikeRunnerObject)
         print(nikeRunnerObject)
 
@@ -321,7 +321,7 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
             "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
             "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
             "shoeReducedPrice":soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
-            "shoeOldPrice":soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
+            "shoeOriginalPrice":soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
             "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
             "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
             "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
@@ -378,7 +378,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
             "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
             "shoeReducedPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--sale"}).text,
             "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text,
-            "shoeOldPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--crossed"}).text,
+            "shoeOriginalPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--crossed"}).text,
             "shoeImg":soup.find("div", attrs={"class":"view___CgbJj"}).find('img')["src"],
             "shoeCW":soup.find('h5').text,
             "shoeDesc":soup.find('div', attrs={"class":"text-content___1EWJO"}).find('p').text,
@@ -446,7 +446,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
                 "shoeName":soup.find('h1', attrs={"id":"pageTitle"}).find('span').text,
                 "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
                 "shoeReducedPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text,
-                "shoeOldPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
+                "shoeOriginalPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
                 "shoeImg":soup.find('div', attrs={"class":"AltImages"}).find('img')["src"],
                 "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
                 "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
@@ -503,7 +503,7 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 "shoeName":soup.find('h1', attrs={"id":"pageTitle"}).find('span').text,
                 "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
                 "shoeReducedPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text,
-                "shoeOldPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
+                "shoeOriginalPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
                 "shoeImg":soup.find('div', attrs={"class":"AltImages"}).find('img')["src"],
                 "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
                 "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
@@ -520,7 +520,7 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
         adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
 
 def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
-    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions) # FOR PRODUCTION
     driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
     driver.get("https://ca.shop.runningroom.com/en_ca/sale-1/shoes.html#?profile_id=5a6d1b7d25e905d046cd87722be40a94&session_id=3a91a736-ffb0-11ea-b859-0242ac110003&Category0=Sale&Category1=Shoes&search_return=all&Brand=Nike")
     time.sleep(2)
@@ -538,7 +538,7 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeImg":shoe.find("img", attrs={"class":"product-image-photo"})["src"],
             "shoeType":"Running",
             "shoeReducedPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[0].strip(),
-            "shoeOldPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[1].strip(),
+            "shoeOriginalPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[1].strip(),
 
         }
         print(nikeRunnerObject)
