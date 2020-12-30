@@ -386,14 +386,14 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     response = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=0", headers=adidasHeader, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
     numPages = soup.find('span', attrs={"data-auto-id":"pagination-pages-container"}).text[3:]
-    print(numPages)
 
     # Scrape each page and compile all products
-    for page in range(1, int(numPages) + 1):
-        pageResponse = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=" + str(48 * int(page-1)), headers=adidasHeader, timeout=15)
+    for page in range(0, int(numPages)):
+        pageResponse = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=" + str(48 * int(page)), headers=adidasHeader, timeout=15)
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
         allShoes += soup.find_all('div', attrs={"class":"gl-product-card color-variations__fixed-size glass-product-card___1dpKX"})
         
+    print(len(allShoes))   
     # Iterate through the list of all shoes, and acquire all our links
     for shoe in allShoes:
         shoeLink = shoe.find('a', attrs={"class":"gl-product-card__assets-link"})["href"]
@@ -410,18 +410,24 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
             print("SKIPPING")
             continue
 
-        #print(soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text)
+        #print(soup)
+        #print(soup.find("div", attrs={"class":"pinch-zoom-wrapper___3fnOh"}).find('img')["src"])
         
         adidasRunnerObject = {
             "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
             "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text,
             "shoeReducedPrice":soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text[1:],
             "shoeOriginalPrice":soup.find('div', attrs={"gl-price-item gl-price-item--crossed notranslate"}).text[1:],
-            # "shoeImg":soup.find("div", attrs={"class":"view___CgbJj"}).find('img')["src"],
-            # "shoeCW":soup.find('h5').text,
-            # "shoeDesc":soup.find('div', attrs={"class":"text-content___1EWJO"}).find('p').text,
-            # "shoeLink":str(link)
+            #"shoeImg":soup.find("div", attrs={"class":"pinch-zoom-wrapper___3fnOh"}).find('img')["src"],               # Must use Selenium (lol)
+            "shoeCW":soup.find('h5').text,
+            #"shoeDesc":soup.find('div', attrs={"class":"description___2nN4A"}).find('p').text,                         # Must use Selenium (F in the chat)
+            "shoeLink":str(link),
+            "salePercent":""
         }
+
+        # Obtain the sale value (Rounded to 1 decimal)
+        adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
+
         allAdidasRunningSale.append(adidasRunnerObject)
         print(len(allAdidasRunningSale))
         print(adidasRunnerObject)
