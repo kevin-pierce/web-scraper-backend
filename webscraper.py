@@ -507,7 +507,7 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
                 "shoeReducedPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text,
                 "shoeOriginalPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
-                "shoeImg":soup.find('div', attrs={"class":"ProductCard-image"}).find('span').find('img')["src"],
+                #"shoeImg":soup.find('div', attrs={"class":"ProductDetails-image"}).find('div', attrs={"class":"AltImages"}),   Footlocker screwed me, and so images will now not work without Selenium (WILL FIX LATER)
                 "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
                 "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
                 "shoeSizeAvailability":shoeSizeAvailability,
