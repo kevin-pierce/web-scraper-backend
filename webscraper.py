@@ -376,6 +376,7 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
 # Also, we must rely SOLELY on requests, and cannot use Selenium for Adidas at all (Selenium CANNOT pass headers in a request, meaning Adidas will block us everytime in --headless mode)
 def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     allShoes = []
+    allShoesTemp = []
     allAdidasRunningLinks = []
     allAdidasRunningSale = []
     adidasHeader = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4147.105 Safari/537.36'}
@@ -391,10 +392,9 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     for page in range(0, int(numPages)):
         pageResponse = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=" + str(48 * int(page)), headers=adidasHeader, timeout=15)
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser").find('div', attrs={"class":"plp-grid___hCUwO"})
-        allShoes += pageSoup.find_all('div', attrs={"class":"gl-product-card__details"})
+        allShoes += pageSoup.find_all('div', attrs={"class":"gl-product-card-container"})        # We use this array for data obtaining (This one is necessary for obtaining the correct number of products)
 
     print(len(allShoes))
-             
     # Iterate through the list of all shoes, and acquire all our links
     for shoe in allShoes:
         shoeLink = shoe.find('a')["href"]
