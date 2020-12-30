@@ -410,13 +410,13 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
             print("SKIPPING")
             continue
 
-        print(soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text)
+        #print(soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text)
         
         adidasRunnerObject = {
             "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
-            # "shoeReducedPrice":soup.find('span', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text,
-            # "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text,
-            # "shoeOriginalPrice":soup.find('span', attrs={"class":"gl-price__value gl-price__value--crossed"}).text,
+            "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text,
+            "shoeReducedPrice":soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text[1:],
+            "shoeOriginalPrice":soup.find('div', attrs={"gl-price-item gl-price-item--crossed notranslate"}).text[1:],
             # "shoeImg":soup.find("div", attrs={"class":"view___CgbJj"}).find('img')["src"],
             # "shoeCW":soup.find('h5').text,
             # "shoeDesc":soup.find('div', attrs={"class":"text-content___1EWJO"}).find('p').text,
@@ -424,6 +424,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         }
         allAdidasRunningSale.append(adidasRunnerObject)
         print(len(allAdidasRunningSale))
+        print(adidasRunnerObject)
 
     if (adidasRunningSaleCollection.count_documents({}) != 0):
         adidasRunningSaleCollection.delete_many({})
