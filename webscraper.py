@@ -473,11 +473,14 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
 
     soup = BeautifulSoup(response.content, "html.parser")
 
-    if (str(soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})) == "None"):
-        runnersOnSale = soup.find_all('li', attrs={"class":"product-container col"})
-    else:
-        # DO this later
-        print("There are multiple pages")
+    # THIS IS TO BE ADDED LATER - SUPPORT FOR MULTIPLE PAGES
+    # if (str(soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})) == "None"):
+    #     runnersOnSale = soup.find_all('li', attrs={"class":"product-container col"})
+    # else:
+    #     # DO this later
+    #     print("There are multiple pages")
+
+    runnersOnSale = soup.find_all('li', attrs={"class":"product-container col"})
 
     for runner in runnersOnSale:
         runnerLink = runner.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
@@ -504,12 +507,14 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
                 "shoeReducedPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text,
                 "shoeOriginalPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
-                "shoeImg":soup.find('div', attrs={"class":"AltImages"}).find('img')["src"],
+                "shoeImg":soup.find('div', attrs={"class":"ProductCard-image"}).find('span').find('img')["src"],
                 "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
                 "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
                 "shoeSizeAvailability":shoeSizeAvailability,
-                "shoeLink":str(link)
+                "shoeLink":str(link),
+                "salePercent":"",
             }
+            adidasRunnerObject["salePercent"] = str(100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100) + "%"
             print(adidasRunnerObject)
             allAdidasRunnersOnSale.append(adidasRunnerObject)
 
@@ -563,9 +568,9 @@ def main():
         #print("NIKE RUNNING SALE")
         #scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
         #time.sleep(3)
-        print("NIKE RUNNING SALE @ RUNNINGROOM")
-        scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3);
+        # print("NIKE RUNNING SALE @ RUNNINGROOM")
+        # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3);
         #print("NIKE LIFESTYLE SALE")
         #scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
         #time.sleep(3)
@@ -575,9 +580,9 @@ def main():
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        # print("FOOTLOCKER ADIDAS RUNNER SALES")
-        # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3)
+        print("FOOTLOCKER ADIDAS RUNNER SALES")
+        scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
 
         
         #scrape_all_releases_redFlagDeals(shoeReleaseDB)
