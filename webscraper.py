@@ -597,7 +597,45 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
         # Isolate the product code
         formatLink = str(link).split("/")
         productCode = formatLink[len(formatLink) - 1].split(".")[0]
-        print(productCode)
+
+        # Isolate the string containing the image data for the shoe, and from it devise an array
+        # The SECOND LAST element of this array has the highest-res image of the shoe
+        imgString = soup.find('div', attrs={"id":"navigation-target-gallery"}).find('img')['srcset'].split()
+
+        # Make call to Adidas API for size availability (the link is the following, with the product code inserted)
+        allAvailSizes = []
+        availability = requests.get(("https://www.adidas.ca/api/products/" + productCode + "/availability?sitePath=en"), headers=ADIDAS_HEADER, timeout=15)
+        sizesArr = availability.json()["variation_list"]
+
+        # For each size, check if the product is in stock, and add it to our list of available sizes if so
+        for size in sizesArr:
+            if (size['availability_status'] == 'IN_STOCK'):
+                print(size)
+                allAvailSizes.append(size['size'])
+
+        adidasTiroProduct = {
+            "productName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
+            "productType":soup.find('div', attrs={"data-auto-id":"product-category"}).text.split(" ")[0],
+            "productReducedPrice":soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text[1:],
+            "productOriginalPrice":soup.find('div', attrs={"gl-price-item gl-price-item--crossed notranslate"}).text[1:],
+            "productImg":imgString[len(imgString)-2],               
+            "productCW":soup.find('h5').text,          
+            "productSizeAvailability":allAvailSizes,           
+            "productLink":str(link),
+            "salePercent":""
+        }
+        # Obtain the sale value (Rounded to 1 decimal)
+        adidasTiroProduct["salePercent"] = str(round((100 - (float(adidasTiroProduct["productReducedPrice"][1:]) / float(adidasTiroProduct["productOriginalPrice"][1:])) * 100), 1)) + "%"
+
+        allTiroProductsSale.append(adidasTiroProduct)
+        print(adidasTiroProduct)
+
+    # Empty the DB and then push all new products 
+    if (adidasTiroSaleCollection.count_documents({}) != 0):
+        adidasTiroSaleCollection.delete_many({})
+        adidasTiroSaleCollection.insert_many(allTiroProductsSale)
+    else:
+        adidasTiroSaleCollection.insert_many(allTiroProductsSale)
 
 
 # WORKS FOR NOW
