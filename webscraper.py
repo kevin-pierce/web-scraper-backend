@@ -578,14 +578,26 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
     # If there is only one page
     else: 
         allProducts += soup.find_all('div', attrs={"class":"gl-product-card-container"})
-    
-    print(len(allProducts))
 
-    # Iterate through the list of all shoes, and acquire all our links
+    # Iterate through the list of all Tiro products, and acquire all our links
     for product in allProducts:
         productLink = product.find('a')["href"]
         allTiroProductsLinks.append("https://www.adidas.ca" + productLink)
         print(str(productLink))
+
+    # Iterate through each individual product page
+    for link in allTiroProductsLinks:
+        response = requests.get(str(link), headers=ADIDAS_HEADER, timeout=15)
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        if ("placeholder" in str(soup.find('div', attrs={"class":"product-description___2cJO2"}).find('span', attrs={"class":True}))):
+            print("SKIPPING")
+            continue
+        
+        # Isolate the product code
+        formatLink = str(link).split("/")
+        productCode = formatLink[len(formatLink) - 1].split(".")[0]
+        print(productCode)
 
 
 # WORKS FOR NOW
