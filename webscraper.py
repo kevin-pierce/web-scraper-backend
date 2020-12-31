@@ -365,6 +365,7 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
     else:
         nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
 
+# WORKS FOR NOW
 ##################################################
 #                                                #
 #            ADIDAS.CA - ADIDAS RUNNERS          #
@@ -411,9 +412,16 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
             print("SKIPPING")
             continue
         
+        # Isolate the product code
+        formatLink = str(link).split("/")
+        productCode = formatLink[len(formatLink) - 1].split(".")[0]
+        print(productCode)
+
         # Isolate the string containing the image data for the shoe, and from it devise an array
         # The SECOND LAST element of this array has the highest-res image of the shoe
         imgString = soup.find('div', attrs={"id":"navigation-target-gallery"}).find('img')['srcset'].split()
+
+        #availability = requests.get(str())
 
         adidasRunnerObject = {
             "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
