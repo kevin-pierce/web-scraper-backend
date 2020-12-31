@@ -398,7 +398,6 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     # Iterate through the list of all shoes, and acquire all our links
     for shoe in allShoes:
         shoeLink = shoe.find('a')["href"]
-        print(shoeLink)
         allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
 
     # Iterate through each individual product page
@@ -411,28 +410,29 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         if ("placeholder" in str(soup.find('div', attrs={"class":"product-description___2cJO2"}).find('span', attrs={"class":True}))):
             print("SKIPPING")
             continue
-
-        #print(soup)
-        #print(soup.find("div", attrs={"class":"pinch-zoom-wrapper___3fnOh"}).find('img')["src"])
         
+        # Isolate the string containing the image data for the shoe, and from it devise an array
+        # The SECOND LAST element of this array has the highest-res image of the shoe
+        imgString = soup.find('div', attrs={"id":"navigation-target-gallery"}).find('img')['srcset'].split()
+
         adidasRunnerObject = {
             "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
-            "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text,
+            "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text.split(" ")[0],
             "shoeReducedPrice":soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text[1:],
             "shoeOriginalPrice":soup.find('div', attrs={"gl-price-item gl-price-item--crossed notranslate"}).text[1:],
-            #"shoeImg":soup.find("div", attrs={"class":"pinch-zoom-wrapper___3fnOh"}).find('img')["src"],               # Must use Selenium (lol)
+            "shoeImg":imgString[len(imgString)-2],               
             "shoeCW":soup.find('h5').text,
             #"shoeDesc":soup.find('div', attrs={"class":"description___2nN4A"}).find('p').text,                         # Must use Selenium (F in the chat)
             "shoeLink":str(link),
             "salePercent":""
         }
-
         # Obtain the sale value (Rounded to 1 decimal)
         adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
 
         allAdidasRunningSale.append(adidasRunnerObject)
         print(adidasRunnerObject)
 
+    # Empty the DB and then push all new products 
     if (adidasRunningSaleCollection.count_documents({}) != 0):
         adidasRunningSaleCollection.delete_many({})
         adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
