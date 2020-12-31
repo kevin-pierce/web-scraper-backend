@@ -396,7 +396,6 @@ def scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions):
     response = requests.get("https://www.adidas.ca/en/originals-shoes-outlet?start=0", headers=ADIDAS_HEADER, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
     numPages = soup.find('span', attrs={"data-auto-id":"pagination-pages-container"}).text[3:]
-
     print(numPages)
 
     # Scrape each page and compile all products
@@ -406,25 +405,26 @@ def scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions):
         allShoes += pageSoup.find_all('div', attrs={"class":"gl-product-card-container"})        # We use this array for data obtaining (This one is necessary for obtaining the correct number of products)
 
     print(len(allShoes))
-    # Iterate through the list of all shoes, and acquire all our links
-    # for shoe in allShoes:
-    #     shoeLink = shoe.find('a')["href"]
-    #     allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
+    #Iterate through the list of all shoes, and acquire all our links
+    for shoe in allShoes:
+        shoeLink = shoe.find('a')["href"]
+        allAdidasOriginalsLinks.append("https://www.adidas.ca" + shoeLink)
 
-    # # Iterate through each individual product page
-    # for link in allAdidasRunningLinks:
-    #     response = requests.get(str(link), headers=ADIDAS_HEADER, timeout=15)
-    #     soup = BeautifulSoup(response.content, "html.parser")
+    # Iterate through each individual product page
+    for link in allAdidasOriginalsLinks:
+        response = requests.get(str(link), headers=ADIDAS_HEADER, timeout=15)
+        soup = BeautifulSoup(response.content, "html.parser")
 
-    #     # Some shoes may have a placeholder value (Dynamically) - because we are using Requests, we cannot actually "wait until element has loaded"
-    #     # WILL ADD SELENIUM SUPPORT FOR THIS
-    #     if ("placeholder" in str(soup.find('div', attrs={"class":"product-description___2cJO2"}).find('span', attrs={"class":True}))):
-    #         print("SKIPPING")
-    #         continue
+        # Some shoes may have a placeholder value (Dynamically) - because we are using Requests, we cannot actually "wait until element has loaded"
+        # WILL ADD SELENIUM SUPPORT FOR THIS
+        if ("placeholder" in str(soup.find('div', attrs={"class":"product-description___2cJO2"}).find('span', attrs={"class":True}))):
+            print("SKIPPING")
+            continue
         
-    #     # Isolate the product code
-    #     formatLink = str(link).split("/")
-    #     productCode = formatLink[len(formatLink) - 1].split(".")[0]
+        # Isolate the product code
+        formatLink = str(link).split("/")
+        productCode = formatLink[len(formatLink) - 1].split(".")[0]
+        print(productCode)
 
     #     # Isolate the string containing the image data for the shoe, and from it devise an array
     #     # The SECOND LAST element of this array has the highest-res image of the shoe
