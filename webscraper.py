@@ -579,8 +579,14 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
     else: 
         allProducts += soup.find_all('div', attrs={"class":"gl-product-card-container"})
     
-    
     print(len(allProducts))
+
+    # Iterate through the list of all shoes, and acquire all our links
+    for product in allProducts:
+        productLink = product.find('a')["href"]
+        allTiroProductsLinks.append("https://www.adidas.ca" + productLink)
+        print(str(productLink))
+
 
 # WORKS FOR NOW
 ##################################################
