@@ -393,75 +393,77 @@ def scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions):
 
     # Obtain JUST the first page, where we will scrape the total num of pages
     print("Getting MAIN page")
-    response = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=0", headers=ADIDAS_HEADER, timeout=15)
+    response = requests.get("https://www.adidas.ca/en/originals-shoes-outlet?start=0", headers=ADIDAS_HEADER, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
     numPages = soup.find('span', attrs={"data-auto-id":"pagination-pages-container"}).text[3:]
 
+    print(numPages)
+
     # Scrape each page and compile all products
     for page in range(0, int(numPages)):
-        pageResponse = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=" + str(48 * int(page)), headers=ADIDAS_HEADER, timeout=15)
+        pageResponse = requests.get("https://www.adidas.ca/en/originals-shoes-outlet?start=" + str(48 * int(page)), headers=ADIDAS_HEADER, timeout=15)
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser").find('div', attrs={"class":"plp-grid___hCUwO"})
         allShoes += pageSoup.find_all('div', attrs={"class":"gl-product-card-container"})        # We use this array for data obtaining (This one is necessary for obtaining the correct number of products)
 
     print(len(allShoes))
     # Iterate through the list of all shoes, and acquire all our links
-    for shoe in allShoes:
-        shoeLink = shoe.find('a')["href"]
-        allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
+    # for shoe in allShoes:
+    #     shoeLink = shoe.find('a')["href"]
+    #     allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
 
-    # Iterate through each individual product page
-    for link in allAdidasRunningLinks:
-        response = requests.get(str(link), headers=ADIDAS_HEADER, timeout=15)
-        soup = BeautifulSoup(response.content, "html.parser")
+    # # Iterate through each individual product page
+    # for link in allAdidasRunningLinks:
+    #     response = requests.get(str(link), headers=ADIDAS_HEADER, timeout=15)
+    #     soup = BeautifulSoup(response.content, "html.parser")
 
-        # Some shoes may have a placeholder value (Dynamically) - because we are using Requests, we cannot actually "wait until element has loaded"
-        # WILL ADD SELENIUM SUPPORT FOR THIS
-        if ("placeholder" in str(soup.find('div', attrs={"class":"product-description___2cJO2"}).find('span', attrs={"class":True}))):
-            print("SKIPPING")
-            continue
+    #     # Some shoes may have a placeholder value (Dynamically) - because we are using Requests, we cannot actually "wait until element has loaded"
+    #     # WILL ADD SELENIUM SUPPORT FOR THIS
+    #     if ("placeholder" in str(soup.find('div', attrs={"class":"product-description___2cJO2"}).find('span', attrs={"class":True}))):
+    #         print("SKIPPING")
+    #         continue
         
-        # Isolate the product code
-        formatLink = str(link).split("/")
-        productCode = formatLink[len(formatLink) - 1].split(".")[0]
+    #     # Isolate the product code
+    #     formatLink = str(link).split("/")
+    #     productCode = formatLink[len(formatLink) - 1].split(".")[0]
 
-        # Isolate the string containing the image data for the shoe, and from it devise an array
-        # The SECOND LAST element of this array has the highest-res image of the shoe
-        imgString = soup.find('div', attrs={"id":"navigation-target-gallery"}).find('img')['srcset'].split()
+    #     # Isolate the string containing the image data for the shoe, and from it devise an array
+    #     # The SECOND LAST element of this array has the highest-res image of the shoe
+    #     imgString = soup.find('div', attrs={"id":"navigation-target-gallery"}).find('img')['srcset'].split()
 
-        # Make call to Adidas API for size availability (the link is the following, with the product code inserted)
-        allAvailSizes = []
-        availability = requests.get(("https://www.adidas.ca/api/products/" + productCode + "/availability?sitePath=en"), headers=ADIDAS_HEADER, timeout=15)
-        sizesArr = availability.json()["variation_list"]
+    #     # Make call to Adidas API for size availability (the link is the following, with the product code inserted)
+    #     allAvailSizes = []
+    #     availability = requests.get(("https://www.adidas.ca/api/products/" + productCode + "/availability?sitePath=en"), headers=ADIDAS_HEADER, timeout=15)
+    #     sizesArr = availability.json()["variation_list"]
 
-        # For each size, check if the product is in stock, and add it to our list of available sizes if so
-        for size in sizesArr:
-            if (size['availability_status'] == 'IN_STOCK'):
-                print(size)
-                allAvailSizes.append(size['size'])
+    #     # For each size, check if the product is in stock, and add it to our list of available sizes if so
+    #     for size in sizesArr:
+    #         if (size['availability_status'] == 'IN_STOCK'):
+    #             print(size)
+    #             allAvailSizes.append(size['size'])
 
-        adidasRunnerObject = {
-            "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
-            "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text.split(" ")[0],
-            "shoeReducedPrice":soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text[1:],
-            "shoeOriginalPrice":soup.find('div', attrs={"gl-price-item gl-price-item--crossed notranslate"}).text[1:],
-            "shoeImg":imgString[len(imgString)-2],               
-            "shoeCW":soup.find('h5').text,          
-            "shoeSizeAvailability":allAvailSizes,           
-            "shoeLink":str(link),
-            "salePercent":""
-        }
-        # Obtain the sale value (Rounded to 1 decimal)
-        adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
+    #     adidasRunnerObject = {
+    #         "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
+    #         "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text.split(" ")[0],
+    #         "shoeReducedPrice":soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text[1:],
+    #         "shoeOriginalPrice":soup.find('div', attrs={"gl-price-item gl-price-item--crossed notranslate"}).text[1:],
+    #         "shoeImg":imgString[len(imgString)-2],               
+    #         "shoeCW":soup.find('h5').text,          
+    #         "shoeSizeAvailability":allAvailSizes,           
+    #         "shoeLink":str(link),
+    #         "salePercent":""
+    #     }
+    #     # Obtain the sale value (Rounded to 1 decimal)
+    #     adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
 
-        allAdidasRunningSale.append(adidasRunnerObject)
-        print(adidasRunnerObject)
+    #     allAdidasRunningSale.append(adidasRunnerObject)
+    #     print(adidasRunnerObject)
 
-    # Empty the DB and then push all new products 
-    if (adidasRunningSaleCollection.count_documents({}) != 0):
-        adidasRunningSaleCollection.delete_many({})
-        adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
-    else:
-        adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
+    # # Empty the DB and then push all new products 
+    # if (adidasRunningSaleCollection.count_documents({}) != 0):
+    #     adidasRunningSaleCollection.delete_many({})
+    #     adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
+    # else:
+    #     adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
 
 # WORKS FOR NOW
 ##################################################
@@ -787,6 +789,9 @@ def main():
         # print("ADIDAS RUNNING SALE")
         # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
         # time.sleep(3)
+        print("ADIDAS ORIGINALS SALE")
+        scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions) 
+        time.sleep(3)
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
