@@ -469,7 +469,6 @@ def scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions):
 # Also, we must rely SOLELY on requests, and cannot use Selenium for Adidas at all (Selenium CANNOT pass headers in a request, meaning Adidas will block us everytime in --headless mode)
 def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     allShoes = []
-    allShoesTemp = []
     allAdidasRunningLinks = []
     allAdidasRunningSale = []
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
@@ -478,13 +477,20 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
     print("Getting MAIN page")
     response = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=0", headers=ADIDAS_HEADER, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
-    numPages = soup.find('span', attrs={"data-auto-id":"pagination-pages-container"}).text[3:]
 
-    # Scrape each page and compile all products
-    for page in range(0, int(numPages)):
-        pageResponse = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=" + str(48 * int(page)), headers=ADIDAS_HEADER, timeout=15)
-        pageSoup = BeautifulSoup(pageResponse.content, "html.parser").find('div', attrs={"class":"plp-grid___hCUwO"})
-        allShoes += pageSoup.find_all('div', attrs={"class":"gl-product-card-container"})        # We use this array for data obtaining (This one is necessary for obtaining the correct number of products)
+    # If the span containing the page numbers is present (THERE IS MORE THAN ONE PAGE)
+    if (soup.find('span', attrs={"data-auto-id":"pagination-pages-container"})):
+        numPages = soup.find('span', attrs={"data-auto-id":"pagination-pages-container"}).text[3:]
+
+        # Scrape each page and compile all products
+        for page in range(0, int(numPages)):
+            pageResponse = requests.get("https://www.adidas.ca/en/running-shoes-outlet?start=" + str(48 * int(page)), headers=ADIDAS_HEADER, timeout=15)
+            pageSoup = BeautifulSoup(pageResponse.content, "html.parser").find('div', attrs={"class":"plp-grid___hCUwO"})
+            allShoes += pageSoup.find_all('div', attrs={"class":"gl-product-card-container"})    
+
+    # If there is only one page
+    else: 
+        allShoes += soup.find_all('div', attrs={"class":"gl-product-card-container"})  
 
     print(len(allShoes))
     # Iterate through the list of all shoes, and acquire all our links
@@ -642,7 +648,6 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
         adidasTiroSaleCollection.insert_many(allTiroProductsSale)
     else:
         adidasTiroSaleCollection.insert_many(allTiroProductsSale)
-
 
 # WORKS FOR NOW
 ##################################################
