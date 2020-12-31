@@ -583,7 +583,6 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
     for product in allProducts:
         productLink = product.find('a')["href"]
         allTiroProductsLinks.append("https://www.adidas.ca" + productLink)
-        print(str(productLink))
 
     # Iterate through each individual product page
     for link in allTiroProductsLinks:
@@ -610,14 +609,14 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
         # For each size, check if the product is in stock, and add it to our list of available sizes if so
         for size in sizesArr:
             if (size['availability_status'] == 'IN_STOCK'):
-                print(size)
                 allAvailSizes.append(size['size'])
 
         # FINAL PRODUCT CHECKS
         # - Are there any available sizes
-        if (len(allAvailSizes) == 0):
+        # - Is the product actually on sale (Occassional glitch)
+        if ((len(allAvailSizes) == 0) or (not soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}))):
+            print("INVALID PRODUCT - SKIPPING")
             continue
-
 
         # If a product passes all of the above checks, only then do we add it to our list
         else:
@@ -636,7 +635,6 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
             adidasTiroProduct["salePercent"] = str(round((100 - (float(adidasTiroProduct["productReducedPrice"][1:]) / float(adidasTiroProduct["productOriginalPrice"][1:])) * 100), 1)) + "%"
 
             allTiroProductsSale.append(adidasTiroProduct)
-            print(adidasTiroProduct)
 
     # Empty the DB and then push all new products 
     if (adidasTiroSaleCollection.count_documents({}) != 0):
