@@ -415,13 +415,13 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         # Isolate the product code
         formatLink = str(link).split("/")
         productCode = formatLink[len(formatLink) - 1].split(".")[0]
-        print(productCode)
 
         # Isolate the string containing the image data for the shoe, and from it devise an array
         # The SECOND LAST element of this array has the highest-res image of the shoe
         imgString = soup.find('div', attrs={"id":"navigation-target-gallery"}).find('img')['srcset'].split()
 
-        #availability = requests.get(str())
+        availability = requests.get(("https://www.adidas.ca/api/products/" + productCode + "/availability?sitePath=en"), headers=adidasHeader, timeout=15)
+        print(availability.json())
 
         adidasRunnerObject = {
             "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
@@ -438,7 +438,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
 
         allAdidasRunningSale.append(adidasRunnerObject)
-        print(adidasRunnerObject)
+        #print(adidasRunnerObject)
 
     # Empty the DB and then push all new products 
     if (adidasRunningSaleCollection.count_documents({}) != 0):
