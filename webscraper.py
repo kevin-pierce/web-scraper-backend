@@ -420,8 +420,16 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         # The SECOND LAST element of this array has the highest-res image of the shoe
         imgString = soup.find('div', attrs={"id":"navigation-target-gallery"}).find('img')['srcset'].split()
 
+        # Make call to Adidas API for size availability (the link is the following, with the product code inserted)
+        allAvailSizes = []
         availability = requests.get(("https://www.adidas.ca/api/products/" + productCode + "/availability?sitePath=en"), headers=adidasHeader, timeout=15)
-        print(availability.json())
+        sizesArr = availability.json()["variation_list"]
+
+        # For each size, check if the product is in stock, and add it to our list of available sizes if so
+        for size in sizesArr:
+            if (size['availability_status'] == 'IN_STOCK'):
+                print(size)
+                allAvailSizes.append(size["size"])
 
         adidasRunnerObject = {
             "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
@@ -429,8 +437,8 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
             "shoeReducedPrice":soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text[1:],
             "shoeOriginalPrice":soup.find('div', attrs={"gl-price-item gl-price-item--crossed notranslate"}).text[1:],
             "shoeImg":imgString[len(imgString)-2],               
-            "shoeCW":soup.find('h5').text,
-            #"shoeDesc":soup.find('div', attrs={"class":"description___2nN4A"}).find('p').text,                         # Must use Selenium (F in the chat)
+            "shoeCW":soup.find('h5').text,          
+            "shoeSizeAvailability":allAvailSizes,           
             "shoeLink":str(link),
             "salePercent":""
         }
