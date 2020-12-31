@@ -380,7 +380,6 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
 #          ADIDAS.CA - ADIDAS ORIGINALS          #
 #                                                #
 ##################################################
-
 def scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions):
     allShoes = []
     allShoesTemp = []
@@ -465,7 +464,6 @@ def scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions):
 #            ADIDAS.CA - ADIDAS RUNNERS          #
 #                                                #
 ##################################################
-
 # Adidas has the issue where we cannot simply gather all data on the page by spam-scrolling down
 # We must scrape subsequent pages with differing URLs
 # Also, we must rely SOLELY on requests, and cannot use Selenium for Adidas at all (Selenium CANNOT pass headers in a request, meaning Adidas will block us everytime in --headless mode)
@@ -547,6 +545,42 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
     else:
         adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
+
+# WORKS FOR NOW
+##################################################
+#                                                #
+#             ADIDAS.CA - ADIDAS TIROS           #
+#                                                #
+##################################################
+# Adidas has the issue where we cannot simply gather all data on the page by spam-scrolling down
+# We must scrape subsequent pages with differing URLs
+# Also, we must rely SOLELY on requests, and cannot use Selenium for Adidas at all (Selenium CANNOT pass headers in a request, meaning Adidas will block us everytime in --headless mode)
+def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
+    allProducts = []
+    allTiroProductsLinks = []
+    allTiroProductsSale = []
+    adidasTiroSaleCollection = shoeReleaseDB.adidasTiroSales
+
+    # Obtain JUST the first page, where we will scrape the total num of pages
+    response = requests.get("https://www.adidas.ca/en/tiro-clothing-outlet?start=0", headers=ADIDAS_HEADER, timeout=15)
+    soup = BeautifulSoup(response.content, "html.parser")
+    
+    # If the span containing the page numbers is present (THERE IS MORE THAN ONE PAGE)
+    if (soup.find('span', attrs={"data-auto-id":"pagination-pages-container"})):
+        numPages = soup.find('span', attrs={"data-auto-id":"pagination-pages-container"}).text[3:]
+
+        # Scrape each page and compile all products
+        for page in range(0, int(numPages)):
+            pageResponse = requests.get("https://www.adidas.ca/en/tiro-clothing-outlet?start=" + str(48 * int(page)), headers=ADIDAS_HEADER, timeout=15)
+            pageSoup = BeautifulSoup(pageResponse.content, "html.parser").find('div', attrs={"class":"plp-grid___hCUwO"})
+            allProducts += pageSoup.find_all('div', attrs={"class":"gl-product-card-container"})        # We use this array for data obtaining (This one is necessary for obtaining the correct number of products)
+
+    # If there is only one page
+    else: 
+        allProducts += soup.find_all('div', attrs={"class":"gl-product-card-container"})
+    
+    
+    print(len(allProducts))
 
 # WORKS FOR NOW
 ##################################################
@@ -636,7 +670,6 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
 #          FOOTLOCKER - ADIDAS RUNNERS           #
 #                                                #
 ##################################################
-
 def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     allAdidasRunners = []
     allRunnerLinks = []
@@ -783,8 +816,11 @@ def main():
         # print("ADIDAS RUNNING SALE")
         # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
         # time.sleep(3)
-        print("ADIDAS ORIGINALS SALE")
-        scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions) 
+        # print("ADIDAS ORIGINALS SALE")
+        # scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions) 
+        # time.sleep(3)
+        print("ADIDAS TIRO SALE")
+        scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions) 
         time.sleep(3)
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
