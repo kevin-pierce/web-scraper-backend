@@ -613,22 +613,30 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
                 print(size)
                 allAvailSizes.append(size['size'])
 
-        adidasTiroProduct = {
-            "productName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
-            "productType":soup.find('div', attrs={"data-auto-id":"product-category"}).text.split(" ")[0],
-            "productReducedPrice":soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text[1:],
-            "productOriginalPrice":soup.find('div', attrs={"gl-price-item gl-price-item--crossed notranslate"}).text[1:],
-            "productImg":imgString[len(imgString)-2],               
-            "productCW":soup.find('h5').text,          
-            "productSizeAvailability":allAvailSizes,           
-            "productLink":str(link),
-            "salePercent":""
-        }
-        # Obtain the sale value (Rounded to 1 decimal)
-        adidasTiroProduct["salePercent"] = str(round((100 - (float(adidasTiroProduct["productReducedPrice"][1:]) / float(adidasTiroProduct["productOriginalPrice"][1:])) * 100), 1)) + "%"
+        # FINAL PRODUCT CHECKS
+        # - Are there any available sizes
+        if (len(allAvailSizes) == 0):
+            continue
 
-        allTiroProductsSale.append(adidasTiroProduct)
-        print(adidasTiroProduct)
+
+        # If a product passes all of the above checks, only then do we add it to our list
+        else:
+            adidasTiroProduct = {
+                "productName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
+                "productType":soup.find('div', attrs={"data-auto-id":"product-category"}).text.split(" ")[0],
+                "productReducedPrice":soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text[1:],
+                "productOriginalPrice":soup.find('div', attrs={"gl-price-item gl-price-item--crossed notranslate"}).text[1:],
+                "productImg":imgString[len(imgString)-2],               
+                "productCW":soup.find('h5').text,          
+                "productSizeAvailability":allAvailSizes,           
+                "productLink":str(link),
+                "salePercent":""
+            }
+            # Obtain the sale value (Rounded to 1 decimal)
+            adidasTiroProduct["salePercent"] = str(round((100 - (float(adidasTiroProduct["productReducedPrice"][1:]) / float(adidasTiroProduct["productOriginalPrice"][1:])) * 100), 1)) + "%"
+
+            allTiroProductsSale.append(adidasTiroProduct)
+            print(adidasTiroProduct)
 
     # Empty the DB and then push all new products 
     if (adidasTiroSaleCollection.count_documents({}) != 0):
