@@ -291,7 +291,8 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeSizeAvailability":shoeSizeAvailability,
             "shoeLink":str(link)
         }
-        nikeRunnerObject["shoeDiscount"] = nikeRunnerObject["shoeReducedPrice"] / nikeRunnerObject["shoeOriginalPrice"]
+        # Obtain the sale value (Rounded to 1 decimal)
+        nikeRunnerObject["salePercent"] = str(round((100 - ((nikeRunnerObject["shoeReducedPrice"]) / (nikeRunnerObject["shoeOriginalPrice"])) * 100), 1)) + "%"
         allSaleNikeRunner.append(nikeRunnerObject)
         print(nikeRunnerObject)
 
@@ -460,7 +461,6 @@ def scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions):
                 "shoeCW":soup.find('h5').text,          
                 "shoeSizeAvailability":allAvailSizes,           
                 "shoeLink":str(link),
-                "salePercent":""
             }
             # Obtain the sale value (Rounded to 1 decimal)
             adidasOriginalsObject["salePercent"] = str(round((100 - (float(adidasOriginalsObject["shoeReducedPrice"][1:]) / float(adidasOriginalsObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
@@ -563,7 +563,6 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
                 "shoeCW":soup.find('h5').text,          
                 "shoeSizeAvailability":allAvailSizes,           
                 "shoeLink":str(link),
-                "salePercent":""
             }
             # Obtain the sale value (Rounded to 1 decimal)
             adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
@@ -661,7 +660,6 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
                 "productCW":soup.find('h5').text,          
                 "productSizeAvailability":allAvailSizes,           
                 "productLink":str(link),
-                "salePercent":""
             }
             # Obtain the sale value (Rounded to 1 decimal)
             adidasTiroProduct["salePercent"] = str(round((100 - (float(adidasTiroProduct["productReducedPrice"][1:]) / float(adidasTiroProduct["productOriginalPrice"][1:])) * 100), 1)) + "%"
@@ -743,7 +741,6 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
                 "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
                 "shoeSizeAvailability":shoeSizeAvailability,
                 "shoeLink":str(link),
-                "salePercent":"",
             }
             # Obtain the sale value (Rounded to 1 decimal)
             jordanShoeObject["salePercent"] = str(round((100 - (float(jordanShoeObject["shoeReducedPrice"][1:]) / float(jordanShoeObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
@@ -827,7 +824,6 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
                 "shoeSizeAvailability":shoeSizeAvailability,
                 "shoeLink":str(link),
-                "salePercent":"",
             }
             # Obtain the sale value (Rounded to 1 decimal)
             adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
@@ -873,7 +869,6 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeReducedPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[0].strip(),
             "shoeOriginalPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[1].strip(),
             "shoeLink":shoe.find('h2', attrs={"class":"product-name"}).find('a')["href"],
-            "salePercent":""
         }
 
         # Obtain the sale value (Rounded to one decimal place)
@@ -887,7 +882,7 @@ def main():
     shoeReleaseDB = client.get_database('shoepicDB')
     print("Connected!")
 
-    # Initialize Chrome web driver for selenium 
+    # Initialize Chrome web driver for selenium (must be in Headless mode for Heroku)
     chromeOptions = webdriver.ChromeOptions()
     chromeOptions.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     chromeOptions.add_argument("--headless") 
@@ -897,9 +892,9 @@ def main():
     print("Initialized ChromeDrivers!")
 
     while True:
-        #print("NIKE RUNNING SALE")
-        #scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        #time.sleep(3)
+        print("NIKE RUNNING SALE")
+        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
         # print("NIKE RUNNING SALE @ RUNNINGROOM")
         # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3);
@@ -909,9 +904,9 @@ def main():
         # print("ADIDAS RUNNING SALE")
         # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
         # time.sleep(3)
-        print("ADIDAS ORIGINALS SALE")
-        scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions) 
-        time.sleep(3)
+        # print("ADIDAS ORIGINALS SALE")
+        # scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions) 
+        # time.sleep(3)
         # print("ADIDAS TIRO SALE")
         # scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions) 
         # time.sleep(3)
