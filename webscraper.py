@@ -380,6 +380,8 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
             "shoeSizeAvailability":shoeSizeAvailability,
             "shoeLink":str(link)
         }
+        # Obtain the sale value (Rounded to 1 decimal)
+        nikeLifestyleObject["salePercent"] = str(round((100 - ((nikeLifestyleObject["shoeReducedPrice"]) / (nikeLifestyleObject["shoeOriginalPrice"])) * 100), 1)) + "%"
         allSaleNikeLifestyle.append(nikeLifestyleObject)
         print(nikeLifestyleObject)
 
