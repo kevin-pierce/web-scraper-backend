@@ -229,6 +229,89 @@ def scrape_all_releases_footlocker(shoeReleaseDB):
 # WORKS FOR NOW
 ##################################################
 #                                                #
+#                NIKE.CA - SB SHOES              #
+#                                                #
+##################################################
+def scrape_nike_SB_sales(shoeReleaseDB, chromeOptions):
+    allSaleNikeSB = []
+    shoeSubLinks = []
+
+    nikeSBSaleCollection = shoeReleaseDB.nikeLifestyleSales
+    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)       # FOR HEROKU
+    driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver')                                  # FOR LOCAL ONLY
+    driver.get("https://www.nike.com/ca/w/sale-skateboarding-shoes-3yaepz8mfrfzy7ok")
+    time.sleep(2)
+    body = driver.find_element_by_tag_name("body")
+
+    numPageDowns = 15
+    while numPageDowns:
+        body.send_keys(Keys.PAGE_DOWN)
+        time.sleep(0.5)
+        numPageDowns-=1
+
+    response = driver.page_source
+    driver.quit()
+    soup = BeautifulSoup(response, "html.parser")
+
+    SBSales = soup.find_all('div', attrs={"class":"product-card__body"})
+
+    # Compile Links
+    for shoe in SBSales:
+        shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
+        shoeSubLinks.append(shoeLink["href"])
+
+    for link in shoeSubLinks:
+        driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)       # FOR HEROKU
+        driver.get(str(link))
+        time.sleep(0.5)
+
+        response = driver.page_source
+        driver.quit()
+        soup = BeautifulSoup(response, "html.parser")
+
+        # Checks if there is a valid size array (This will omit BY YOU products / other custom products)
+        if (not soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"})):
+            print("\nINVALID PRODUCT - SKIPPING\n")
+            continue
+
+        # Scrape all available sizes, strip tags and place the data into an array
+        else:
+            print("VALID PRODUCT")
+            shoeSizeAvailability = []
+            sizeData = soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"}).find_all('div', attrs={"class":False})
+            for size in sizeData:
+                if ("disabled" in str(size)):
+                    continue
+                else:
+                    availableSize = size.find("label").text
+                    shoeSizeAvailability.append(str(size.get_text()))
+
+        nikeSBObject = {
+            "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
+            "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
+            "shoeReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text[1:]),
+            "shoeOriginalPrice":float(soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text[1:]),
+            "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
+            "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
+            "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
+            "shoeSizeAvailability":shoeSizeAvailability,
+            "shoeLink":str(link)
+        }
+        # Obtain the sale value (Rounded to 1 decimal)
+        nikeSBObject["salePercent"] = str(round((100 - ((nikeSBObject["shoeReducedPrice"]) / (nikeSBObject["shoeOriginalPrice"])) * 100), 1)) + "%"
+        allSaleNikeSB.append(nikeSBObject)
+        print(nikeSBObject)
+
+    if (nikeSBSaleCollection.count_documents({}) != 0):
+        nikeSBSaleCollection.delete_many({})
+        nikeSBSaleCollection.insert_many(allSaleNikeSB)
+    else:
+        nikeSBSaleCollection.insert_many(allSaleNikeSB)
+
+# WORKS FOR NOW
+##################################################
+#                                                #
 #            NIKE.CA - RUNNING SHOES             #
 #                                                #
 ##################################################
@@ -914,8 +997,11 @@ def main():
         # print("NIKE RUNNING SALE @ RUNNINGROOM")
         # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3);
-        print("NIKE LIFESTYLE SALE")
-        scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
+        # print("NIKE LIFESTYLE SALE")
+        # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
+        print("NIKE SB SALE")
+        scrape_nike_SB_sales(shoeReleaseDB, chromeOptions)
         time.sleep(3)
         # print("ADIDAS RUNNING SALE")
         # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
