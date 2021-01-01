@@ -226,6 +226,7 @@ def scrape_all_releases_footlocker(shoeReleaseDB):
         print(shoe.find('p', attrs={"class":"c-prd-name"}).text) # Shoe Name
         print(shoe.find('p', attrs={"class":"c-prd-text-color"}).text) # Shoe Colourway
 
+# WORKS FOR NOW
 ##################################################
 #                                                #
 #            NIKE.CA - RUNNING SHOES             #
@@ -351,16 +352,22 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
         driver.quit()
         soup = BeautifulSoup(response, "html.parser")
 
+        # Checks if there is a valid size array (This will omit BY YOU products / other custom products)
+        if (not soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"})):
+            print("\nINVALID PRODUCT - SKIPPING\n")
+            continue
+
         # Scrape all available sizes, strip tags and place the data into an array - ALSO ignore sizes that are "greyed out"
-        shoeSizeAvailability = []
-        sizeData = soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"}).find_all('div', attrs={"class":False})
-        for size in sizeData:
-            if ("disabled" in str(size)):
-                continue
-            else:
-                availableSize = size.find("label").text
-                shoeSizeAvailability.append(str(size.get_text()))
-                print(shoeSizeAvailability)
+        else:
+            print("VALID PRODUCT")
+            shoeSizeAvailability = []
+            sizeData = soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"}).find_all('div', attrs={"class":False})
+            for size in sizeData:
+                if ("disabled" in str(size)):
+                    continue
+                else:
+                    availableSize = size.find("label").text
+                    shoeSizeAvailability.append(str(size.get_text()))
 
         nikeLifestyleObject = {
             "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
@@ -374,6 +381,7 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
             "shoeLink":str(link)
         }
         allSaleNikeLifestyle.append(nikeLifestyleObject)
+        print(nikeLifestyleObject)
 
     if (nikeLifestyleSaleCollection.count_documents({}) != 0):
         nikeLifestyleSaleCollection.delete_many({})
@@ -898,15 +906,15 @@ def main():
     print("Initialized ChromeDrivers!")
 
     while True:
-        print("NIKE RUNNING SALE")
-        scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+        # print("NIKE RUNNING SALE")
+        # scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
         # print("NIKE RUNNING SALE @ RUNNINGROOM")
         # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3);
-        #print("NIKE LIFESTYLE SALE")
-        #scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
-        #time.sleep(3)
+        print("NIKE LIFESTYLE SALE")
+        scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
         # print("ADIDAS RUNNING SALE")
         # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
         # time.sleep(3)
