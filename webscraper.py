@@ -372,8 +372,8 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
         nikeLifestyleObject = {
             "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
             "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
-            "shoeReducedPrice":soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text,
-            "shoeOriginalPrice":soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text,
+            "shoeReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text[1:]),
+            "shoeOriginalPrice":float(soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text[1:]),
             "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
             "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
             "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
