@@ -236,7 +236,7 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
     shoeSubLinks = []
 
     nikeRunnerSaleCollection = shoeReleaseDB.nikeRunnerSales
-    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)       # FOR HEROKU
     driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
     driver.get("https://www.nike.com/ca/w/sale-running-shoes-37v7jz3yaepzy7ok")
     time.sleep(2)
@@ -261,7 +261,7 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
 
     for link in shoeSubLinks:
         driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
-        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)       # FOR HEROKU
         driver.get(str(link))
         time.sleep(0.5)
 
@@ -269,17 +269,23 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
         driver.quit()
         soup = BeautifulSoup(response, "html.parser")
 
+        # Checks if there is a valid size array (This will omit BY YOU products / other custom products)
+        if (not soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"})):
+            print("\nINVALID PRODUCT - SKIPPING\n")
+            continue
+
         # Scrape all available sizes, strip tags and place the data into an array
-        shoeSizeAvailability = []
-        sizeData = soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"}).find_all('div', attrs={"class":False})
-        for size in sizeData:
-            if ("disabled" in str(size)):
-                continue
-            else:
-                availableSize = size.find("label").text
-                shoeSizeAvailability.append(str(size.get_text()))
-                print(shoeSizeAvailability)
-    
+        else:
+            print("VALID PRODUCT")
+            shoeSizeAvailability = []
+            sizeData = soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"}).find_all('div', attrs={"class":False})
+            for size in sizeData:
+                if ("disabled" in str(size)):
+                    continue
+                else:
+                    availableSize = size.find("label").text
+                    shoeSizeAvailability.append(str(size.get_text()))
+
         nikeRunnerObject = {
             "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
             "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
