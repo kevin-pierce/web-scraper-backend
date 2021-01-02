@@ -489,7 +489,7 @@ def scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions):
     nikeJordanSaleCollection = shoeReleaseDB.jordanSales
     #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
     driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
-    driver.get("https://www.nike.com/ca/w/sale-lifestyle-shoes-13jrmz3yaepzy7ok")
+    driver.get("https://www.nike.com/ca/w/sale-jordan-shoes-37eefz3yaepzy7ok")
     time.sleep(2)
     body = driver.find_element_by_tag_name("body")
 
@@ -503,14 +503,14 @@ def scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions):
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
 
-    lifestyleSales = soup.find_all('div', attrs={"class":"product-card__body"})
+    jordanSales = soup.find_all('div', attrs={"class":"product-card__body"})
     
     # Compile Links
-    for shoe in lifestyleSales:
+    for shoe in jordanSales:
         shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
-        shoeSubLinks.append(shoeLink["href"])
+        jordanSubLinks.append(shoeLink["href"])
 
-    for link in shoeSubLinks:
+    for link in jordanSubLinks:
         driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
         #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
         driver.get(str(link))
@@ -537,7 +537,7 @@ def scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions):
                     availableSize = size.find("label").text
                     shoeSizeAvailability.append(str(size.get_text()))
 
-        nikeLifestyleObject = {
+        jordanObject = {
             "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
             "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
             "shoeReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text[1:]),
@@ -549,16 +549,16 @@ def scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions):
             "shoeLink":str(link)
         }
         # Obtain the sale value (Rounded to 1 decimal)
-        nikeLifestyleObject["salePercent"] = str(round((100 - ((nikeLifestyleObject["shoeReducedPrice"]) / (nikeLifestyleObject["shoeOriginalPrice"])) * 100), 1)) + "%"
-        allSaleNikeLifestyle.append(nikeLifestyleObject)
-        print(nikeLifestyleObject)
+        jordanObject["salePercent"] = str(round((100 - ((jordanObject["shoeReducedPrice"]) / (jordanObject["shoeOriginalPrice"])) * 100), 1)) + "%"
+        allSaleJordans.append(jordanObject)
+        print(jordanObject)
 
-    # Only delete entries that DON'T contain SB in their product name
-    if (nikeLifestyleSaleCollection.count_documents({}) != 0):
-        nikeLifestyleSaleCollection.delete_many({"shoeName":{"$ne":{"$regex":"SB"}}})
-        nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
+    # Only delete entries that DON'T contain Footlocker in their links
+    if (nikeJordanSaleCollection.count_documents({}) != 0):
+        nikeJordanSaleCollection.delete_many({"shoeLink":{"$ne":{"$regex":"footlocker"}}})
+        nikeJordanSaleCollection.insert_many(allSaleJordans)
     else:
-        nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
+        nikeJordanSaleCollection.insert_many(allSaleJordans)
 
 # WORKS FOR NOW
 ##################################################
@@ -1083,9 +1083,9 @@ def main():
         # print("NIKE RUNNING SALE @ RUNNINGROOM")
         # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3);
-        print("NIKE LIFESTYLE SALE")
-        scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+        # print("NIKE LIFESTYLE SALE")
+        # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
         # print("NIKE SB SALE")
         # scrape_nike_SB_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
@@ -1101,6 +1101,9 @@ def main():
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
+        print("NIKE JORDAN SALE")
+        scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
         # print("FOOTLOCKER ADIDAS RUNNER SALES")
         # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
