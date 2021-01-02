@@ -304,7 +304,7 @@ def scrape_nike_SB_sales(shoeReleaseDB, chromeOptions):
         print(nikeSBObject)
 
     if (nikeSBSaleCollection.count_documents({}) != 0):
-        nikeSBSaleCollection.delete_many({})
+        nikeSBSaleCollection.delete_many({"shoeName":{"$regex":"SB"}})
         nikeSBSaleCollection.insert_many(allSaleNikeSB)
     else:
         nikeSBSaleCollection.insert_many(allSaleNikeSB)
