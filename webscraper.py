@@ -469,7 +469,7 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
         print(nikeLifestyleObject)
 
     if (nikeLifestyleSaleCollection.count_documents({}) != 0):
-        nikeLifestyleSaleCollection.delete_many({"shoeName":{"$regex":{"$ne":"SB"}}})
+        nikeLifestyleSaleCollection.delete_many({"shoeName":{"$ne":{"$regex":"SB"}}})
         nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
     else:
         nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
@@ -997,12 +997,12 @@ def main():
         # print("NIKE RUNNING SALE @ RUNNINGROOM")
         # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3);
-        # print("NIKE LIFESTYLE SALE")
-        # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3)
-        print("NIKE SB SALE")
-        scrape_nike_SB_sales(shoeReleaseDB, chromeOptions)
+        print("NIKE LIFESTYLE SALE")
+        scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
         time.sleep(3)
+        # print("NIKE SB SALE")
+        # scrape_nike_SB_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
         # print("ADIDAS RUNNING SALE")
         # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
         # time.sleep(3)
