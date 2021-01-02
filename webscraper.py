@@ -303,6 +303,7 @@ def scrape_nike_SB_sales(shoeReleaseDB, chromeOptions):
         allSaleNikeSB.append(nikeSBObject)
         print(nikeSBObject)
 
+    # Only delete entries that have SB in their product name
     if (nikeSBSaleCollection.count_documents({}) != 0):
         nikeSBSaleCollection.delete_many({"shoeName":{"$regex":"SB"}})
         nikeSBSaleCollection.insert_many(allSaleNikeSB)
@@ -468,6 +469,91 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
         allSaleNikeLifestyle.append(nikeLifestyleObject)
         print(nikeLifestyleObject)
 
+    # Only delete entries that DON'T contain SB in their product name
+    if (nikeLifestyleSaleCollection.count_documents({}) != 0):
+        nikeLifestyleSaleCollection.delete_many({"shoeName":{"$ne":{"$regex":"SB"}}})
+        nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
+    else:
+        nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
+
+
+##################################################
+#                                                #
+#                 NIKE.CA - JORDANS              # 
+#                                                #
+##################################################
+def scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions):
+    allSaleJordans = []
+    jordanSubLinks = []
+
+    nikeJordanSaleCollection = shoeReleaseDB.jordanSales
+    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+    driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+    driver.get("https://www.nike.com/ca/w/sale-lifestyle-shoes-13jrmz3yaepzy7ok")
+    time.sleep(2)
+    body = driver.find_element_by_tag_name("body")
+
+    numPageDowns = 30
+    while numPageDowns:
+        body.send_keys(Keys.PAGE_DOWN)
+        time.sleep(0.5)
+        numPageDowns-=1
+
+    response = driver.page_source
+    driver.quit()
+    soup = BeautifulSoup(response, "html.parser")
+
+    lifestyleSales = soup.find_all('div', attrs={"class":"product-card__body"})
+    
+    # Compile Links
+    for shoe in lifestyleSales:
+        shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
+        shoeSubLinks.append(shoeLink["href"])
+
+    for link in shoeSubLinks:
+        driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+        driver.get(str(link))
+        time.sleep(0.5)
+
+        response = driver.page_source
+        driver.quit()
+        soup = BeautifulSoup(response, "html.parser")
+
+        # Checks if there is a valid size array (This will omit BY YOU products / other custom products)
+        if (not soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"})):
+            print("\nINVALID PRODUCT - SKIPPING\n")
+            continue
+
+        # Scrape all available sizes, strip tags and place the data into an array - ALSO ignore sizes that are "greyed out"
+        else:
+            print("VALID PRODUCT")
+            shoeSizeAvailability = []
+            sizeData = soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"}).find_all('div', attrs={"class":False})
+            for size in sizeData:
+                if ("disabled" in str(size)):
+                    continue
+                else:
+                    availableSize = size.find("label").text
+                    shoeSizeAvailability.append(str(size.get_text()))
+
+        nikeLifestyleObject = {
+            "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
+            "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
+            "shoeReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text[1:]),
+            "shoeOriginalPrice":float(soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text[1:]),
+            "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
+            "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
+            "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
+            "shoeSizeAvailability":shoeSizeAvailability,
+            "shoeLink":str(link)
+        }
+        # Obtain the sale value (Rounded to 1 decimal)
+        nikeLifestyleObject["salePercent"] = str(round((100 - ((nikeLifestyleObject["shoeReducedPrice"]) / (nikeLifestyleObject["shoeOriginalPrice"])) * 100), 1)) + "%"
+        allSaleNikeLifestyle.append(nikeLifestyleObject)
+        print(nikeLifestyleObject)
+
+    # Only delete entries that DON'T contain SB in their product name
     if (nikeLifestyleSaleCollection.count_documents({}) != 0):
         nikeLifestyleSaleCollection.delete_many({"shoeName":{"$ne":{"$regex":"SB"}}})
         nikeLifestyleSaleCollection.insert_many(allSaleNikeLifestyle)
@@ -783,7 +869,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
     allJordanLinks = []
     allJordansOnSale = []
     
-    footlockerJordanSaleCollection = shoeReleaseDB.footlockerJordanSales
+    footlockerJordanSaleCollection = shoeReleaseDB.jordanSales
     
     print("Getting MAIN page")
     response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s%3Ashoestyle%3ACasual+Sneakers&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=3)
