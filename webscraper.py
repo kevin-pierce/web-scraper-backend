@@ -932,9 +932,9 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             allJordansOnSale.append(jordanShoeObject)
             print(jordanShoeObject) # TESTING
 
-        # Wipe the DB and fill with all newly scraped products 
+        # Wipe all DB entries that DO NOT contain Nike in the link
         if (footlockerJordanSaleCollection.count_documents({}) != 0):
-            footlockerJordanSaleCollection.delete_many({})
+            footlockerJordanSaleCollection.delete_many({"shoeLink":{"$ne":{"$regex":"nike"}}})
             footlockerJordanSaleCollection.insert_many(allJordansOnSale)
         else:
             footlockerJordanSaleCollection.insert_many(allJordansOnSale)
