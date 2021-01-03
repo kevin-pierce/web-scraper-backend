@@ -948,7 +948,19 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
                 else:
                     shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
 
-            shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
+            # DESCRIPTION FORMATTING
+            # Find the description and all features (stored in a <li>)
+            shoeDescFormatted = ""
+            shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('p')
+            shoeDescList = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('li')
+            #print(shoeDescList)
+            
+            # Format our description string (With the main paragraphs, and then subpoints all appended together into one string)
+            for i in range(0, len(shoeDescUnformatted)):
+                shoeDescFormatted += shoeDescUnformatted[i].text
+            shoeDescFormatted += "\n"
+            for i in range(0, len(shoeDescList)):
+                shoeDescFormatted += "- " + str(shoeDescList[i].text) + "\n"
 
             # Create the shoe object with corresponding entries about its information
             jordanShoeObject = {
@@ -958,7 +970,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
                 "shoeOriginalPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
                 #"shoeImg":soup.find('div', attrs={"class":"AltImages"}).find('img')["src"], Footlocker screwed us :(
                 "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
-                "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
+                "shoeDesc":shoeDescFormatted,
                 "shoeSizeAvailability":shoeSizeAvailability,
                 "shoeLink":str(link),
                 "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
@@ -980,6 +992,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
 #                                                #
 #           FOOTLOCKER - NIKE LIFESTYLE          #
 #    parameterized for gender search (M/W/K)     #
+# Prevents crashing due to large num of products #
 ##################################################
 def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderParam):
     allNikeLifestyle = []
@@ -1155,8 +1168,19 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 else:
                     shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
 
-            # Obtain the shoe's description
-            shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
+            # DESCRIPTION FORMATTING
+            # Find the description and all features (stored in a <li>)
+            shoeDescFormatted = ""
+            shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('p')
+            shoeDescList = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('li')
+            #print(shoeDescList)
+            
+            # Format our description string (With the main paragraphs, and then subpoints all appended together into one string)
+            for i in range(0, len(shoeDescUnformatted)):
+                shoeDescFormatted += shoeDescUnformatted[i].text
+            shoeDescFormatted += "\n"
+            for i in range(0, len(shoeDescList)):
+                shoeDescFormatted += "- " + str(shoeDescList[i].text) + "\n"
 
             # Create the shoe object with all corresponding properties
             adidasRunnerObject = {
@@ -1166,7 +1190,7 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 "shoeOriginalPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
                 #"shoeImg":soup.find('div', attrs={"class":"ProductDetails-image"}).find('div', attrs={"class":"AltImages"}),   Footlocker screwed me, and so images will now not work without Selenium (WILL FIX LATER)
                 "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
-                "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
+                "shoeDesc":shoeDescFormatted,
                 "shoeSizeAvailability":shoeSizeAvailability,
                 "shoeLink":str(link),
                 "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
@@ -1294,24 +1318,24 @@ def main():
         # print("ADIDAS TIRO SALE")
         # scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions) 
         # # time.sleep(3)
-        # print("FOOTLOCKER JORDANS SALE")
-        # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3)
+        print("FOOTLOCKER JORDANS SALE")
+        scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
         # print("FOOTLOCKER NIKE LIFESTYLE SALE (MENS)")
         # scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Men")
         # time.sleep(3)
-        print("FOOTLOCKER NIKE LIFESTYLE SALE (WOMENS)")
-        scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Women")
-        time.sleep(3)
+        # print("FOOTLOCKER NIKE LIFESTYLE SALE (WOMENS)")
+        # scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Women")
+        # time.sleep(3)
         # print("FOOTLOCKER NIKE LIFESTYLE SALE (KIDS)")
         # scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Kids")
         # time.sleep(3)
         # print("NIKE JORDAN SALE")
         # scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        # print("FOOTLOCKER ADIDAS RUNNER SALES")
-        # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3)     
+        print("FOOTLOCKER ADIDAS RUNNER SALES")
+        scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)     
 
 
 
