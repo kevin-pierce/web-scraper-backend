@@ -923,6 +923,9 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
         jordanLink = jordan.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
         allJordanLinks.append("https://www.footlocker.ca" + str(jordanLink))
 
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
+
     # Iterate through each product page, creating an object 
     for link in allJordanLinks:
         response = requests.get(str(link), headers=FOOTLOCKER_HEADER, timeout=3)
@@ -956,6 +959,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
                 "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
                 "shoeSizeAvailability":shoeSizeAvailability,
                 "shoeLink":str(link),
+                "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
             }
             # Obtain the sale value (Rounded to 1 decimal)
             jordanShoeObject["salePercent"] = str(round((100 - (float(jordanShoeObject["shoeReducedPrice"][1:]) / float(jordanShoeObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
@@ -1006,7 +1010,10 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
         runnerLink = runner.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
         allRunnerLinks.append("https://www.footlocker.ca" + str(runnerLink))
 
-    # Parse each page individually with BS4 - TO BE CHANGED TO SELENIUM LATER
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
+
+    # Parse each page individually with BS4
     for link in allRunnerLinks:
         response = requests.get(str(link), headers=FOOTLOCKER_HEADER, timeout=15)
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -1039,6 +1046,7 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
                 "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
                 "shoeSizeAvailability":shoeSizeAvailability,
                 "shoeLink":str(link),
+                "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
             }
             # Obtain the sale value (Rounded to 1 decimal)
             adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
@@ -1054,7 +1062,6 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
         adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
 
 
-# NOT FINISHED (MUST ADD TO DB)
 ##################################################
 #                                                #
 #               RUNNING ROOM - NIKE              #
