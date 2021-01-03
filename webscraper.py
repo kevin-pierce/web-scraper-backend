@@ -261,6 +261,9 @@ def scrape_nike_SB_sales(shoeReleaseDB, chromeOptions):
         shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
         shoeSubLinks.append(shoeLink["href"])
 
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
+
     for link in shoeSubLinks:
         driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
         #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)       # FOR HEROKU
@@ -286,10 +289,7 @@ def scrape_nike_SB_sales(shoeReleaseDB, chromeOptions):
                     continue
                 else:
                     availableSize = size.find("label").text
-                    shoeSizeAvailability.append(str(size.get_text()))
-
-            # Update the current time at which availability was checked
-            curTime = datetime.now()        
+                    shoeSizeAvailability.append(str(size.get_text()))      
 
             nikeSBObject = {
                 "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
@@ -349,6 +349,9 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
         shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
         shoeSubLinks.append(shoeLink["href"])
 
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
+
     for link in shoeSubLinks:
         driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
         #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)       # FOR HEROKU
@@ -375,9 +378,6 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
                 else:
                     availableSize = size.find("label").text
                     shoeSizeAvailability.append(str(size.get_text()))
-
-            # Update the current time at which availability was checked
-            curTime = datetime.now()
 
             nikeRunnerObject = {
                 "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
@@ -435,6 +435,9 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
         shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
         shoeSubLinks.append(shoeLink["href"])
 
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
+
     for link in shoeSubLinks:
         driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
         #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
@@ -460,10 +463,7 @@ def scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions):
                     continue
                 else:
                     availableSize = size.find("label").text
-                    shoeSizeAvailability.append(str(size.get_text()))
-
-            # Update the current time at which availability was checked
-            curTime = datetime.now()        
+                    shoeSizeAvailability.append(str(size.get_text()))       
 
             nikeLifestyleObject = {
                 "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
@@ -523,6 +523,9 @@ def scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions):
         shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
         jordanSubLinks.append(shoeLink["href"])
 
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
+
     for link in jordanSubLinks:
         driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
         #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
@@ -548,10 +551,7 @@ def scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions):
                     continue
                 else:
                     availableSize = size.find("label").text
-                    shoeSizeAvailability.append(str(size.get_text()))
-
-            # Update the current time at which availability was checked
-            curTime = datetime.now()        
+                    shoeSizeAvailability.append(str(size.get_text()))   
 
             jordanObject = {
                 "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
@@ -615,6 +615,9 @@ def scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions):
         shoeLink = shoe.find('a')["href"]
         allAdidasOriginalsLinks.append("https://www.adidas.ca" + shoeLink)
 
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
+
     # Iterate through each individual product page
     for link in allAdidasOriginalsLinks:
         response = requests.get(str(link), headers=ADIDAS_HEADER, timeout=15)
@@ -653,7 +656,8 @@ def scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions):
             continue
 
         # If a product passes all of the above checks, only then do we add it to our list
-        else:
+        else: 
+
             adidasOriginalsObject = {
                 "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
                 "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text.split(" ")[0],
@@ -663,6 +667,7 @@ def scrape_adidas_originals_sales(shoeReleaseDB, chromeOptions):
                 "shoeCW":soup.find('h5').text,          
                 "shoeSizeAvailability":allAvailSizes,           
                 "shoeLink":str(link),
+                "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
             }
             # Obtain the sale value (Rounded to 1 decimal)
             adidasOriginalsObject["salePercent"] = str(round((100 - (float(adidasOriginalsObject["shoeReducedPrice"][1:]) / float(adidasOriginalsObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
@@ -717,6 +722,9 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
         shoeLink = shoe.find('a')["href"]
         allAdidasRunningLinks.append("https://www.adidas.ca" + shoeLink)
 
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
+
     # Iterate through each individual product page
     for link in allAdidasRunningLinks:
         response = requests.get(str(link), headers=ADIDAS_HEADER, timeout=15)
@@ -765,6 +773,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
                 "shoeCW":soup.find('h5').text,          
                 "shoeSizeAvailability":allAvailSizes,           
                 "shoeLink":str(link),
+                "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
             }
             # Obtain the sale value (Rounded to 1 decimal)
             adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
@@ -817,6 +826,9 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
         productLink = product.find('a')["href"]
         allTiroProductsLinks.append("https://www.adidas.ca" + productLink)
 
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
+
     # Iterate through each individual product page
     for link in allTiroProductsLinks:
         response = requests.get(str(link), headers=ADIDAS_HEADER, timeout=15)
@@ -862,6 +874,7 @@ def scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions):
                 "productCW":soup.find('h5').text,          
                 "productSizeAvailability":allAvailSizes,           
                 "productLink":str(link),
+                "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
             }
             # Obtain the sale value (Rounded to 1 decimal)
             adidasTiroProduct["salePercent"] = str(round((100 - (float(adidasTiroProduct["productReducedPrice"][1:]) / float(adidasTiroProduct["productOriginalPrice"][1:])) * 100), 1)) + "%"
