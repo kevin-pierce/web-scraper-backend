@@ -1092,27 +1092,10 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     # Update the current time at which availability was checked
     curTime = datetime.now()
 
-    for link in allNikeLinks:
-        driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
-        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
-        driver.get(str(link))
-        time.sleep(0.5)
-
-        productResponse = driver.page_source
-        driver.quit()
-        productSoup = BeautifulSoup(productResponse, "html.parser")
-
-        scriptData = productSoup.find_all('script')
-        #print(json.loads(str(scriptData[1].string)))
-        print(json.loads(str(scriptData[1].string))["[data-gallery-role=gallery-placeholder]"]["mage/gallery/gallery"]["data"][0]["img"])
-        #print(productSoup.find('script').string)
-        #print(productSoup.find('div', attrs={"class":"value"}))
-
     # Create each running shoe object with specified fields
     for shoe in runningSales:
         nikeRunnerObject = {
             "shoeName":shoe.find('h2', attrs={"class":"product-name"}).find('a').text,
-            "shoeImg":shoe.find("img", attrs={"class":"product-image-photo"})["src"],
             "shoeType":"Running",
             "shoeReducedPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[0].strip(),
             "shoeOriginalPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[1].strip(),
@@ -1124,6 +1107,22 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
         nikeRunnerObject["salePercent"] = str(round((100 - (float(nikeRunnerObject["shoeReducedPrice"][1:]) / float(nikeRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
         allSaleNikeRunningRoom.append(nikeRunnerObject)
         print(nikeRunnerObject)
+
+    for index in range(0, len(allNikeLinks)):
+        driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+        driver.get(allNikeLinks[index])
+        time.sleep(0.5)
+
+        productResponse = driver.page_source
+        driver.quit()
+        productSoup = BeautifulSoup(productResponse, "html.parser")
+
+        scriptData = productSoup.find_all('script')
+        #print(json.loads(str(scriptData[1].string)))
+        imageLink = json.loads(str(scriptData[1].string))["[data-gallery-role=gallery-placeholder]"]["mage/gallery/gallery"]["data"][0]["img"]
+        print(imageLink)
+        allSaleNikeRunningRoom[index]["shoeImg"] = imageLink
 
     # If there are presently documents in the collection, ONLY delete documents from RunningRoom
     if (nikeRunningRoomSaleCollection.count_documents({}) != 0):
