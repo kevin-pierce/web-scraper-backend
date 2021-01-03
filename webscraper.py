@@ -1018,7 +1018,7 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
         
         # Footlocker doesn't update their sale page regularly, so certain shoes may have been sold out, prompting us with an error page
         # If we receive this error page (Denoted by a single Heading class) then we skip the link
-        if (soup.find('div', attrs={"class":"Page-wrapper Page--large Page--productNotFound"})): 
+        if (soup.find('div', attrs={"class":"Page-wrapper Page--large Page--productNotFound"}) or not soup.find('div', attrs={"class":"ProductDetails-info"}) or ("homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text)): 
             print("Empty product page") # TESTING
             continue
 
@@ -1032,6 +1032,7 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
                     shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
 
             shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
+            print(shoeDescUnformatted)
 
             # Create the shoe object with corresponding entries about its information
             nikeLifestyleShoeObject = {
