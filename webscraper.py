@@ -555,7 +555,7 @@ def scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions):
 
     # Only delete entries that DON'T contain Footlocker in their links
     if (nikeJordanSaleCollection.count_documents({}) != 0):
-        nikeJordanSaleCollection.delete_many({"shoeLink":{"$ne":{"$regex":"footlocker"}}})
+        nikeJordanSaleCollection.delete_many({"shoeLink":{"$regex":"nike"}})
         nikeJordanSaleCollection.insert_many(allSaleJordans)
     else:
         nikeJordanSaleCollection.insert_many(allSaleJordans)
@@ -932,12 +932,12 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
             allJordansOnSale.append(jordanShoeObject)
             print(jordanShoeObject) # TESTING
 
-        # Wipe all DB entries that DO NOT contain Nike in the link
-        if (footlockerJordanSaleCollection.count_documents({}) != 0):
-            footlockerJordanSaleCollection.delete_many({"shoeLink":{"$ne":{"$regex":"nike"}}})
-            footlockerJordanSaleCollection.insert_many(allJordansOnSale)
-        else:
-            footlockerJordanSaleCollection.insert_many(allJordansOnSale)
+    # Wipe all DB entries that DO NOT contain Nike in the link
+    if (footlockerJordanSaleCollection.count_documents({}) != 0):
+        footlockerJordanSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker"}})
+        footlockerJordanSaleCollection.insert_many(allJordansOnSale)
+    else:
+        footlockerJordanSaleCollection.insert_many(allJordansOnSale)
 
 # WORKS FOR NOW
 ##################################################
@@ -1098,9 +1098,9 @@ def main():
         # print("ADIDAS TIRO SALE")
         # scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions) 
         # time.sleep(3)
-        # print("FOOTLOCKER JORDANS SALE")
-        # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3)
+        print("FOOTLOCKER JORDANS SALE")
+        scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3)
         print("NIKE JORDAN SALE")
         scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions)
         time.sleep(3)
