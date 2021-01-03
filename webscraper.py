@@ -9,6 +9,8 @@ import time
 import os
 import asyncio
 
+import socket
+
 import pymongo
 from pymongo import MongoClient
 import dns
@@ -982,12 +984,17 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
 def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderParam):
     allNikeLifestyle = []
     allNikeLinks = []
-    allNikeLifestyleOnSale = []
-    
+    allNikeLifestyleOnSale = []    
     nikeLifestyleSaleCollection = shoeReleaseDB.nikeLifestyleSales
+
+    if (genderParam == "Kids"):
+        mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Aage%3AGrade%2BSchool&sort=relevance&currentPage=0"
+    else:
+        mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=0"
+
     
     print("Getting MAIN page")
-    response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=0", headers=FOOTLOCKER_HEADER, timeout=15)
+    response = requests.get(mainLink, headers=FOOTLOCKER_HEADER, timeout=15)
 
     soup = BeautifulSoup(response.content, "html.parser")
     numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"}).find('a').text
@@ -996,9 +1003,9 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
     for page in range(0, int(numPages)):
         # First page has no currentPage param - inputting it will break all subsequent links
         if (page == 0):
-            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=15)
+            pageResponse = requests.get(mainLink, headers=FOOTLOCKER_HEADER, timeout=15)
         else:
-            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=" + str(page), headers=FOOTLOCKER_HEADER, timeout=15)
+            pageResponse = requests.get(mainLink[0:len(mainLink)] + str(page), headers=FOOTLOCKER_HEADER, timeout=15)
 
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
         allNikeLifestyle += soup.find_all('li', attrs={"class":"product-container col"})
@@ -1015,7 +1022,7 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
     for link in allNikeLinks:
         response = requests.get(str(link), headers=FOOTLOCKER_HEADER, timeout=3)
         soup = BeautifulSoup(response.content, 'html.parser')
-        time.sleep(1)
+        time.sleep(1)   # This prevents a read time-out error
         
         # Footlocker doesn't update their sale page regularly, so certain shoes may have been sold out, prompting us with an error page
         # If we receive this error page (Denoted by a single Heading class) then we skip the link
@@ -1032,19 +1039,19 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
                 else:
                     shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
 
+            # DESCRIPTION FORMATTING
+            # Find the description and all features (stored in a <li>)
             shoeDescFormatted = ""
             shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('p')
             shoeDescList = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('li')
-            print(shoeDescList)
+            #print(shoeDescList)
             
+            # Format our description string (With the main paragraphs, and then subpoints all appended together into one string)
             for i in range(0, len(shoeDescUnformatted)):
                 shoeDescFormatted += shoeDescUnformatted[i].text
-
             shoeDescFormatted += "\n"
-            
             for i in range(0, len(shoeDescList)):
                 shoeDescFormatted += "- " + str(shoeDescList[i].text) + "\n"
-            print(shoeDescFormatted)
 
             # Create the shoe object with corresponding entries about its information
             nikeLifestyleShoeObject = {
@@ -1064,12 +1071,21 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
             allNikeLifestyleOnSale.append(nikeLifestyleShoeObject)
             print(nikeLifestyleShoeObject) # TESTING
 
-    # Wipe all DB entries that DO NOT contain Nike in the link
-    if (nikeLifestyleSaleCollection.count_documents({}) != 0):
-        nikeLifestyleSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker.ca"}})
-        nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
-    else:
-        nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
+    # Wipe all DB entries from Footlocker that have "Grade" in the name (For grade-school kid sizes)
+    if (genderParam = "Kids"):
+        if (nikeLifestyleSaleCollection.count_documents({}) != 0):
+            nikeLifestyleSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker.ca"}, "shoeName":{"$regex":"Grade"}})
+            nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
+        else:
+            nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
+    
+    # Wipe all DB entries from Footlocker that do NOT have "Grade" in the name (Signifying that they're not kids-sizes)
+    else: 
+        if (nikeLifestyleSaleCollection.count_documents({}) != 0):
+            nikeLifestyleSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker.ca"}, "shoeName":{"$ne":{"$regex":"Grade"}}})
+            nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
+        else:
+            nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
 
 
 # WORKS FOR NOW
@@ -1273,8 +1289,14 @@ def main():
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        print("FOOTLOCKER NIKE LIFESTYLE SALE")
-        scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Men")
+        # print("FOOTLOCKER NIKE LIFESTYLE SALE (MENS)")
+        # scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Men")
+        # time.sleep(3)
+        # print("FOOTLOCKER NIKE LIFESTYLE SALE (WOMENS)")
+        # scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Women")
+        # time.sleep(3)
+        print("FOOTLOCKER NIKE LIFESTYLE SALE (KIDS)")
+        scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Kids")
         time.sleep(3)
         # print("NIKE JORDAN SALE")
         # scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions)
