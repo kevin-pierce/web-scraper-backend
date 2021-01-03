@@ -1070,8 +1070,8 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
 def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     allSaleNikeRunningRoom = []
     allNikeLinks = []
-
     nikeRunningRoomSaleCollection = shoeReleaseDB.nikeRunnerSales
+
     # Initialize the driver and scrape site
     #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions) # FOR PRODUCTION
     driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
@@ -1085,6 +1085,7 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     soup = BeautifulSoup(response, "html.parser")
     runningSales = soup.find_all('li', attrs={"class":"item product product-item"})
 
+    # Create a list of the corresponding product links
     for product in runningSales:
         nikeLink = product.find('a')["href"]
         allNikeLinks.append(str(nikeLink))
@@ -1106,23 +1107,24 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
         # Obtain the sale value (Rounded to one decimal place)
         nikeRunnerObject["salePercent"] = str(round((100 - (float(nikeRunnerObject["shoeReducedPrice"][1:]) / float(nikeRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
         allSaleNikeRunningRoom.append(nikeRunnerObject)
-        print(nikeRunnerObject)
 
+    # Iterate through each corresponding link, and load the product pages
     for index in range(0, len(allNikeLinks)):
         driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
         #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
         driver.get(allNikeLinks[index])
         time.sleep(0.5)
 
+        # Parse the page_source
         productResponse = driver.page_source
         driver.quit()
         productSoup = BeautifulSoup(productResponse, "html.parser")
 
+        # The images exist within the script tags, and so we isolate the data by parsing the object within the script tags
         scriptData = productSoup.find_all('script')
-        #print(json.loads(str(scriptData[1].string)))
-        imageLink = json.loads(str(scriptData[1].string))["[data-gallery-role=gallery-placeholder]"]["mage/gallery/gallery"]["data"][0]["img"]
-        print(imageLink)
-        allSaleNikeRunningRoom[index]["shoeImg"] = imageLink
+        imgLink = json.loads(str(scriptData[1].string))["[data-gallery-role=gallery-placeholder]"]["mage/gallery/gallery"]["data"][0]["img"]
+        allSaleNikeRunningRoom[index]["shoeImg"] = imgLink
+        print(allSaleNikeRunningRoom[index])
 
     # If there are presently documents in the collection, ONLY delete documents from RunningRoom
     if (nikeRunningRoomSaleCollection.count_documents({}) != 0):
