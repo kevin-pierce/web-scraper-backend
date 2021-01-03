@@ -757,7 +757,7 @@ def scrape_adidas_running_sales(shoeReleaseDB, chromeOptions):
 
     # Empty the DB and then push all new products 
     if (adidasRunningSaleCollection.count_documents({}) != 0):
-        adidasRunningSaleCollection.delete_many({})
+        adidasRunningSaleCollection.delete_many({"shoeLink":{"$regex":"adidas.ca"}})
         adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
     else:
         adidasRunningSaleCollection.insert_many(allAdidasRunningSale)
@@ -934,7 +934,7 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
 
     # Wipe all DB entries that DO NOT contain Nike in the link
     if (footlockerJordanSaleCollection.count_documents({}) != 0):
-        footlockerJordanSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker"}})
+        footlockerJordanSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker.ca"}})
         footlockerJordanSaleCollection.insert_many(allJordansOnSale)
     else:
         footlockerJordanSaleCollection.insert_many(allJordansOnSale)
@@ -1016,9 +1016,9 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
 
             allAdidasRunnersOnSale.append(adidasRunnerObject)
 
-    # Clear the current entries in the DB, and proceed to fill it with the new entries
+    # Clear the current entries in the DB (if they're from footlocker), and proceed to fill it with the new entries
     if (adidasRunningSaleCollection.count_documents({}) != 0):
-        adidasRunningSaleCollection.delete_many({})
+        adidasRunningSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker.ca"}})
         adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
     else:
         adidasRunningSaleCollection.insert_many(allAdidasRunnersOnSale)
