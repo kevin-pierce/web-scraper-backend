@@ -1103,7 +1103,8 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
         productSoup = BeautifulSoup(productResponse, "html.parser")
 
         scriptData = productSoup.find_all('script')
-        print(json.loads(str(scriptData[1].string)))
+        #print(json.loads(str(scriptData[1].string)))
+        print(json.loads(str(scriptData[1].string))["[data-gallery-role=gallery-placeholder]"]["mage/gallery/gallery"]["data"][0]["img"])
         #print(productSoup.find('script').string)
         #print(productSoup.find('div', attrs={"class":"value"}))
 
