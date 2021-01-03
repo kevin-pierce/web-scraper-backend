@@ -1022,7 +1022,7 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
     for link in allNikeLinks:
         response = requests.get(str(link), headers=FOOTLOCKER_HEADER, timeout=3)
         soup = BeautifulSoup(response.content, 'html.parser')
-        time.sleep(1)   # This prevents a read time-out error
+        #time.sleep(1)   # This prevents a read time-out error
         
         # Footlocker doesn't update their sale page regularly, so certain shoes may have been sold out, prompting us with an error page
         # If we receive this error page (Denoted by a single Heading class) then we skip the link
@@ -1072,17 +1072,25 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
             print(nikeLifestyleShoeObject) # TESTING
 
     # Wipe all DB entries from Footlocker that have "Grade" in the name (For grade-school kid sizes)
-    if (genderParam = "Kids"):
+    if (genderParam == "Kids"):
         if (nikeLifestyleSaleCollection.count_documents({}) != 0):
             nikeLifestyleSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker.ca"}, "shoeName":{"$regex":"Grade"}})
             nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
         else:
             nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
     
-    # Wipe all DB entries from Footlocker that do NOT have "Grade" in the name (Signifying that they're not kids-sizes)
-    else: 
+    # Wipe all DB entries from Footlocker that have Women's as their type
+    elif (genderParam == "Women"): 
         if (nikeLifestyleSaleCollection.count_documents({}) != 0):
-            nikeLifestyleSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker.ca"}, "shoeName":{"$ne":{"$regex":"Grade"}}})
+            nikeLifestyleSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker.ca"}, "shoeType":{"$regex":"Women's"}})
+            nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
+        else:
+            nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
+
+    # Wipe all DB entries from Footlocker that have Men's as their type        
+    else:
+        if (nikeLifestyleSaleCollection.count_documents({}) != 0):
+            nikeLifestyleSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker.ca"}, "shoeType":{"$regex":"Men's"}})
             nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
         else:
             nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
@@ -1292,12 +1300,12 @@ def main():
         # print("FOOTLOCKER NIKE LIFESTYLE SALE (MENS)")
         # scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Men")
         # time.sleep(3)
-        # print("FOOTLOCKER NIKE LIFESTYLE SALE (WOMENS)")
-        # scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Women")
-        # time.sleep(3)
-        print("FOOTLOCKER NIKE LIFESTYLE SALE (KIDS)")
-        scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Kids")
+        print("FOOTLOCKER NIKE LIFESTYLE SALE (WOMENS)")
+        scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Women")
         time.sleep(3)
+        # print("FOOTLOCKER NIKE LIFESTYLE SALE (KIDS)")
+        # scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Kids")
+        # time.sleep(3)
         # print("NIKE JORDAN SALE")
         # scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
