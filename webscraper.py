@@ -976,7 +976,93 @@ def scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions):
 # WORKS FOR NOW
 ##################################################
 #                                                #
-#          FOOTLOCKER - ADIDAS RUNNERS           #
+#           FOOTLOCKER - NIKE LIFESTYLE          #
+#    parameterized for gender search (M/W/K)     #
+##################################################
+def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderParam):
+    allNikeLifestyle = []
+    allNikeLinks = []
+    allNikeLifestyleOnSale = []
+    
+    nikeLifestyleSaleCollection = shoeReleaseDB.nikeLifestyleSales
+    
+    print("Getting MAIN page")
+    response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=0", headers=FOOTLOCKER_HEADER, timeout=3)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"}).find('a').text
+
+    # Scrape each page and compile all products
+    for page in range(0, int(numPages)):
+        # First page has no currentPage param - inputting it will break all subsequent links
+        if (page == 0):
+            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=3)
+        else:
+            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=" + str(page), headers=FOOTLOCKER_HEADER, timeout=3)
+
+        pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
+        allNikeLifestyle += soup.find_all('li', attrs={"class":"product-container col"})
+
+    # Compile all links for each product
+    for shoe in allNikeLifestyle:
+        nikeLink = shoe.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
+        allNikeLinks.append("https://www.footlocker.ca" + str(nikeLink))
+
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
+
+    # Iterate through each product page, creating an object 
+    for link in allNikeLinks:
+        response = requests.get(str(link), headers=FOOTLOCKER_HEADER, timeout=3)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Footlocker doesn't update their sale page regularly, so certain shoes may have been sold out, prompting us with an error page
+        # If we receive this error page (Denoted by a single Heading class) then we skip the link
+        if (soup.find('div', attrs={"class":"Page-wrapper Page--large Page--productNotFound"})): 
+            print("Empty product page") # TESTING
+            continue
+
+        # If there is a product available, we acquire all available sizes and the shoe's description
+        else:
+            shoeSizeAvailability = []
+            for size in soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"}):
+                if ("unavailable" in str(size)):
+                    continue
+                else:
+                    shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
+
+            shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find('p').text.split('.')
+
+            # Create the shoe object with corresponding entries about its information
+            nikeLifestyleShoeObject = {
+                "shoeName":soup.find('h1', attrs={"id":"pageTitle"}).find('span').text,
+                "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
+                "shoeReducedPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text,
+                "shoeOriginalPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
+                #"shoeImg":soup.find('div', attrs={"class":"AltImages"}).find('img')["src"], Footlocker screwed us :(
+                "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
+                "shoeDesc":shoeDescUnformatted[0] + "." + (shoeDescUnformatted[1] + "." if shoeDescUnformatted[1] != "" else ""),
+                "shoeSizeAvailability":shoeSizeAvailability,
+                "shoeLink":str(link),
+                "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
+            }
+            # Obtain the sale value (Rounded to 1 decimal)
+            nikeLifestyleShoeObject["salePercent"] = str(round((100 - (float(nikeLifestyleShoeObject["shoeReducedPrice"][1:]) / float(nikeLifestyleShoeObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
+            allNikeLifestyleOnSale.append(nikeLifestyleShoeObject)
+            print(nikeLifestyleShoeObject) # TESTING
+
+    # Wipe all DB entries that DO NOT contain Nike in the link
+    if (nikeLifestyleSaleCollection.count_documents({}) != 0):
+        nikeLifestyleSaleCollection.delete_many({"shoeLink":{"$regex":"footlocker.ca"}})
+        nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
+    else:
+        nikeLifestyleSaleCollection.insert_many(allNikeLifestyleOnSale)
+
+
+# WORKS FOR NOW
+##################################################
+#                                                #
+#           FOOTLOCKER - ADIDAS RUNNERS          #
 #                                                #
 ##################################################
 def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
@@ -1064,7 +1150,7 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
 
 ##################################################
 #                                                #
-#               RUNNING ROOM - NIKE              #
+#              RUNNING ROOM - NIKE               #
 #                                                #
 ##################################################
 def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
@@ -1153,9 +1239,9 @@ def main():
         # print("NIKE RUNNING SALE")
         # scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        print("NIKE RUNNING SALE @ RUNNINGROOM")
-        scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3);
+        # print("NIKE RUNNING SALE @ RUNNINGROOM")
+        # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3);
         # print("NIKE LIFESTYLE SALE")
         # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
@@ -1174,6 +1260,9 @@ def main():
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
+        print("FOOTLOCKER NIKE LIFESTYLE SALE")
+        scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Men")
+        time.sleep(3)
         # print("NIKE JORDAN SALE")
         # scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
