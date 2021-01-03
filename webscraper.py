@@ -24,7 +24,7 @@ import json
 ##################################################
 
 ADIDAS_HEADER = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4147.105 Safari/537.36'}
-FOOTLOCKER_HEADER = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
+FOOTLOCKER_HEADER = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4147.105 Safari/537.36'}
 RELEASE_HEADER = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36'}
 
 ##################################################
@@ -987,7 +987,7 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
     nikeLifestyleSaleCollection = shoeReleaseDB.nikeLifestyleSales
     
     print("Getting MAIN page")
-    response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=0", headers=FOOTLOCKER_HEADER, timeout=3)
+    response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=0", headers=FOOTLOCKER_HEADER, timeout=15)
 
     soup = BeautifulSoup(response.content, "html.parser")
     numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"}).find('a').text
@@ -996,9 +996,9 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
     for page in range(0, int(numPages)):
         # First page has no currentPage param - inputting it will break all subsequent links
         if (page == 0):
-            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=3)
+            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=15)
         else:
-            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=" + str(page), headers=FOOTLOCKER_HEADER, timeout=3)
+            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=" + str(page), headers=FOOTLOCKER_HEADER, timeout=15)
 
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
         allNikeLifestyle += soup.find_all('li', attrs={"class":"product-container col"})
@@ -1015,10 +1015,11 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
     for link in allNikeLinks:
         response = requests.get(str(link), headers=FOOTLOCKER_HEADER, timeout=3)
         soup = BeautifulSoup(response.content, 'html.parser')
+        time.sleep(1)
         
         # Footlocker doesn't update their sale page regularly, so certain shoes may have been sold out, prompting us with an error page
         # If we receive this error page (Denoted by a single Heading class) then we skip the link
-        if (soup.find('div', attrs={"class":"Page-wrapper Page--large Page--productNotFound"}) or not soup.find('div', attrs={"class":"ProductDetails-info"}) or ("homme" in soup.find('h1', attrs={"id":"pageTitle"}).find('span').text)): 
+        if (soup.find('div', attrs={"class":"Page-wrapper Page--large Page--productNotFound"})): 
             print("Empty product page") # TESTING
             continue
 
@@ -1033,9 +1034,16 @@ def scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, genderP
 
             shoeDescFormatted = ""
             shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('p')
+            shoeDescList = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('li')
+            print(shoeDescList)
             
             for i in range(0, len(shoeDescUnformatted)):
-                shoeDescFormat += shoeDescUnformatted[i].text
+                shoeDescFormatted += shoeDescUnformatted[i].text
+
+            shoeDescFormatted += "\n"
+            
+            for i in range(0, len(shoeDescList)):
+                shoeDescFormatted += "- " + str(shoeDescList[i].text) + "\n"
             print(shoeDescFormatted)
 
             # Create the shoe object with corresponding entries about its information
