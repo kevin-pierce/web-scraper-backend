@@ -553,9 +553,9 @@ def scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions):
         allSaleJordans.append(jordanObject)
         print(jordanObject)
 
-    # Only delete entries that DON'T contain Footlocker in their links
+    # Only delete documents that are from nike.ca
     if (nikeJordanSaleCollection.count_documents({}) != 0):
-        nikeJordanSaleCollection.delete_many({"shoeLink":{"$regex":"nike"}})
+        nikeJordanSaleCollection.delete_many({"shoeLink":{"$regex":"nike.com"}})
         nikeJordanSaleCollection.insert_many(allSaleJordans)
     else:
         nikeJordanSaleCollection.insert_many(allSaleJordans)
@@ -1031,7 +1031,9 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
 #                                                #
 ##################################################
 def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
+    allSaleNikeRunningRoom = []
 
+    nikeRunningRoomSaleCollection = shoeReleaseDB.nikeRunnerSales
     # Initialize the driver and scrape site
     #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions) # FOR PRODUCTION
     driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
@@ -1058,7 +1060,15 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
 
         # Obtain the sale value (Rounded to one decimal place)
         nikeRunnerObject["salePercent"] = str(round((100 - (float(nikeRunnerObject["shoeReducedPrice"][1:]) / float(nikeRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
+        allSaleNikeRunningRoom.append(nikeRunnerObject)
         print(nikeRunnerObject)
+
+    # If there are presently documents in the collection, ONLY delete documents from RunningRoom
+    if (nikeRunningRoomSaleCollection.count_documents({}) != 0):
+        nikeRunningRoomSaleCollection.delete_many({"shoeLink":{"$regex":"runningroom"}})
+        nikeRunningRoomSaleCollection.insert_many(allSaleNikeRunningRoom)
+    else:
+        nikeRunningRoomSaleCollection.insert_many(allSaleNikeRunningRoom)
 
 
 def main():
@@ -1080,9 +1090,9 @@ def main():
         # print("NIKE RUNNING SALE")
         # scrape_nike_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        # print("NIKE RUNNING SALE @ RUNNINGROOM")
-        # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3);
+        print("NIKE RUNNING SALE @ RUNNINGROOM")
+        scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        time.sleep(3);
         # print("NIKE LIFESTYLE SALE")
         # scrape_nike_lifestyle_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
@@ -1097,22 +1107,18 @@ def main():
         # time.sleep(3)
         # print("ADIDAS TIRO SALE")
         # scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions) 
+        # # time.sleep(3)
+        # print("FOOTLOCKER JORDANS SALE")
+        # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        print("FOOTLOCKER JORDANS SALE")
-        scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
-        print("NIKE JORDAN SALE")
-        scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+        # print("NIKE JORDAN SALE")
+        # scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
         # print("FOOTLOCKER ADIDAS RUNNER SALES")
         # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
-        # time.sleep(3)
+        # time.sleep(3)     
 
-        
-        #scrape_all_releases_redFlagDeals(shoeReleaseDB)
-        #time.sleep(5)
-        
-        #"""THE ABOVE WORKS"""       
+
 
         #scrape_all_releases_footlocker(shoeReleaseDB)
         #time.sleep(3)
