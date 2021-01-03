@@ -1069,6 +1069,7 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
 ##################################################
 def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     allSaleNikeRunningRoom = []
+    allNikeLinks = []
 
     nikeRunningRoomSaleCollection = shoeReleaseDB.nikeRunnerSales
     # Initialize the driver and scrape site
@@ -1084,8 +1085,27 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     soup = BeautifulSoup(response, "html.parser")
     runningSales = soup.find_all('li', attrs={"class":"item product product-item"})
 
+    for product in runningSales:
+        nikeLink = product.find('a')["href"]
+        allNikeLinks.append(str(nikeLink))
+
     # Update the current time at which availability was checked
     curTime = datetime.now()
+
+    for link in allNikeLinks:
+        driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
+        #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
+        driver.get(str(link))
+        time.sleep(0.5)
+
+        productResponse = driver.page_source
+        driver.quit()
+        productSoup = BeautifulSoup(productResponse, "html.parser")
+
+        scriptData = productSoup.find_all('script')
+        print(json.loads(str(scriptData[1].string)))
+        #print(productSoup.find('script').string)
+        #print(productSoup.find('div', attrs={"class":"value"}))
 
     # Create each running shoe object with specified fields
     for shoe in runningSales:
