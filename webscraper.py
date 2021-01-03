@@ -4,6 +4,7 @@ from flask import Flask, jsonify, abort
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from datetime import datetime
 import time
 import os
 import asyncio
@@ -1046,6 +1047,7 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     # Parse the response obtained from the Selenium loaded page, and create a list of all products on the page
     soup = BeautifulSoup(response, "html.parser")
     runningSales = soup.find_all('li', attrs={"class":"item product product-item"})
+    curTime = datetime.now()
 
     # Create each running shoe object with specified fields
     for shoe in runningSales:
@@ -1056,6 +1058,7 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
             "shoeReducedPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[0].strip(),
             "shoeOriginalPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[1].strip(),
             "shoeLink":shoe.find('h2', attrs={"class":"product-name"}).find('a')["href"],
+            "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
         }
 
         # Obtain the sale value (Rounded to one decimal place)
