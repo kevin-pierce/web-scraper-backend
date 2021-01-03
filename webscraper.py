@@ -372,21 +372,25 @@ def scrape_nike_runner_sales(shoeReleaseDB, chromeOptions):
                     availableSize = size.find("label").text
                     shoeSizeAvailability.append(str(size.get_text()))
 
-        nikeRunnerObject = {
-            "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
-            "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
-            "shoeReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text[1:]),
-            "shoeOriginalPrice":float(soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text[1:]),
-            "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
-            "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
-            "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
-            "shoeSizeAvailability":shoeSizeAvailability,
-            "shoeLink":str(link)
-        }
-        # Obtain the sale value (Rounded to 1 decimal)
-        nikeRunnerObject["salePercent"] = str(round((100 - ((nikeRunnerObject["shoeReducedPrice"]) / (nikeRunnerObject["shoeOriginalPrice"])) * 100), 1)) + "%"
-        allSaleNikeRunner.append(nikeRunnerObject)
-        print(nikeRunnerObject)
+            # Update the current time at which availability was checked
+            curTime = datetime.now()
+
+            nikeRunnerObject = {
+                "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
+                "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
+                "shoeReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text[1:]),
+                "shoeOriginalPrice":float(soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text[1:]),
+                "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
+                "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
+                "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
+                "shoeSizeAvailability":shoeSizeAvailability,
+                "shoeLink":str(link),
+                "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
+            }
+            # Obtain the sale value (Rounded to 1 decimal)
+            nikeRunnerObject["salePercent"] = str(round((100 - ((nikeRunnerObject["shoeReducedPrice"]) / (nikeRunnerObject["shoeOriginalPrice"])) * 100), 1)) + "%"
+            allSaleNikeRunner.append(nikeRunnerObject)
+            print(nikeRunnerObject)
 
     if (nikeRunnerSaleCollection.count_documents({}) != 0):
         nikeRunnerSaleCollection.delete_many({})
@@ -1047,6 +1051,8 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     # Parse the response obtained from the Selenium loaded page, and create a list of all products on the page
     soup = BeautifulSoup(response, "html.parser")
     runningSales = soup.find_all('li', attrs={"class":"item product product-item"})
+
+    # Update the current time at which availability was checked
     curTime = datetime.now()
 
     # Create each running shoe object with specified fields
