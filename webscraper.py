@@ -1371,7 +1371,6 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType):
     for product in availProducts:
         productLink = product.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
         allProductLinks.append("https://www.footlocker.ca" + str(productLink))
-        print(productLink)
 
     # Update the current time at which availability was checked
     curTime = datetime.now()
@@ -1409,14 +1408,17 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType):
                 shoeDescFormatted += "\n"
                 for i in range(0, len(shoeDescList)):
                     shoeDescFormatted += "- " + str(shoeDescList[i].text) + "\n"
-                
+
+                # Same strategy as the Adidas scraper - call Footlocker's API directly and pass in the product code as a parameter
+                prodCode = get_prod_code(link)
+
                 # Create the shoe object with all corresponding properties
                 shoeObject = {
                     "shoeName":soup.find('h1', attrs={"id":"pageTitle"}).find('span').text,
                     "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
                     "shoeReducedPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text,
                     "shoeOriginalPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
-                    #"shoeImg":soup.find('div', attrs={"class":"ProductDetails-image"}).find('div', attrs={"class":"AltImages"}),   Footlocker screwed me, and so images will now not work without Selenium (WILL FIX LATER)
+                    "shoeImg":"https://images.footlocker.com/is/image/EBFL2/" + str(prodCode) + "_a1?wid=600&hei=600&fmt=png-alpha",
                     "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
                     "shoeDesc":shoeDescFormatted,
                     "shoeSizeAvailability":shoeSizeAvailability,
@@ -1512,6 +1514,12 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     else:
         nikeRunningRoomSaleCollection.insert_many(allSaleNikeRunningRoom)
 
+# Returns the specific product code from a link for Footlocker
+def get_prod_code(prodLink):
+    formattedLink = prodLink.split("/")
+    productCode = formattedLink[len(formattedLink)-1].split(".")[0]
+    print(productCode)
+    return productCode
 
 def main():
     # Connect to DB
