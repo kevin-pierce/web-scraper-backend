@@ -346,7 +346,7 @@ def scrape_nike_sales(shoeReleaseDB, chromeOptions, prodType):
 ##################################################
 def scrape_adidas_sales(shoeReleaseDB, chromeOptions, prodType):
     availProducts = []
-    allAdidasOriginalsLinks = []
+    allProductLinks = []
     allAdidasOriginalsSale = []
 
     if (prodType == "originals"):
@@ -365,24 +365,22 @@ def scrape_adidas_sales(shoeReleaseDB, chromeOptions, prodType):
 
         # Scrape each page and compile all products
     for page in range(0, int(numPages)):
-
-        print(mainLink[0:len(mainLink)-1])
-
         pageResponse = requests.get(mainLink[0:len(mainLink)-1]+ str(48 * int(page)), headers=ADIDAS_HEADER, timeout=15)
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser").find('div', attrs={"class":"plp-grid___hCUwO"})
-        allShoes += pageSoup.find_all('div', attrs={"class":"gl-product-card-container"})        # We use this array for data obtaining (This one is necessary for obtaining the correct number of products)
+        availProducts += pageSoup.find_all('div', attrs={"class":"gl-product-card-container"})        # We use this array for data obtaining (This one is necessary for obtaining the correct number of products)
 
     # If there is only one page
     else: 
-        allShoes += soup.find_all('div', attrs={"class":"gl-product-card-container"})  
+        availProducts += soup.find_all('div', attrs={"class":"gl-product-card-container"})  
 
-    # #Iterate through the list of all shoes, and acquire all our links
-    # for shoe in allShoes:
-    #     shoeLink = shoe.find('a')["href"]
-    #     allAdidasOriginalsLinks.append("https://www.adidas.ca" + shoeLink)
+    #Iterate through the list of all shoes, and acquire all our links
+    for product in availProducts:
+        productLink = str(product.find('a')["href"])
+        allProductLinks.append("https://www.adidas.ca" + productLink)
+        print(productLink)
 
-    # # Update the current time at which availability was checked
-    # curTime = datetime.now()
+    # Update the current time at which availability was checked
+    curTime = datetime.now()
 
     # # Iterate through each individual product page
     # for link in allAdidasOriginalsLinks:
