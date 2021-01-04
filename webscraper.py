@@ -1334,24 +1334,27 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType):
     if (prodType == "ao"):
         mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3Aproducttype%3AShoes%3Abrand%3Aadidas+Originals%3Asport%3ACasual%3Ashoestyle%3ACasual+Sneakers&sort=relevance&currentPage=0"
         dbCollection = shoeReleaseDB.adidasOriginalsSales
+        {"shoeLink":{"$regex":"footlocker.ca"}}
     
     elif (prodType == "ar"):
         mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Aproducttype%3AShoes%3Asport%3ARunning%3Abrand%3Aadidas%2BOriginals%3Abrand%3Aadidas&sort=relevance&currentPage=0"
         dbCollection = shoeReleaseDB.adidasRunnerSales
+        dbFilter = {"shoeLink":{"$regex":"footlocker.ca"}}
     
     elif (prodType == "nj"):
         mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Agender%3AMen%27s%3Ashoestyle%3ACasual%2BSneakers&sort=relevance&currentPage=0"
         dbCollection = shoeReleaseDB.jordanSales
+        dbFilter = {"shoeLink":{"$regex":"footlocker.ca"}}
     
     
-    # # Obtain the main page (Used to create an array of links for each shoe object on the page) and the number of pages
-    # response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3Aproducttype%3AShoes%3Abrand%3Aadidas+Originals%3Asport%3ACasual%3Ashoestyle%3ACasual+Sneakers&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=15)
-    # soup = BeautifulSoup(response.content, "html.parser")
+    # Obtain the main page (Used to create an array of links for each shoe object on the page) and the number of pages
+    response = requests.get(mainLink, headers=FOOTLOCKER_HEADER, timeout=15)
+    soup = BeautifulSoup(response.content, "html.parser")
 
-    # # Find ALL digits at the bottom (for page nav) and isolate the LAST ONE in the list
-    # pageDigits = soup.find_all('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})
-    # numPages = pageDigits[len(pageDigits)-1].find('a').text
-    # print("Number of Pages " + numPages)
+    # Find ALL digits at the bottom (for page nav) and isolate the LAST ONE in the list
+    pageDigits = soup.find_all('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})
+    numPages = pageDigits[len(pageDigits)-1].find('a').text
+    print("Number of Pages " + numPages)
 
     # # Scrape each page and compile all products
     # for page in range(0, int(numPages)):
@@ -1549,12 +1552,15 @@ def main():
         # scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions) 
         # # time.sleep(3)
         
+        print("FOOTLOCKER GENERAL SCRAPER")
+        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "ar")
+
         # print("FOOTLOCKER ADIDAS RUNNER SALES")
         # scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)     
-        print("FOOTLOCKER ADIDAS ORIGINALS SALES")
-        scrape_footlocker_adidas_originals_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)  
+        # print("FOOTLOCKER ADIDAS ORIGINALS SALES")
+        # scrape_footlocker_adidas_originals_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)  
         # print("FOOTLOCKER JORDANS SALE")
         # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
