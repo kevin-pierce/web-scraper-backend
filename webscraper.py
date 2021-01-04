@@ -1125,18 +1125,20 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     adidasRunningSaleCollection = shoeReleaseDB.adidasRunnerSales
     
     # Obtain the main page (Used to create an array of links for each shoe object on the page) and the number of pages
-    response = requests.get("https://www.footlocker.ca/en/category/mens/adidas.html?query=Men%27s+adidas%3AtopSellers%3Agender%3AMen%27s%3Asport%3ARunning%3AstyleDiscountPercent%3ASALE", headers=FOOTLOCKER_HEADER, timeout=15)
+    response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Aproducttype%3AShoes%3Asport%3ARunning%3Abrand%3Aadidas%2BOriginals%3Abrand%3Aadidas&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
-    numPages = soup.find('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"}).find('a').text
+
+    pageDigits = soup.find_all('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})
+    numPages = pageDigits[len(pageDigits)-1].find('a').text
     print("Number of Pages " + numPages)
 
     # Scrape each page and compile all products
     for page in range(0, int(numPages)):
         # First page has no currentPage param - inputting it will break all subsequent links
         if (page == 0):
-            pageResponse = requests.get("https://www.footlocker.ca/en/category/mens/adidas.html?query=Men%27s+adidas%3AtopSellers%3Agender%3AMen%27s%3Asport%3ARunning%3AstyleDiscountPercent%3ASALE", headers=FOOTLOCKER_HEADER, timeout=3)
+            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Aproducttype%3AShoes%3Asport%3ARunning%3Abrand%3Aadidas%2BOriginals%3Abrand%3Aadidas&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=3)
         else:
-            pageResponse = requests.get("https://www.footlocker.ca/en/category/mens/adidas.html?query=Men%27s+adidas%3AtopSellers%3Agender%3AMen%27s%3Asport%3ARunning%3AstyleDiscountPercent%3ASALE&currentPage=" + str(page), headers=FOOTLOCKER_HEADER, timeout=3)
+            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Aproducttype%3AShoes%3Asport%3ARunning%3Abrand%3Aadidas%2BOriginals%3Abrand%3Aadidas&sort=relevance&currentPage=" + str(page), headers=FOOTLOCKER_HEADER, timeout=3)
 
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
         runnersOnSale += soup.find_all('li', attrs={"class":"product-container col"})
@@ -1318,9 +1320,9 @@ def main():
         # print("ADIDAS TIRO SALE")
         # scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions) 
         # # time.sleep(3)
-        print("FOOTLOCKER JORDANS SALE")
-        scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
-        time.sleep(3)
+        # print("FOOTLOCKER JORDANS SALE")
+        # scrape_footlocker_jordan_sales(shoeReleaseDB, chromeOptions)
+        # time.sleep(3)
         # print("FOOTLOCKER NIKE LIFESTYLE SALE (MENS)")
         # scrape_footlocker_nike_lifestyle_sales(shoeReleaseDB, chromeOptions, "Men")
         # time.sleep(3)
