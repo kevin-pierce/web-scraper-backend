@@ -338,6 +338,115 @@ def scrape_nike_sales(shoeReleaseDB, chromeOptions, prodType):
     else:
         dbCollection.insert_many(allProductsOnSale)
 
+# WORKS FOR NOW
+##################################################
+#                                                #
+#                ADIDAS.CA - GENERAL             #
+#                                                #
+##################################################
+def scrape_adidas_sales(shoeReleaseDB, chromeOptions, prodType):
+    availProducts = []
+    allAdidasOriginalsLinks = []
+    allAdidasOriginalsSale = []
+
+    if (prodType == "originals"):
+        mainLink = "https://www.adidas.ca/en/originals-shoes-outlet?start=0"
+        dbCollection = shoeReleaseDB.adidasOriginalsSales
+        dbFilter = {}
+
+    # Obtain JUST the first page, where we will scrape the total num of pages
+    print("Getting MAIN page")
+    response = requests.get(mainLink, headers=ADIDAS_HEADER, timeout=15)
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    # If the span containing the page numbers is present (THERE IS MORE THAN ONE PAGE)
+    if (soup.find('span', attrs={"data-auto-id":"pagination-pages-container"})):
+        numPages = soup.find('span', attrs={"data-auto-id":"pagination-pages-container"}).text[3:]
+
+        # Scrape each page and compile all products
+    for page in range(0, int(numPages)):
+
+        print(mainLink[0:len(mainLink)-1])
+
+        pageResponse = requests.get(mainLink[0:len(mainLink)-1]+ str(48 * int(page)), headers=ADIDAS_HEADER, timeout=15)
+        pageSoup = BeautifulSoup(pageResponse.content, "html.parser").find('div', attrs={"class":"plp-grid___hCUwO"})
+        allShoes += pageSoup.find_all('div', attrs={"class":"gl-product-card-container"})        # We use this array for data obtaining (This one is necessary for obtaining the correct number of products)
+
+    # If there is only one page
+    else: 
+        allShoes += soup.find_all('div', attrs={"class":"gl-product-card-container"})  
+
+    # #Iterate through the list of all shoes, and acquire all our links
+    # for shoe in allShoes:
+    #     shoeLink = shoe.find('a')["href"]
+    #     allAdidasOriginalsLinks.append("https://www.adidas.ca" + shoeLink)
+
+    # # Update the current time at which availability was checked
+    # curTime = datetime.now()
+
+    # # Iterate through each individual product page
+    # for link in allAdidasOriginalsLinks:
+    #     response = requests.get(str(link), headers=ADIDAS_HEADER, timeout=15)
+    #     soup = BeautifulSoup(response.content, "html.parser")
+
+    #     # Some shoes may have a placeholder value (Dynamically) - because we are using Requests, we cannot actually "wait until element has loaded"
+    #     # WILL ADD SELENIUM SUPPORT FOR THIS
+    #     if ("placeholder" in str(soup.find('div', attrs={"class":"product-description___2cJO2"}).find('span', attrs={"class":True}))):
+    #         print("SKIPPING")
+    #         continue
+        
+    #     # Isolate the product code
+    #     formatLink = str(link).split("/")
+    #     productCode = formatLink[len(formatLink) - 1].split(".")[0]
+
+    #     # Isolate the string containing the image data for the shoe, and from it devise an array
+    #     # The SECOND LAST element of this array has the highest-res image of the shoe
+    #     imgString = soup.find('div', attrs={"id":"navigation-target-gallery"}).find('img')['srcset'].split()
+
+    #     # Make call to Adidas API for size availability (the link is the following, with the product code inserted)
+    #     allAvailSizes = []
+    #     availability = requests.get(("https://www.adidas.ca/api/products/" + productCode + "/availability?sitePath=en"), headers=ADIDAS_HEADER, timeout=15)
+    #     sizesArr = availability.json()["variation_list"]
+
+    #     # For each size, check if the product is in stock, and add it to our list of available sizes if so
+    #     for size in sizesArr:
+    #         if (size['availability_status'] == 'IN_STOCK'):
+    #             print(size)
+    #             allAvailSizes.append(size['size'])
+
+    #     # FINAL PRODUCT CHECKS
+    #     # - Are there any available sizes
+    #     # - Is the product actually on sale (Occassional glitch)
+    #     if ((len(allAvailSizes) == 0) or (not soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}))):
+    #         print("INVALID PRODUCT - SKIPPING")
+    #         continue
+
+    #     # If a product passes all of the above checks, only then do we add it to our list
+    #     else: 
+
+    #         adidasOriginalsObject = {
+    #             "shoeName":soup.find('h1', attrs={"data-auto-id":"product-title"}).text,
+    #             "shoeType":soup.find('div', attrs={"data-auto-id":"product-category"}).text.split(" ")[0],
+    #             "shoeReducedPrice":soup.find('div', attrs={"class":"gl-price-item gl-price-item--sale notranslate"}).text[1:],
+    #             "shoeOriginalPrice":soup.find('div', attrs={"gl-price-item gl-price-item--crossed notranslate"}).text[1:],
+    #             "shoeImg":imgString[len(imgString)-2],               
+    #             "shoeCW":soup.find('h5').text,          
+    #             "shoeSizeAvailability":allAvailSizes,           
+    #             "shoeLink":str(link),
+    #             "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
+    #         }
+    #         # Obtain the sale value (Rounded to 1 decimal)
+    #         adidasOriginalsObject["salePercent"] = str(round((100 - (float(adidasOriginalsObject["shoeReducedPrice"][1:]) / float(adidasOriginalsObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
+
+    #         allAdidasOriginalsSale.append(adidasOriginalsObject)
+    #         print(adidasOriginalsObject)
+
+    # # Empty the DB and then push all new products 
+    # if (adidasOriginalsSaleCollection.count_documents({}) != 0):
+    #     adidasOriginalsSaleCollection.delete_many({})
+    #     adidasOriginalsSaleCollection.insert_many(allAdidasOriginalsSale)
+    # else:
+    #     adidasOriginalsSaleCollection.insert_many(allAdidasOriginalsSale)
 
 # WORKS FOR NOW
 ##################################################
@@ -816,7 +925,7 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType):
         if (page == 0):
             pageResponse = requests.get(mainLink, headers=FOOTLOCKER_HEADER, timeout=15)
         else:
-            pageResponse = requests.get(mainLink[0:len(mainLink)] + str(page), headers=FOOTLOCKER_HEADER, timeout=15)
+            pageResponse = requests.get(mainLink[0:len(mainLink)-1] + str(page), headers=FOOTLOCKER_HEADER, timeout=15)
 
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
         availProducts += soup.find_all('li', attrs={"class":"product-container col"})
@@ -1006,9 +1115,21 @@ def main():
         # print("NIKE JORDAN SALE")
         # scrape_nike_jordan_sales(shoeReleaseDB, chromeOptions)
         # time.sleep(3)
-        print("NIKE GENERAL SCRAPER")
-        scrape_nike_sales(shoeReleaseDB, chromeOptions, "SB")
-        time.sleep(3)
+        # print("NIKE SB")
+        # scrape_nike_sales(shoeReleaseDB, chromeOptions, "SB")
+        # time.sleep(3)
+
+        # print("NIKE LIFESTYLE")
+        # scrape_nike_sales(shoeReleaseDB, chromeOptions, "lifestyle")
+        # time.sleep(3)
+
+        # print("NIKE RUNNING")
+        # scrape_nike_sales(shoeReleaseDB, chromeOptions, "jordan")
+        # time.sleep(3)
+
+        # print("NIKE JORDAN")
+        # scrape_nike_sales(shoeReleaseDB, chromeOptions, "running")
+        # time.sleep(3)
 
         # print("ADIDAS RUNNING SALE")
         # scrape_adidas_running_sales(shoeReleaseDB, chromeOptions) 
@@ -1019,6 +1140,8 @@ def main():
         # print("ADIDAS TIRO SALE")
         # scrape_adidas_tiro_sales(shoeReleaseDB, chromeOptions) 
         # # time.sleep(3)
+        print("ADIDAS ORIGINALS")
+        scrape_adidas_sales(shoeReleaseDB, chromeOptions, "originals")
         
         # print("FOOTLOCKER GENERAL SCRAPER")
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "ar")
