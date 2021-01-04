@@ -609,12 +609,13 @@ def scrape_nike_sales(shoeReleaseDB, chromeOptions, prodType):
     driver.quit()
     soup = BeautifulSoup(response, "html.parser")
 
-    # jordanSales = soup.find_all('div', attrs={"class":"product-card__body"})
+    availProducts = soup.find_all('div', attrs={"class":"product-card__body"})
     
-    # # Compile Links
-    # for shoe in jordanSales:
-    #     shoeLink = shoe.find('a', attrs={"class":"product-card__img-link-overlay"})
-    #     jordanSubLinks.append(shoeLink["href"])
+    # Compile Links
+    for product in availProducts:
+        productLink = str(product.find('a', attrs={"class":"product-card__img-link-overlay"})["href"])
+        productLinks.append(productLink)
+        print(productLink)
 
     # # Update the current time at which availability was checked
     # curTime = datetime.now()
