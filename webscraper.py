@@ -1356,21 +1356,22 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType):
     numPages = pageDigits[len(pageDigits)-1].find('a').text
     print("Number of Pages " + numPages)
 
-    # # Scrape each page and compile all products
-    # for page in range(0, int(numPages)):
-    #     # First page has no currentPage param - inputting it will break all subsequent links
-    #     if (page == 0):
-    #         pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3Aproducttype%3AShoes%3Abrand%3Aadidas+Originals%3Asport%3ACasual%3Ashoestyle%3ACasual+Sneakers&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=15)
-    #     else:
-    #         pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3Aproducttype%3AShoes%3Abrand%3Aadidas+Originals%3Asport%3ACasual%3Ashoestyle%3ACasual+Sneakers&sort=relevance&currentPage=" + str(page), headers=FOOTLOCKER_HEADER, timeout=15)
+    # Scrape each page and compile all products
+    for page in range(0, int(numPages)):
+        # First page has no currentPage param - inputting it will break all subsequent links
+        if (page == 0):
+            pageResponse = requests.get(mainLink, headers=FOOTLOCKER_HEADER, timeout=15)
+        else:
+            pageResponse = requests.get(mainLink[0:len(mainLink)] + str(page), headers=FOOTLOCKER_HEADER, timeout=15)
 
-    #     pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
-    #     adidasOriginalsOnSale += soup.find_all('li', attrs={"class":"product-container col"})
+        pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
+        availProducts += soup.find_all('li', attrs={"class":"product-container col"})
 
-    # # Fill the links array with each product page
-    # for shoe in adidasOriginalsOnSale:
-    #     shoeLink = shoe.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
-    #     allProductLinks.append("https://www.footlocker.ca" + str(shoeLink))
+    # Fill the links array with each product page
+    for product in availProducts:
+        productLink = product.find('a', attrs={"class":"ProductCard-link ProductCard-content"})["href"]
+        allProductLinks.append("https://www.footlocker.ca" + str(productLink))
+        print(productLink)
 
     # # Update the current time at which availability was checked
     # curTime = datetime.now()
