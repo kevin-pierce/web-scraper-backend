@@ -1128,6 +1128,7 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     response = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Aproducttype%3AShoes%3Asport%3ARunning%3Abrand%3Aadidas%2BOriginals%3Abrand%3Aadidas&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
 
+    # Find ALL digits at the bottom (for page nav) and isolate the LAST ONE in the list
     pageDigits = soup.find_all('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})
     numPages = pageDigits[len(pageDigits)-1].find('a').text
     print("Number of Pages " + numPages)
@@ -1136,9 +1137,9 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     for page in range(0, int(numPages)):
         # First page has no currentPage param - inputting it will break all subsequent links
         if (page == 0):
-            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Aproducttype%3AShoes%3Asport%3ARunning%3Abrand%3Aadidas%2BOriginals%3Abrand%3Aadidas&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=3)
+            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Aproducttype%3AShoes%3Asport%3ARunning%3Abrand%3Aadidas%2BOriginals%3Abrand%3Aadidas&sort=relevance", headers=FOOTLOCKER_HEADER, timeout=15)
         else:
-            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Aproducttype%3AShoes%3Asport%3ARunning%3Abrand%3Aadidas%2BOriginals%3Abrand%3Aadidas&sort=relevance&currentPage=" + str(page), headers=FOOTLOCKER_HEADER, timeout=3)
+            pageResponse = requests.get("https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Aproducttype%3AShoes%3Asport%3ARunning%3Abrand%3Aadidas%2BOriginals%3Abrand%3Aadidas&sort=relevance&currentPage=" + str(page), headers=FOOTLOCKER_HEADER, timeout=15)
 
         pageSoup = BeautifulSoup(pageResponse.content, "html.parser")
         runnersOnSale += soup.find_all('li', attrs={"class":"product-container col"})
@@ -1155,53 +1156,57 @@ def scrape_footlocker_adidas_runner_sales(shoeReleaseDB, chromeOptions):
     for link in allRunnerLinks:
         response = requests.get(str(link), headers=FOOTLOCKER_HEADER, timeout=15)
         soup = BeautifulSoup(response.content, 'html.parser')
-        
+
         # Ensure that the product is actually there (Doesn't redirect to Footlocker's default error page)
         if (soup.find('div', attrs={"class":"Page-wrapper Page--large Page--productNotFound"})): 
             print("Empty product page") # TESTING
             continue
         else:
+            try:
+                # Obtain all available sizes for the product
+                shoeSizeAvailability = []
+                for size in soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"}):
+                    if ("unavailable" in str(size)):
+                        continue
+                    else:
+                        shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
 
-            # Obtain all available sizes for the product
-            shoeSizeAvailability = []
-            for size in soup.find('div', attrs={"class":"ProductSize-group"}).find_all('div', attrs={"class":"c-form-field c-form-field--radio ProductSize"}):
-                if ("unavailable" in str(size)):
-                    continue
-                else:
-                    shoeSizeAvailability.append(size.find('span').text if size.find('span').text[0] != '0' else size.find('span').text[1:]) # Formatting for shoe sizes such at 8.5, which are scraped as '08.5'
+                # DESCRIPTION FORMATTING
+                # Find the description and all features (stored in a <li>)
+                shoeDescFormatted = ""
+                shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('p')
+                shoeDescList = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('li')
+                #print(shoeDescList)
+                
+                # Format our description string (With the main paragraphs, and then subpoints all appended together into one string)
+                for i in range(0, len(shoeDescUnformatted)):
+                    shoeDescFormatted += shoeDescUnformatted[i].text
+                shoeDescFormatted += "\n"
+                for i in range(0, len(shoeDescList)):
+                    shoeDescFormatted += "- " + str(shoeDescList[i].text) + "\n"
+                
+                    # Create the shoe object with all corresponding properties
+                    adidasRunnerObject = {
+                        "shoeName":soup.find('h1', attrs={"id":"pageTitle"}).find('span').text,
+                        "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
+                        "shoeReducedPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text,
+                        "shoeOriginalPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
+                        #"shoeImg":soup.find('div', attrs={"class":"ProductDetails-image"}).find('div', attrs={"class":"AltImages"}),   Footlocker screwed me, and so images will now not work without Selenium (WILL FIX LATER)
+                        "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
+                        "shoeDesc":shoeDescFormatted,
+                        "shoeSizeAvailability":shoeSizeAvailability,
+                        "shoeLink":str(link),
+                        "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
+                    }
+                    # Obtain the sale value (Rounded to 1 decimal)
+                    adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
+                    print(adidasRunnerObject) 
 
-            # DESCRIPTION FORMATTING
-            # Find the description and all features (stored in a <li>)
-            shoeDescFormatted = ""
-            shoeDescUnformatted = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('p')
-            shoeDescList = soup.find('div', attrs={"class":"ProductDetails-description"}).find_all('li')
-            #print(shoeDescList)
-            
-            # Format our description string (With the main paragraphs, and then subpoints all appended together into one string)
-            for i in range(0, len(shoeDescUnformatted)):
-                shoeDescFormatted += shoeDescUnformatted[i].text
-            shoeDescFormatted += "\n"
-            for i in range(0, len(shoeDescList)):
-                shoeDescFormatted += "- " + str(shoeDescList[i].text) + "\n"
+                    allAdidasRunnersOnSale.append(adidasRunnerObject)
 
-            # Create the shoe object with all corresponding properties
-            adidasRunnerObject = {
-                "shoeName":soup.find('h1', attrs={"id":"pageTitle"}).find('span').text,
-                "shoeType":soup.find('h1', attrs={"id":"pageTitle"}).find('span', attrs={"class":"ProductName-alt"}).text,
-                "shoeReducedPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-final"}).text,
-                "shoeOriginalPrice":soup.find('div', attrs={"class":"ProductPrice"}).find('span', attrs={"class":"ProductPrice-original"}).text,
-                #"shoeImg":soup.find('div', attrs={"class":"ProductDetails-image"}).find('div', attrs={"class":"AltImages"}),   Footlocker screwed me, and so images will now not work without Selenium (WILL FIX LATER)
-                "shoeCW":soup.find('div', attrs={"class":"ProductDetails-form__info"}).find('p', attrs={"class":"ProductDetails-form__label"}).text.split('|')[0].strip(),
-                "shoeDesc":shoeDescFormatted,
-                "shoeSizeAvailability":shoeSizeAvailability,
-                "shoeLink":str(link),
-                "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
-            }
-            # Obtain the sale value (Rounded to 1 decimal)
-            adidasRunnerObject["salePercent"] = str(round((100 - (float(adidasRunnerObject["shoeReducedPrice"][1:]) / float(adidasRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
-            print(adidasRunnerObject) 
-
-            allAdidasRunnersOnSale.append(adidasRunnerObject)
+            except:
+                print("PROBLEM WITH PRODUCT LOADING - SKIPPING")
+                continue
 
     # Clear the current entries in the DB (if they're from footlocker), and proceed to fill it with the new entries
     if (adidasRunningSaleCollection.count_documents({}) != 0):
