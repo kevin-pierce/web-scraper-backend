@@ -68,12 +68,12 @@ def scrape_all_releases_sneakerNews(shoeReleaseDB, chromeOptions):
         
         shoeObject = {
             "releaseRegion":shoeDetails.find_all("p")[3].text[8:].strip(),
-            "sizeRun":shoeDetails.find_all("p")[0].text[10:].strip(),
-            "shoeCW":shoeDetails.find_all("p")[1].text[7:].strip(),
-            "shoeName":shoeContent.find("h2").find("a").text,
-            "shoePrice":shoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
-            "shoeReleaseDate":shoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
-            "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
+            "prodSizeAvailability":shoeDetails.find_all("p")[0].text[10:].strip(),
+            "prodCW":shoeDetails.find_all("p")[1].text[7:].strip(),
+            "prodName":shoeContent.find("h2").find("a").text,
+            "prodPrice":shoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
+            "prodReleaseDate":shoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
+            "prodImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
         shoes.append(shoeObject);
 
@@ -123,12 +123,12 @@ def scrape_jordan_releases_sneakerNews(shoeReleaseDB, chromeOptions):
         
         jordanShoeObject = {
             "releaseRegion":jShoeDetails.find_all("p")[3].text[8:].strip(),
-            "sizeRun":jShoeDetails.find_all("p")[0].text[10:].strip(),
-            "shoeCW":jShoeDetails.find_all("p")[1].text[7:].strip(),
-            "shoeName":jShoeContent.find("h2").find("a").text,
-            "shoePrice":jShoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
-            "shoeReleaseDate":jShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
-            "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
+            "prodSizeAvailability":jShoeDetails.find_all("p")[0].text[10:].strip(),
+            "prodCW":jShoeDetails.find_all("p")[1].text[7:].strip(),
+            "prodName":jShoeContent.find("h2").find("a").text,
+            "prodPrice":jShoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
+            "prodReleaseDate":jShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
+            "prodImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
         jordans.append(jordanShoeObject);
 
@@ -176,12 +176,12 @@ def scrape_yeezy_releases_sneakerNews(shoeReleaseDB, chromeOptions):
         
         yeezyShoeObject = {
             "releaseRegion":yShoeDetails.find_all("p")[3].text[8:].strip(),
-            "sizeRun":yShoeDetails.find_all("p")[0].text[10:].strip(),
-            "shoeCW":yShoeDetails.find_all("p")[1].text[7:].strip(),
-            "shoeName":yShoeContent.find("h2").find("a").text,
-            "shoePrice":yShoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
-            "shoeReleaseDate":yShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
-            "shoeImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
+            "prodSizeAvailability":yShoeDetails.find_all("p")[0].text[10:].strip(),
+            "prodCW":yShoeDetails.find_all("p")[1].text[7:].strip(),
+            "prodName":yShoeContent.find("h2").find("a").text,
+            "prodPrice":yShoeContent.find("span", attrs={"class":"release-price"}).text.strip(),
+            "prodReleaseDate":yShoeContent.find("div", attrs={"class":"release-date-and-rating"}).find("span", attrs={"class":"release-date"}).text.strip(),
+            "prodImg":deal.find('div', attrs={"class":"image-box"}).find("a").find("img")['src'],
         }
         yeezys.append(yeezyShoeObject)
 
@@ -508,6 +508,11 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType, genderParam)
 
         dbCollection = shoeReleaseDB.nikeLifestyleSales
     
+    elif (prodType == "reebok"):
+        mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3AReebok%3Aproducttype%3AShoes%3Ashoestyle%3ACasual%2BSneakers&sort=relevance&currentPage=0"
+        dbCollection = shoeReleaseDB.reebokSales
+        dbFilter = {"shoeLink":{"$regex":"footlocker.ca"}}
+    
     
     # Obtain the main page (Used to create an array of links for each shoe object on the page) and the number of pages
     response = requests.get(mainLink, headers=FOOTLOCKER_HEADER, timeout=15)
@@ -716,13 +721,13 @@ def main():
         # print("ADIDAS ORIGINALS")
         # scrape_adidas_sales(shoeReleaseDB, chromeOptions, "originals")
         
-        print("FOOTLOCKER NIKE JORDAN")
-        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "jordan", None)
-        time.sleep(1)
-        # print("FOOTLOCKER NIKE LIFESTYLE")
+        # print("FOOTLOCKER NIKE JORDAN")
+        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "jordan", None)
+        # time.sleep(1)
+        # print("FOOTLOCKER NIKE LIFESTYLE" WOMEN)
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Women")
         # time.sleep(1)
-        # print("FOOTLOCKER NIKE LIFESTYLE")
+        # print("FOOTLOCKER NIKE LIFESTYLE" KIDS)
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Men")
         # time.sleep(1)
 
