@@ -511,7 +511,7 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType, genderParam)
     elif (prodType == "reebok"):
         mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3AReebok%3Aproducttype%3AShoes%3Ashoestyle%3ACasual%2BSneakers&sort=relevance&currentPage=0"
         dbCollection = shoeReleaseDB.reebokSales
-        dbFilter = {"shoeLink":{"$regex":"footlocker.ca"}}
+        dbFilter = {}
     
     
     # Obtain the main page (Used to create an array of links for each shoe object on the page) and the number of pages
@@ -519,9 +519,14 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType, genderParam)
     soup = BeautifulSoup(response.content, "html.parser")
 
     # Find ALL digits at the bottom (for page nav) and isolate the LAST ONE in the list
-    pageDigits = soup.find_all('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})
-    numPages = pageDigits[len(pageDigits)-1].find('a').text
-    print("Number of Pages " + numPages)
+
+    if (soup.find('nav', attrs={"class":"Pagination"})):
+        pageDigits = soup.find_all('li', attrs={"class":"col col-shrink Pagination-option Pagination-option--digit"})
+        numPages = pageDigits[len(pageDigits)-1].find('a').text
+        print("Number of Pages " + numPages)
+    else:
+        numPages = "1";
+        print("Number of Pages " + numPages)
 
     # Scrape each page and compile all products
     for page in range(0, int(numPages)):
@@ -724,12 +729,15 @@ def main():
         # print("FOOTLOCKER NIKE JORDAN")
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "jordan", None)
         # time.sleep(1)
-        # print("FOOTLOCKER NIKE LIFESTYLE" WOMEN)
+        # print("FOOTLOCKER NIKE LIFESTYLE WOMEN")
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Women")
         # time.sleep(1)
-        # print("FOOTLOCKER NIKE LIFESTYLE" KIDS)
+        # print("FOOTLOCKER NIKE LIFESTYLE KIDS")
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Men")
         # time.sleep(1)
+        print("FOOTLOCKER  REEBOK")
+        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "reebok", None)
+        time.sleep(1)
 
 
 
