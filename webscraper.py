@@ -315,19 +315,19 @@ def scrape_nike_sales(shoeReleaseDB, chromeOptions, prodType):
                         shoeSizeAvailability.append(str(size.get_text()))   
 
                 nikeObject = {
-                    "shoeName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
-                    "shoeType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
-                    "shoeReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text[1:]),
-                    "shoeOriginalPrice":float(soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text[1:]),
-                    "shoeImg":soup.find('source', attrs={"srcset":True})["srcset"],
-                    "shoeCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
-                    "shoeDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
-                    "shoeSizeAvailability":shoeSizeAvailability,
-                    "shoeLink":str(link),
+                    "prodName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
+                    "prodType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
+                    "prodReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text[1:]),
+                    "prodOriginalPrice":float(soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text[1:]),
+                    "prodImg":soup.find('source', attrs={"srcset":True})["srcset"],
+                    "prodCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
+                    "prodDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
+                    "prodSizeAvailability":shoeSizeAvailability,
+                    "prodLink":str(link),
                     "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
                 }
                 # Obtain the sale value (Rounded to 1 decimal)
-                nikeObject["salePercent"] = str(round((100 - ((nikeObject["shoeReducedPrice"]) / (nikeObject["shoeOriginalPrice"])) * 100), 1)) + "%"
+                nikeObject["salePercent"] = str(round((100 - ((nikeObject["prodReducedPrice"]) / (nikeObject["prodOriginalPrice"])) * 100), 1)) + "%"
                 allProductsOnSale.append(nikeObject)
                 print(nikeObject)
             
@@ -638,11 +638,11 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
     # Create each running shoe object with specified fields
     for shoe in runningSales:
         nikeRunnerObject = {
-            "shoeName":shoe.find('h2', attrs={"class":"product-name"}).find('a').text,
-            "shoeType":"Running",
-            "shoeReducedPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[0].strip(),
-            "shoeOriginalPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[1].strip(),
-            "shoeLink":shoe.find('h2', attrs={"class":"product-name"}).find('a')["href"],
+            "prodName":shoe.find('h2', attrs={"class":"product-name"}).find('a').text,
+            "prodType":"Running",
+            "prodReducedPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[0].strip(),
+            "prodOriginalPrice":shoe.find("span", attrs={"class":"price"}).text.split("CAD")[1].strip(),
+            "prodLink":shoe.find('h2', attrs={"class":"product-name"}).find('a')["href"],
             "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
         }
 
@@ -723,7 +723,7 @@ def main():
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Women")
         # time.sleep(1)
         # print("FOOTLOCKER NIKE LIFESTYLE")
-        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Women")
+        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Men")
         # time.sleep(1)
 
 
