@@ -512,6 +512,11 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType, genderParam)
         mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3AReebok%3Aproducttype%3AShoes%3Ashoestyle%3ACasual%2BSneakers&sort=relevance&currentPage=0"
         dbCollection = shoeReleaseDB.reebokSales
         dbFilter = {}
+
+    elif (prodType == "vans"):
+        mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3Aproducttype%3AShoes%3Ashoestyle%3ACasual+Sneakers%3Abrand%3AVans%3Asport%3ASkate&sort=relevance&currentPage=0"
+        dbCollection = shoeReleaseDB.vansSales
+        dbFilter = {}
     
     
     # Obtain the main page (Used to create an array of links for each shoe object on the page) and the number of pages
@@ -735,8 +740,11 @@ def main():
         # print("FOOTLOCKER NIKE LIFESTYLE KIDS")
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Men")
         # time.sleep(1)
-        print("FOOTLOCKER  REEBOK")
-        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "reebok", None)
+        # print("FOOTLOCKER  REEBOK")
+        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "reebok", None)
+        # time.sleep(1)
+        print("FOOTLOCKER  VANS")
+        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "vans", None)
         time.sleep(1)
 
 
