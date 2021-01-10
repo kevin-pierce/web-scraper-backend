@@ -242,22 +242,22 @@ def scrape_nike_sales(shoeReleaseDB, chromeOptions, prodType):
     if (prodType == "SB"):
         mainLink = "https://www.nike.com/ca/w/sale-skateboarding-shoes-3yaepz8mfrfzy7ok"
         dbCollection = shoeReleaseDB.nikeLifestyleSales
-        dbFilter = {"shoeName":{"$regex":"SB"}, "shoeLink":{"$regex":"nike.com"}}
+        dbFilter = {"prodName":{"$regex":"SB"}, "prodLink":{"$regex":"nike.com"}}
 
     elif (prodType == "lifestyle"):
         mainLink = "https://www.nike.com/ca/w/sale-lifestyle-shoes-13jrmz3yaepzy7ok"
         dbCollection = shoeReleaseDB.nikeLifestyleSales
-        dbFilter = {"shoeName":{"$ne":{"$regex":"SB"}}, "shoeLink":{"$regex":"nike.com"}}
+        dbFilter = {"prodName":{"$ne":{"$regex":"SB"}}, "prodLink":{"$regex":"nike.com"}}
     
     elif (prodType == "jordan"):
         mainLink = "https://www.nike.com/ca/w/sale-jordan-shoes-37eefz3yaepzy7ok"
         dbCollection = shoeReleaseDB.jordanSales
-        dbFilter = {"shoeLink":{"$regex":"nike.com"}}
+        dbFilter = {"prodLink":{"$regex":"nike.com"}}
 
     elif (prodType == "running"):
         mainLink = "https://www.nike.com/ca/w/sale-running-shoes-37v7jz3yaepzy7ok"
         dbCollection = shoeReleaseDB.nikeRunnerSales
-        dbFilter = {"shoeLink":{"$regex":"nike.com"}}
+        dbFilter = {"prodLink":{"$regex":"nike.com"}}
 
     #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chromeOptions)
     driver = webdriver.Chrome(options=chromeOptions, executable_path='./chromedriver') # FOR LOCAL ONLY
@@ -357,17 +357,17 @@ def scrape_adidas_sales(shoeReleaseDB, chromeOptions, prodType):
     if (prodType == "originals"):
         mainLink = "https://www.adidas.ca/en/originals-shoes-outlet?start=0"
         dbCollection = shoeReleaseDB.adidasOriginalsSales
-        dbFilter = {"shoeLink":{"$regex":"adidas.ca"}}
+        dbFilter = {"prodLink":{"$regex":"adidas.ca"}}
     
     elif (prodType == "running"):
         mainLink = "https://www.adidas.ca/en/running-shoes-outlet?start=0"
         dbCollection = shoeReleaseDB.adidasRunnerSales
-        dbFilter = {"shoeLink":{"$regex":"adidas.ca"}}
+        dbFilter = {"prodLink":{"$regex":"adidas.ca"}}
 
     elif (prodType == "tiro"):
         mainLink = "https://www.adidas.ca/en/tiro-clothing-outlet?start=0"
         dbCollection = shoeReleaseDB.adidasTiroSales
-        dbFilter = {"shoeLink":{"$regex":"adidas.ca"}}
+        dbFilter = {"prodLink":{"$regex":"adidas.ca"}}
     
 
     # Obtain JUST the first page, where we will scrape the total num of pages
@@ -425,7 +425,7 @@ def scrape_adidas_sales(shoeReleaseDB, chromeOptions, prodType):
                 # For each size, check if the product is in stock, and add it to our list of available sizes if so
                 for size in sizesArr:
                     if (size['availability_status'] == 'IN_STOCK'):
-                        print(size)
+                        #print(size)
                         allAvailSizes.append(size['size'])
 
                 # FINAL PRODUCT CHECKS
@@ -453,7 +453,7 @@ def scrape_adidas_sales(shoeReleaseDB, chromeOptions, prodType):
                     adidasProdObject["salePercent"] = str(round((100 - (float(adidasProdObject["prodReducedPrice"][1:]) / float(adidasProdObject["prodOriginalPrice"][1:])) * 100), 1)) + "%"
 
                     allAdidasProdOnSale.append(adidasProdObject)
-                    print(adidasProdObject)
+                    #print(adidasProdObject)
         
             # Incase unforeseen errors occur (Namely due to changing of the website's format)
             except:
@@ -483,28 +483,28 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType, genderParam)
     if (prodType == "adidasOriginals"):
         mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3Aproducttype%3AShoes%3Abrand%3Aadidas+Originals%3Asport%3ACasual%3Ashoestyle%3ACasual+Sneakers&sort=relevance&currentPage=0"
         dbCollection = shoeReleaseDB.adidasOriginalsSales
-        dbFilter = {"shoeLink":{"$regex":"footlocker.ca"}}
+        dbFilter = {"prodLink":{"$regex":"footlocker.ca"}}
     
     elif (prodType == "adidasRunning"):
         mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Aproducttype%3AShoes%3Asport%3ARunning%3Abrand%3Aadidas%2BOriginals%3Abrand%3Aadidas&sort=relevance&currentPage=0"
         dbCollection = shoeReleaseDB.adidasRunnerSales
-        dbFilter = {"shoeLink":{"$regex":"footlocker.ca"}}
+        dbFilter = {"prodLink":{"$regex":"footlocker.ca"}}
     
     elif (prodType == "jordan"):
         mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3Arelevance%3AstyleDiscountPercent%3ASALE%3Abrand%3AJordan%3Aproducttype%3AShoes%3Ashoestyle%3ACasual+Sneakers&sort=relevance&currentPage=0"
         dbCollection = shoeReleaseDB.jordanSales
-        dbFilter = {"shoeLink":{"$regex":"footlocker.ca"}}
+        dbFilter = {"prodLink":{"$regex":"footlocker.ca"}}
     
     elif (prodType == "nikeLifestyle"):
         if (genderParam == "Kids"):
             mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Aage%3AGrade%2BSchool&sort=relevance&currentPage=0"
-            dbFilter = {"shoeLink":{"$regex":"footlocker.ca"}, "shoeName":{"$regex":"Grade"}}
+            dbFilter = {"prodLink":{"$regex":"footlocker.ca"}, "prodName":{"$regex":"Grade"}}
         elif (genderParam == "Women"):
             mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=0"
-            dbFilter = {"shoeLink":{"$regex":"footlocker.ca"}, "shoeType":{"$regex":"Women's"}}
+            dbFilter = {"prodLink":{"$regex":"footlocker.ca"}, "prodName":{"$regex":"Women's"}}
         elif (genderParam == "Men"):
             mainLink = "https://www.footlocker.ca/en/category/sale.html?query=sale%3AtopSellers%3Abrand%3ANike%3Aproducttype%3AShoes%3Asport%3ACasual%3Ashoestyle%3ACasual%2BSneakers%3Agender%3A"  + str(genderParam) + "%27s&sort=relevance&currentPage=0"
-            dbFilter = {"shoeLink":{"$regex":"footlocker.ca"}, "shoeType":{"$regex":"Men's"}}
+            dbFilter = {"prodLink":{"$regex":"footlocker.ca"}, "prodName":{"$regex":"Men's"}}
 
         dbCollection = shoeReleaseDB.nikeLifestyleSales
     
@@ -685,7 +685,7 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
 
     # If there are presently documents in the collection, ONLY delete documents from RunningRoom
     if (nikeRunningRoomSaleCollection.count_documents({}) != 0):
-        nikeRunningRoomSaleCollection.delete_many({"shoeLink":{"$regex":"runningroom"}})
+        nikeRunningRoomSaleCollection.delete_many({"prodLink":{"$regex":"runningroom"}})
         nikeRunningRoomSaleCollection.insert_many(allSaleNikeRunningRoom)
     else:
         nikeRunningRoomSaleCollection.insert_many(allSaleNikeRunningRoom)
@@ -724,12 +724,12 @@ def main():
         # print("NIKE JORDAN")
         # scrape_nike_sales(shoeReleaseDB, chromeOptions, "running")
 
-        # print("ADIDAS TIRO")
-        # scrape_adidas_sales(shoeReleaseDB, chromeOptions, "tiro")
-        # print("ADIDAS RUNNING")
-        # scrape_adidas_sales(shoeReleaseDB, chromeOptions, "running")
-        # print("ADIDAS ORIGINALS")
-        # scrape_adidas_sales(shoeReleaseDB, chromeOptions, "originals")
+        print("ADIDAS TIRO")
+        scrape_adidas_sales(shoeReleaseDB, chromeOptions, "tiro")
+        print("ADIDAS RUNNING")
+        scrape_adidas_sales(shoeReleaseDB, chromeOptions, "running")
+        print("ADIDAS ORIGINALS")
+        scrape_adidas_sales(shoeReleaseDB, chromeOptions, "originals")
         
         # print("FOOTLOCKER NIKE JORDAN")
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "jordan", None)
@@ -743,9 +743,9 @@ def main():
         # print("FOOTLOCKER  REEBOK")
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "reebok", None)
         # time.sleep(1)
-        print("FOOTLOCKER  VANS")
-        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "vans", None)
-        time.sleep(1)
+        # print("FOOTLOCKER  VANS")
+        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "vans", None)
+        # time.sleep(1)
 
 
 
