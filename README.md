@@ -11,7 +11,7 @@ You can view the front-end React app [here](https://github.com/kevin-pierce/Hype
 ## Installation 
 Download all required modules by running
 
-```pip install -r requirements.txt````
+```pip install -r requirements.txt```
 
 Requires Python 3.6.
 
