@@ -281,7 +281,7 @@ def scrape_nike_sales(shoeReleaseDB, chromeOptions, prodType):
     for product in availProducts:
         productLink = str(product.find('a', attrs={"class":"product-card__img-link-overlay"})["href"])
         productLinks.append(productLink)
-        print(productLink)
+        #print(productLink)
 
     # Update the current time at which availability was checked
     curTime = datetime.now()
@@ -297,31 +297,31 @@ def scrape_nike_sales(shoeReleaseDB, chromeOptions, prodType):
         soup = BeautifulSoup(response, "html.parser")
 
         # Checks if there is a valid size array (This will omit BY YOU products / other custom products)
-        if (not soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"})):
+        if (not soup.find('div', attrs={"class":"mt2-sm css-1j3x2vp"})):
             print("\nINVALID PRODUCT - SKIPPING\n")
             continue
 
         # Scrape all available sizes, strip tags and place the data into an array - ALSO ignore sizes that are "greyed out"
         else:
-            try:
+            #try:
                 print("VALID PRODUCT")
                 shoeSizeAvailability = []
-                sizeData = soup.find('fieldset', attrs={"class":"mt5-sm mb3-sm body-2 css-1pj6y87"}).find_all('div', attrs={"class":False})
+                sizeData = soup.find('div', attrs={"class":"mt2-sm css-1j3x2vp"}).find_all('div')
                 for size in sizeData:
                     if ("disabled" in str(size)):
                         continue
                     else:
                         availableSize = size.find("label").text
-                        shoeSizeAvailability.append(str(size.get_text()))   
+                        shoeSizeAvailability.append(str(size.get_text()))
 
                 nikeObject = {
                     "prodName":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h1', attrs={"class":"headline-2 css-zis9ta"}).text,
                     "prodType":soup.find('div', attrs={"class":"pr2-sm css-1ou6bb2"}).find('h2', attrs={"class":"headline-5-small pb1-sm d-sm-ib css-1ppcdci"}).text,
-                    "prodReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-s56yt7"}).text[1:]),
-                    "prodOriginalPrice":float(soup.find('div', attrs={"class":"product-price css-1h0t5hy"}).text[1:]),
+                    "prodReducedPrice":float(soup.find('div', attrs={"class":"product-price is--current-price css-1emn094"}).text[1:]),
+                    "prodOriginalPrice":float(soup.find('div', attrs={"class":"product-price css-1fkag4c"}).text[1:]),
                     "prodImg":soup.find('source', attrs={"srcset":True})["srcset"],
                     "prodCW":soup.find('li', attrs={"class":"description-preview__color-description ncss-li"}).text[14:],
-                    "prodDesc":soup.find('div', attrs={"class":"pt4-sm prl6-sm prl0-lg"}).find('p').text,
+                    "prodDesc":soup.find('div', attrs={"class":"description-preview body-2 css-1pbvugb"}).find('p').text,
                     "prodSizeAvailability":shoeSizeAvailability,
                     "prodLink":str(link),
                     "lastUpdated":curTime.strftime("%H:%M:%S, %m/%d/%Y")
@@ -331,13 +331,13 @@ def scrape_nike_sales(shoeReleaseDB, chromeOptions, prodType):
                 allProductsOnSale.append(nikeObject)
                 print(nikeObject)
             
-            except:
-                print("PROBLEM WITH PRODUCT LOADING - SKIPPING")
-                continue
+            #except:
+                #print("PROBLEM WITH PRODUCT LOADING - SKIPPING")
+                #continue
 
 
     # Only delete documents that are from nike.ca
-    if (dbCollection.count_documents({}) != 0):
+    if (dbCollection.count_documents(dbFilter) != 0):
         dbCollection.delete_many(dbFilter)
         dbCollection.insert_many(allProductsOnSale)
     else:
@@ -522,7 +522,7 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType, genderParam)
     # Obtain the main page (Used to create an array of links for each shoe object on the page) and the number of pages
     response = requests.get(mainLink, headers=FOOTLOCKER_HEADER, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
-    print(soup)
+    #print(soup)
 
     # Find ALL digits at the bottom (for page nav) and isolate the LAST ONE in the list
 
@@ -714,8 +714,8 @@ def main():
     print("Initialized ChromeDrivers!")
 
     while True:
-        print("NIKE RUNNING SALE @ RUNNINGROOM")
-        scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        # print("NIKE RUNNING SALE @ RUNNINGROOM")
+        # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
         print("NIKE SB")
         scrape_nike_sales(shoeReleaseDB, chromeOptions, "SB")
         print("NIKE LIFESTYLE")
@@ -734,20 +734,22 @@ def main():
         # #scrape_adidas_sales(shoeReleaseDB, chromeOptions, "originals")
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "adidasOriginals", None)
         
-
+        # print("CLEARING DBS")
+        # shoeReleaseDB.nikeLifestyleSales.delete_many({})
+        # shoeReleaseDB.nikeRunnerSales.delete_many({})
         
-        print("FOOTLOCKER NIKE JORDAN")
-        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "jordan", None)
-        time.sleep(1)
-        print("FOOTLOCKER NIKE LIFESTYLE WOMEN")
-        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Women")
-        time.sleep(1)
-        print("FOOTLOCKER NIKE LIFESTYLE MENS")
-        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Men")
-        time.sleep(1)
-        print("FOOTLOCKER NIKE LIFESTYLE KIDS")
-        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Kids")
-        time.sleep(1)
+        # print("FOOTLOCKER NIKE JORDAN")
+        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "jordan", None)
+        # time.sleep(1)
+        # print("FOOTLOCKER NIKE LIFESTYLE WOMEN")
+        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Women")
+        # time.sleep(1)
+        # print("FOOTLOCKER NIKE LIFESTYLE MENS")
+        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Men")
+        # time.sleep(1)
+        # print("FOOTLOCKER NIKE LIFESTYLE KIDS")
+        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Kids")
+        # time.sleep(1)
         # print("FOOTLOCKER  REEBOK")
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "reebok", None)
         # time.sleep(1)
