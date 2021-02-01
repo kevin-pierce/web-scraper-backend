@@ -522,6 +522,7 @@ def scrape_footlocker_sales(shoeReleaseDB, chromeOptions, prodType, genderParam)
     # Obtain the main page (Used to create an array of links for each shoe object on the page) and the number of pages
     response = requests.get(mainLink, headers=FOOTLOCKER_HEADER, timeout=15)
     soup = BeautifulSoup(response.content, "html.parser")
+    print(soup)
 
     # Find ALL digits at the bottom (for page nav) and isolate the LAST ONE in the list
 
@@ -662,7 +663,7 @@ def scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions):
         }
 
         # Obtain the sale value (Rounded to one decimal place)
-        nikeRunnerObject["salePercent"] = str(round((100 - (float(nikeRunnerObject["shoeReducedPrice"][1:]) / float(nikeRunnerObject["shoeOriginalPrice"][1:])) * 100), 1)) + "%"
+        nikeRunnerObject["salePercent"] = str(round((100 - (float(nikeRunnerObject["prodReducedPrice"][1:]) / float(nikeRunnerObject["prodOriginalPrice"][1:])) * 100), 1)) + "%"
         allSaleNikeRunningRoom.append(nikeRunnerObject)
 
     # Iterate through each corresponding link, and load the product pages
@@ -713,33 +714,40 @@ def main():
     print("Initialized ChromeDrivers!")
 
     while True:
-        # print("NIKE RUNNING SALE @ RUNNINGROOM")
-        # scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
-        # print("NIKE SB")
-        # scrape_nike_sales(shoeReleaseDB, chromeOptions, "SB")
-        # print("NIKE LIFESTYLE")
-        # scrape_nike_sales(shoeReleaseDB, chromeOptions, "lifestyle")
-        # print("NIKE RUNNING")
-        # scrape_nike_sales(shoeReleaseDB, chromeOptions, "jordan")
-        # print("NIKE JORDAN")
-        # scrape_nike_sales(shoeReleaseDB, chromeOptions, "running")
+        print("NIKE RUNNING SALE @ RUNNINGROOM")
+        scrape_runningRoom_nike_runner_sales(shoeReleaseDB, chromeOptions)
+        print("NIKE SB")
+        scrape_nike_sales(shoeReleaseDB, chromeOptions, "SB")
+        print("NIKE LIFESTYLE")
+        scrape_nike_sales(shoeReleaseDB, chromeOptions, "lifestyle")
+        print("NIKE RUNNING")
+        scrape_nike_sales(shoeReleaseDB, chromeOptions, "jordan")
+        print("NIKE JORDAN")
+        scrape_nike_sales(shoeReleaseDB, chromeOptions, "running")
 
-        print("ADIDAS TIRO")
-        scrape_adidas_sales(shoeReleaseDB, chromeOptions, "tiro")
-        print("ADIDAS RUNNING")
-        scrape_adidas_sales(shoeReleaseDB, chromeOptions, "running")
-        print("ADIDAS ORIGINALS")
-        scrape_adidas_sales(shoeReleaseDB, chromeOptions, "originals")
+        #print("ADIDAS TIRO")
+        #scrape_adidas_sales(shoeReleaseDB, chromeOptions, "tiro")
+        #print("ADIDAS RUNNING")
+        #scrape_adidas_sales(shoeReleaseDB, chromeOptions, "running")
+        #scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "adidasRunning", None)
+        # print("ADIDAS ORIGINALS")
+        # #scrape_adidas_sales(shoeReleaseDB, chromeOptions, "originals")
+        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "adidasOriginals", None)
         
-        # print("FOOTLOCKER NIKE JORDAN")
-        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "jordan", None)
-        # time.sleep(1)
-        # print("FOOTLOCKER NIKE LIFESTYLE WOMEN")
-        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Women")
-        # time.sleep(1)
-        # print("FOOTLOCKER NIKE LIFESTYLE KIDS")
-        # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Men")
-        # time.sleep(1)
+
+        
+        print("FOOTLOCKER NIKE JORDAN")
+        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "jordan", None)
+        time.sleep(1)
+        print("FOOTLOCKER NIKE LIFESTYLE WOMEN")
+        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Women")
+        time.sleep(1)
+        print("FOOTLOCKER NIKE LIFESTYLE MENS")
+        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Men")
+        time.sleep(1)
+        print("FOOTLOCKER NIKE LIFESTYLE KIDS")
+        scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "nikeLifestyle", "Kids")
+        time.sleep(1)
         # print("FOOTLOCKER  REEBOK")
         # scrape_footlocker_sales(shoeReleaseDB, chromeOptions, "reebok", None)
         # time.sleep(1)
